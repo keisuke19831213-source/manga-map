@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/components/Bubble";
+import { adminHeaders, useAdminKey } from "@/lib/useAdminKey";
 import type { BubbleFont, BubbleStyle, Post } from "@/lib/posts";
 
 function fmtDate(iso: string) {
@@ -18,6 +19,7 @@ export function locLabel(p: Post) {
 }
 
 export default function WorkPosts({ workId, workTitle }: { workId: string; workTitle: string }) {
+  const [adminKey] = useAdminKey();
   const [posts, setPosts] = useState<Post[]>([]);
   const [mode, setMode] = useState<"recommend" | "comment">("recommend");
   const [user, setUser] = useState("");
@@ -46,7 +48,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
     try {
       const res = await fetch("/api/posts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...adminHeaders() },
         body: JSON.stringify({
           type: mode,
           user,
@@ -63,12 +65,14 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "投稿に失敗しました");
       }
+      const created: Post = await res.json();
+      // 楽観的に即反映(Blobは数秒で整合するため直後の再取得はしない)
+      setPosts((prev) => [created, ...prev.filter((p) => p.id !== created.id)]);
       setText("");
       setVolume("");
       setPage("");
       setPanel("");
       setMsg({ ok: true, text: "投稿しました!" });
-      await load();
     } catch (err) {
       setMsg({ ok: false, text: err instanceof Error ? err.message : "投稿に失敗しました" });
     } finally {
@@ -81,6 +85,8 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
 
   return (
     <>
+      {adminKey ? (
+      <>
       <h2 className="section-title">読者の声を投稿する</h2>
       <p className="section-sub">
         『{workTitle}』への熱いセリフをどうぞ。吹き出しの形と文字の書体も選べます。
@@ -188,6 +194,8 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         </button>
         {msg && <div className={`form-msg ${msg.ok ? "ok" : "err"}`}>{msg.text}</div>}
       </form>
+      </>
+      ) : null}
 
       <h2 className="section-title">みんなのおすすめ ({recommends.length})</h2>
       <p className="section-sub">この作品を推す声</p>

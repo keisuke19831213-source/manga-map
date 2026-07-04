@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addPost, readPosts, type BubbleFont, type BubbleStyle, type Post } from "@/lib/posts";
+import { addPost, deletePost, readPosts, type BubbleFont, type BubbleStyle, type Post } from "@/lib/posts";
+import { ADMIN_ERROR, isAdmin } from "@/lib/admin-auth";
 
 const BUBBLES: BubbleStyle[] = ["speech", "shout", "think", "whisper", "narration"];
 const FONTS: BubbleFont[] = ["antique", "mincho", "sakebi", "tegaki", "shojo", "fude", "pop"];
@@ -15,6 +16,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isAdmin(req)) return NextResponse.json(ADMIN_ERROR, { status: 401 });
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "invalid body" }, { status: 400 });
@@ -50,11 +52,16 @@ export async function POST(req: NextRequest) {
   try {
     await addPost(post);
   } catch {
-    // Vercel等のサーバーレス環境はファイルシステムが読み取り専用のため保存不可
-    return NextResponse.json(
-      { error: "デモ公開環境のため投稿を保存できません。ローカルで起動した場合は保存されます。" },
-      { status: 503 }
-    );
+    return NextResponse.json({ error: "保存に失敗しました。時間をおいて再試行してください。" }, { status: 503 });
   }
   return NextResponse.json(post, { status: 201 });
+}
+
+export async function DELETE(req: NextRequest) {
+  if (!isAdmin(req)) return NextResponse.json(ADMIN_ERROR, { status: 401 });
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "idを指定してください" }, { status: 400 });
+  const ok = await deletePost(id).catch(() => false);
+  if (!ok) return NextResponse.json({ error: "投稿が見つかりません" }, { status: 404 });
+  return NextResponse.json({ ok: true });
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CATEGORIES, GENRES } from "@/lib/data";
+import { adminHeaders } from "@/lib/useAdminKey";
 
 // 作品登録フォーム。いまは管理者用、将来は会員のマイページに載せる想定
 export default function WorkRegisterForm({ onRegistered }: { onRegistered?: () => void }) {
@@ -31,7 +32,7 @@ export default function WorkRegisterForm({ onRegistered }: { onRegistered?: () =
     try {
       const res = await fetch("/api/works", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...adminHeaders() },
         body: JSON.stringify({
           title,
           author,
@@ -44,7 +45,7 @@ export default function WorkRegisterForm({ onRegistered }: { onRegistered?: () =
       });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(j.error || "登録に失敗しました");
-      setMsg({ ok: true, text: `『${j.title}』を登録しました! git push すると本番に反映されます。` });
+      setMsg({ ok: true, text: `『${j.title}』を登録しました! サイトに即時反映されます。` });
       setTitle("");
       setAuthor("");
       setYear("");

@@ -1,6 +1,5 @@
-// ユーザー投稿(おすすめ・コメント)の型とファイルベースの保存処理
-import { promises as fs } from "fs";
-import path from "path";
+// ユーザー投稿(おすすめ・コメント)の型と保存処理
+import { delItem, listItems, putItem } from "@/lib/storage";
 
 export type BubbleStyle = "speech" | "shout" | "think" | "whisper" | "narration";
 export type BubbleFont = "antique" | "mincho" | "sakebi" | "tegaki" | "shojo" | "fude" | "pop";
@@ -20,20 +19,14 @@ export interface Post {
   createdAt: string;
 }
 
-const DATA_FILE = path.join(process.cwd(), "data", "posts.json");
-
 export async function readPosts(): Promise<Post[]> {
-  try {
-    const raw = await fs.readFile(DATA_FILE, "utf-8");
-    return JSON.parse(raw) as Post[];
-  } catch {
-    return [];
-  }
+  return listItems<Post>("posts", "posts.json");
 }
 
 export async function addPost(post: Post): Promise<void> {
-  const posts = await readPosts();
-  posts.push(post);
-  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-  await fs.writeFile(DATA_FILE, JSON.stringify(posts, null, 2), "utf-8");
+  await putItem<Post>("posts", "posts.json", post);
+}
+
+export async function deletePost(id: string): Promise<boolean> {
+  return delItem<Post>("posts", "posts.json", id);
 }

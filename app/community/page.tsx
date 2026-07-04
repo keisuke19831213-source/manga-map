@@ -8,7 +8,8 @@ export default function CommunityPage() {
       <div className="page-en">READERS&apos; VOICES</div>
       <h1>みんなの投稿</h1>
       <p className="page-lead">
-        全作品へのおすすめとコマ語りが流れるタイムライン。図鑑にない作品のおすすめも、ここから自由に投稿できます。
+        全作品へのおすすめとコマ語りが流れるタイムライン。名場面・名ゴマの語りを吹き出しで楽しめます。
+        （投稿は現在、管理人が編集・公開しています）
       </p>
       <CommunityBoard />
     </div>

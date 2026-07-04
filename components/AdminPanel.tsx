@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { amazonLink, coverSrc, normalizeMeta, type SiteMeta, type WorkMeta } from "@/lib/affiliate";
 import { useWorks } from "@/lib/useWorks";
+import { adminHeaders, useAdminKey } from "@/lib/useAdminKey";
 import Cover, { AmazonButton } from "@/components/Cover";
 import WorkRegisterForm from "@/components/WorkRegisterForm";
 
 export default function AdminPanel() {
   const { works, reload } = useWorks();
+  const [adminKey, setAdminKeyValue] = useAdminKey();
   const [meta, setMeta] = useState<SiteMeta>({ affiliateTag: "", works: {} });
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -35,14 +37,14 @@ export default function AdminPanel() {
     try {
       const res = await fetch("/api/meta", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...adminHeaders() },
         body: JSON.stringify(meta),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "保存に失敗しました");
       }
-      setMsg({ ok: true, text: "保存しました! git push すると本番に反映されます。" });
+      setMsg({ ok: true, text: "保存しました! サイトに即時反映されます。" });
     } catch (err) {
       setMsg({ ok: false, text: err instanceof Error ? err.message : "保存に失敗しました" });
     } finally {
@@ -52,7 +54,7 @@ export default function AdminPanel() {
 
   const removeWork = async (id: string, title: string) => {
     if (!window.confirm(`『${title}』を削除しますか? (投稿されたコメントは残ります)`)) return;
-    const res = await fetch(`/api/works?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    const res = await fetch(`/api/works?id=${encodeURIComponent(id)}`, { method: "DELETE", headers: adminHeaders() });
     if (res.ok) {
       reload();
       loadMeta();
@@ -66,7 +68,25 @@ export default function AdminPanel() {
 
   return (
     <>
-      <h2 className="section-title" style={{ marginTop: 0 }}>作品登録</h2>
+      <div className="post-form" style={{ ["--form-label" as string]: '"管理キー"' }}>
+        <div className="row" style={{ marginBottom: 0 }}>
+          <div className="field">
+            <label>管理キー(ADMIN_KEY) — 作品登録・投稿・設定保存に必要です。このブラウザに保存されます。</label>
+            <input
+              type="password"
+              value={adminKey}
+              onChange={(e) => setAdminKeyValue(e.target.value)}
+              placeholder="管理キーを入力"
+              maxLength={80}
+            />
+          </div>
+        </div>
+        {!adminKey && (
+          <div className="form-msg err">管理キー未入力です。入力するとこのブラウザから登録・投稿ができるようになります。</div>
+        )}
+      </div>
+
+      <h2 className="section-title">作品登録</h2>
       <p className="section-sub">図鑑・ジャンル系統図・投稿対象に自動で追加されます。</p>
       <WorkRegisterForm onRegistered={reload} />
 

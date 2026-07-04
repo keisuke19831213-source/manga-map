@@ -1,29 +1,24 @@
 // 管理画面(将来的には会員)から登録された作品のストア
 // 静的カタログ(lib/data.ts の WORKS)とマージして全ページで使う
-import { promises as fs } from "fs";
-import path from "path";
 import { WORKS, type Work } from "@/lib/data";
+import { delItem, listItems, putItem } from "@/lib/storage";
 
 export interface UserWork extends Work {
   submittedBy: string; // 登録者。いまは "admin" 固定、会員機能導入後はユーザーIDに
   createdAt: string;
 }
 
-const DATA_FILE = path.join(process.cwd(), "data", "user-works.json");
-
 export async function readUserWorks(): Promise<UserWork[]> {
-  try {
-    const raw = await fs.readFile(DATA_FILE, "utf-8");
-    const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? (arr as UserWork[]) : [];
-  } catch {
-    return [];
-  }
+  const arr = await listItems<UserWork>("user-works", "user-works.json");
+  return Array.isArray(arr) ? arr : [];
 }
 
-export async function writeUserWorks(works: UserWork[]): Promise<void> {
-  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-  await fs.writeFile(DATA_FILE, JSON.stringify(works, null, 2), "utf-8");
+export async function addUserWork(work: UserWork): Promise<void> {
+  await putItem<UserWork>("user-works", "user-works.json", work);
+}
+
+export async function deleteUserWork(id: string): Promise<boolean> {
+  return delItem<UserWork>("user-works", "user-works.json", id);
 }
 
 // 静的カタログ + 登録作品(重複IDは静的優先)

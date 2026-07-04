@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GENRES, WORKS } from "@/lib/data";
-import { getAllWorks, readUserWorks, writeUserWorks, type UserWork } from "@/lib/user-works";
+import { addUserWork, deleteUserWork, getAllWorks, type UserWork } from "@/lib/user-works";
 import { readMeta, writeMeta } from "@/lib/meta-server";
+import { ADMIN_ERROR, isAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isAdmin(req)) return NextResponse.json(ADMIN_ERROR, { status: 401 });
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "invalid body" }, { status: 400 });
@@ -55,9 +57,7 @@ export async function POST(req: NextRequest) {
   };
 
   try {
-    const user = await readUserWorks();
-    user.push(work);
-    await writeUserWorks(user);
+    await addUserWork(work);
     // ASINが指定されていれば書影・アフィリエイト設定にも登録
     if (typeof asin === "string" && asin.trim()) {
       const meta = await readMeta();
@@ -65,15 +65,13 @@ export async function POST(req: NextRequest) {
       await writeMeta(meta);
     }
   } catch {
-    return NextResponse.json(
-      { error: "この環境ではファイル保存ができません。ローカルで登録して git push してください。" },
-      { status: 503 }
-    );
+    return NextResponse.json({ error: "保存に失敗しました。時間をおいて再試行してください。" }, { status: 503 });
   }
   return NextResponse.json(work, { status: 201 });
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!isAdmin(req)) return NextResponse.json(ADMIN_ERROR, { status: 401 });
   const id = req.nextUrl.searchParams.get("id");
   if (!id || !id.startsWith("uw-")) {
     return NextResponse.json({ error: "登録作品(uw-)のみ削除できます" }, { status: 400 });
@@ -82,19 +80,17 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "基本カタログの作品は削除できません" }, { status: 400 });
   }
   try {
-    const user = await readUserWorks();
-    const next = user.filter((w) => w.id !== id);
-    if (next.length === user.length) {
+    const removed = await deleteUserWork(id);
+    if (!removed) {
       return NextResponse.json({ error: "作品が見つかりません" }, { status: 404 });
     }
-    await writeUserWorks(next);
     const meta = await readMeta();
     if (meta.works[id]) {
       delete meta.works[id];
       await writeMeta(meta);
     }
   } catch {
-    return NextResponse.json({ error: "この環境ではファイル保存ができません" }, { status: 503 });
+    return NextResponse.json({ error: "保存に失敗しました" }, { status: 503 });
   }
   return NextResponse.json({ ok: true });
 }

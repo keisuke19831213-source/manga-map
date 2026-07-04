@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/components/Bubble";
 import { useWorks } from "@/lib/useWorks";
+import { adminHeaders, useAdminKey } from "@/lib/useAdminKey";
 import type { BubbleFont, BubbleStyle, Post } from "@/lib/posts";
 
 function fmtDate(iso: string) {
@@ -20,6 +21,7 @@ function locLabel(p: Post) {
 
 export default function CommunityBoard() {
   const { works } = useWorks();
+  const [adminKey] = useAdminKey();
   const [posts, setPosts] = useState<Post[]>([]);
   const [user, setUser] = useState("");
   const [workSel, setWorkSel] = useState("");
@@ -46,7 +48,7 @@ export default function CommunityBoard() {
     try {
       const res = await fetch("/api/posts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...adminHeaders() },
         body: JSON.stringify({
           type: "recommend",
           user,
@@ -61,10 +63,12 @@ export default function CommunityBoard() {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || "投稿に失敗しました");
       }
+      const created: Post = await res.json();
+      // 楽観的に即反映(Blobは数秒で整合するため直後の再取得はしない)
+      setPosts((prev) => [created, ...prev.filter((p) => p.id !== created.id)]);
       setText("");
       setFreeTitle("");
       setMsg({ ok: true, text: "投稿しました!" });
-      await load();
     } catch (err) {
       setMsg({ ok: false, text: err instanceof Error ? err.message : "投稿に失敗しました" });
     } finally {
@@ -74,6 +78,7 @@ export default function CommunityBoard() {
 
   return (
     <>
+      {adminKey ? (
       <form className="post-form" onSubmit={submit}>
         <div className="row">
           <div className="field">
@@ -146,6 +151,7 @@ export default function CommunityBoard() {
         </button>
         {msg && <div className={`form-msg ${msg.ok ? "ok" : "err"}`}>{msg.text}</div>}
       </form>
+      ) : null}
 
       {posts.length === 0 && <p style={{ color: "var(--ink-soft)" }}>まだ投稿がありません。</p>}
       {posts.map((p) => {
