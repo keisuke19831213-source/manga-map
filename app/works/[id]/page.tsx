@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { WORKS, workById, genreById, catOf } from "@/lib/data";
+import { WORKS, genreById, catOf } from "@/lib/data";
+import { findWork } from "@/lib/user-works";
 import { amazonLink, coverSrc } from "@/lib/affiliate";
 import { readMeta } from "@/lib/meta-server";
 import WorkPosts from "@/components/WorkPosts";
 import Cover, { AmazonButton } from "@/components/Cover";
 
+// 静的カタログはビルド時に生成、登録作品(uw-*)はリクエスト時に描画される
 export function generateStaticParams() {
   return WORKS.map((w) => ({ id: w.id }));
 }
 
 export default async function WorkDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const work = workById(id);
+  const work = await findWork(id);
   if (!work) notFound();
 
   const meta = await readMeta();

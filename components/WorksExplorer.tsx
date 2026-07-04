@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { CATEGORIES, WORKS, genreById, catOf, type CategoryId } from "@/lib/data";
+import { CATEGORIES, genreById, catOf, type CategoryId } from "@/lib/data";
 import { coverSrc } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useVoicesByWork } from "@/lib/usePosts";
+import { useWorks } from "@/lib/useWorks";
 import Cover from "@/components/Cover";
 import MiniBubble from "@/components/MiniBubble";
 
@@ -13,11 +14,12 @@ export default function WorksExplorer() {
   const [cat, setCat] = useState<CategoryId | "all">("all");
   const meta = useMeta();
   const voices = useVoicesByWork();
+  const { works: allWorks } = useWorks();
 
   const works = useMemo(() => {
-    const list = cat === "all" ? WORKS : WORKS.filter((w) => w.genres.some((g) => genreById(g)?.cat === cat));
+    const list = cat === "all" ? allWorks : allWorks.filter((w) => w.genres.some((g) => genreById(g)?.cat === cat));
     return [...list].sort((a, b) => a.year - b.year);
-  }, [cat]);
+  }, [cat, allWorks]);
 
   return (
     <>
@@ -27,7 +29,7 @@ export default function WorksExplorer() {
           style={cat === "all" ? { background: "#e7ecf5", borderColor: "#e7ecf5" } : {}}
           onClick={() => setCat("all")}
         >
-          すべて ({WORKS.length})
+          すべて ({allWorks.length})
         </button>
         {CATEGORIES.map((c) => (
           <button

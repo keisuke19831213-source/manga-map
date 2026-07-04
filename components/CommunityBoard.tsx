@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/components/Bubble";
-import { WORKS, workById } from "@/lib/data";
+import { useWorks } from "@/lib/useWorks";
 import type { BubbleFont, BubbleStyle, Post } from "@/lib/posts";
 
 function fmtDate(iso: string) {
@@ -19,6 +19,7 @@ function locLabel(p: Post) {
 }
 
 export default function CommunityBoard() {
+  const { works } = useWorks();
   const [posts, setPosts] = useState<Post[]>([]);
   const [user, setUser] = useState("");
   const [workSel, setWorkSel] = useState("");
@@ -83,7 +84,7 @@ export default function CommunityBoard() {
             <label>おすすめする作品</label>
             <select value={workSel} onChange={(e) => setWorkSel(e.target.value)} required>
               <option value="">-- 選択してください --</option>
-              {[...WORKS].sort((a, b) => a.year - b.year).map((w) => (
+              {[...works].sort((a, b) => a.year - b.year).map((w) => (
                 <option key={w.id} value={w.id}>
                   {w.title} ({w.year})
                 </option>
@@ -148,7 +149,7 @@ export default function CommunityBoard() {
 
       {posts.length === 0 && <p style={{ color: "var(--ink-soft)" }}>まだ投稿がありません。</p>}
       {posts.map((p) => {
-        const work = p.workId ? workById(p.workId) : undefined;
+        const work = p.workId ? works.find((w) => w.id === p.workId) : undefined;
         return (
           <Bubble
             key={p.id}

@@ -15,8 +15,6 @@ import {
   catOf,
   genreById,
   nodePos,
-  workById,
-  worksOfGenre,
   yearToY,
   type CategoryId,
   type EdgeKind,
@@ -24,6 +22,7 @@ import {
 import { amazonLink, coverSrc } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useAllPosts } from "@/lib/usePosts";
+import { useWorks } from "@/lib/useWorks";
 import Cover, { AmazonButton } from "@/components/Cover";
 import MiniBubble from "@/components/MiniBubble";
 
@@ -42,6 +41,7 @@ export default function MangaMap() {
   const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
   const meta = useMeta();
   const posts = useAllPosts();
+  const { works: allWorks } = useWorks();
   const [voiceIdx, setVoiceIdx] = useState(0);
   const voicePosts = useMemo(() => posts.filter((p) => p.workId).slice(0, 6), [posts]);
 
@@ -374,7 +374,9 @@ export default function MangaMap() {
           <p style={{ fontSize: 13, lineHeight: 1.9, color: "#4a4238" }}>{selectedGenre.desc}</p>
 
           {(() => {
-            const works = worksOfGenre(selectedGenre.id);
+            const works = allWorks
+              .filter((w) => w.genres.includes(selectedGenre.id))
+              .sort((a, b) => a.year - b.year);
             if (works.length === 0) return null;
             return (
               <>
@@ -490,7 +492,7 @@ export default function MangaMap() {
       {/* 最新の読者の声(吹き出しローテーション) */}
       {!selectedGenre && voicePosts.length > 0 && (() => {
         const p = voicePosts[voiceIdx % voicePosts.length];
-        const w = p.workId ? workById(p.workId) : undefined;
+        const w = p.workId ? allWorks.find((x) => x.id === p.workId) : undefined;
         if (!w) return null;
         return (
           <Link
