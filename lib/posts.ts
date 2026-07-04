@@ -2,8 +2,8 @@
 import { promises as fs } from "fs";
 import path from "path";
 
-export type BubbleStyle = "speech" | "shout" | "think" | "narration";
-export type BubbleFont = "antique" | "tegaki" | "sakebi" | "pop" | "fude" | "dot";
+export type BubbleStyle = "speech" | "shout" | "think" | "whisper" | "narration";
+export type BubbleFont = "antique" | "mincho" | "sakebi" | "tegaki" | "shojo" | "fude" | "pop";
 
 export interface Post {
   id: string;

@@ -70,6 +70,7 @@ const ERAS: Era[] = [
 export default function HistoryPage() {
   return (
     <div className="page">
+      <div className="page-en">HISTORY OF MANGA</div>
       <h1>マンガ史年表</h1>
       <p className="page-lead">
         ポンチ絵から縦スクロールまで、約120年のマンガ史をダイジェストで。各時代の代表作から作品ページへ飛べます。

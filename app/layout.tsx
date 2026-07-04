@@ -8,16 +8,23 @@ export const metadata: Metadata = {
     "musicmapのマンガ版。ジャンル系統マップ、舞台マップ(世界/日本)、時代設定タイムラインでマンガの歴史を可視化。おすすめ投稿とコマ単位のコメントは吹き出しで。",
 };
 
+// マンガの組版慣習に沿ったフォントセット
+// ・セリフ: アンチック体(かなアンチック+漢字ゴシック) = Shippori Antique B1
+// ・モノローグ/回想: 明朝体 = Shippori Mincho
+// ・叫び: 極太角ゴシック = Zen Kaku Gothic New 900
+// ・欄外の手書きツッコミ = Yusei Magic / 少女マンガの手書きモノローグ = Klee One
+// ・時代劇/ホラーの筆文字 = Yuji Boku ・ギャグのポップ体 = Mochiy Pop One
 const GOOGLE_FONTS =
   "https://fonts.googleapis.com/css2?" +
   [
-    "family=Zen+Maru+Gothic:wght@500;700;900",
+    "family=Zen+Kaku+Gothic+New:wght@500;700;900",
     "family=Reggae+One",
     "family=Mochiy+Pop+One",
     "family=Shippori+Antique+B1",
+    "family=Shippori+Mincho:wght@500;700",
+    "family=Klee+One:wght@400;600",
     "family=Yusei+Magic",
     "family=Yuji+Boku",
-    "family=DotGothic16",
   ].join("&") +
   "&display=swap";
 

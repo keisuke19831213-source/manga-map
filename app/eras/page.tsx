@@ -2,14 +2,21 @@ import Link from "next/link";
 import { STORY_ERAS, workById } from "@/lib/data";
 import { coverSrc } from "@/lib/affiliate";
 import { readMeta } from "@/lib/meta-server";
+import { readPosts } from "@/lib/posts";
 import Cover from "@/components/Cover";
 
 export const metadata = { title: "時代設定マップ — MANGA MAP" };
 
 export default async function ErasPage() {
   const meta = await readMeta();
+  const posts = await readPosts();
+  const counts: Record<string, number> = {};
+  for (const p of posts) {
+    if (p.workId) counts[p.workId] = (counts[p.workId] ?? 0) + 1;
+  }
   return (
     <div className="page">
+      <div className="page-en">STORY ERA TIMELINE</div>
       <h1>時代設定マップ</h1>
       <p className="page-lead">
         「いつの時代の物語か」でマンガを並べた歴史時系列マップ。江戸から近未来、そして時間軸の外の異世界まで。
@@ -31,7 +38,9 @@ export default async function ErasPage() {
                     <Link key={workId} href={`/works/${w.id}`} className="era-work" style={{ display: "flex", gap: 10 }}>
                       <Cover src={coverSrc(meta, w.id)} title={w.title} width={40} />
                       <span style={{ minWidth: 0 }}>
-                        <span className="t">{w.title}</span>
+                        <span className="t">
+                          {w.title} {counts[w.id] ? <span className="cbadge">💬 {counts[w.id]}</span> : null}
+                        </span>
                         <span className="n">{note}</span>
                       </span>
                     </Link>

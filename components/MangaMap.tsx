@@ -15,6 +15,7 @@ import {
   catOf,
   genreById,
   nodePos,
+  workById,
   worksOfGenre,
   yearToY,
   type CategoryId,
@@ -22,7 +23,9 @@ import {
 } from "@/lib/data";
 import { amazonLink, coverSrc } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
+import { useAllPosts } from "@/lib/usePosts";
 import Cover, { AmazonButton } from "@/components/Cover";
+import MiniBubble from "@/components/MiniBubble";
 
 const EDGE_STYLE: Record<EdgeKind, { dash?: string; label: string; opacity: number }> = {
   evolution: { label: "直系の進化", opacity: 0.75 },
@@ -38,6 +41,16 @@ export default function MangaMap() {
   const [activeCats, setActiveCats] = useState<Set<CategoryId>>(new Set());
   const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
   const meta = useMeta();
+  const posts = useAllPosts();
+  const [voiceIdx, setVoiceIdx] = useState(0);
+  const voicePosts = useMemo(() => posts.filter((p) => p.workId).slice(0, 6), [posts]);
+
+  // 最新の読者の声をローテーション表示
+  useEffect(() => {
+    if (voicePosts.length < 2) return;
+    const t = setInterval(() => setVoiceIdx((i) => (i + 1) % voicePosts.length), 6000);
+    return () => clearInterval(t);
+  }, [voicePosts.length]);
 
   // 初期表示: 横幅フィットでマップ上部(源流の時代)から
   useEffect(() => {
@@ -473,6 +486,39 @@ export default function MangaMap() {
           上が1900年、下が現在。ノード(ジャンル)をクリックすると解説と代表作が出ます。線はジャンル同士の影響関係。ドラッグで移動、ホイールで拡大縮小。
         </div>
       )}
+
+      {/* 最新の読者の声(吹き出しローテーション) */}
+      {!selectedGenre && voicePosts.length > 0 && (() => {
+        const p = voicePosts[voiceIdx % voicePosts.length];
+        const w = p.workId ? workById(p.workId) : undefined;
+        if (!w) return null;
+        return (
+          <Link
+            href={`/works/${w.id}`}
+            style={{
+              position: "absolute",
+              right: 12,
+              bottom: 18,
+              zIndex: 10,
+              width: 300,
+              display: "block",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 900,
+                marginBottom: 2,
+                paddingLeft: 6,
+                color: "var(--ink-soft, #4a4238)",
+              }}
+            >
+              💬 読者の声 — 『{w.title}』
+            </div>
+            <MiniBubble post={p} />
+          </Link>
+        );
+      })()}
     </div>
   );
 }

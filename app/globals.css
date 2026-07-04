@@ -9,13 +9,14 @@
   --yellow: #ffd900;
   --shadow: 5px 5px 0 var(--ink);
   --shadow-sm: 3px 3px 0 var(--ink);
-  --font-base: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+  --font-base: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
   --font-title: "Reggae One", "Hiragino Sans", sans-serif;
   --font-pop: "Mochiy Pop One", sans-serif;
   --font-antique: "Shippori Antique B1", serif;
+  --font-mincho: "Shippori Mincho", "Hiragino Mincho ProN", serif;
   --font-tegaki: "Yusei Magic", sans-serif;
+  --font-shojo: "Klee One", cursive;
   --font-fude: "Yuji Boku", serif;
-  --font-dot: "DotGothic16", monospace;
 }
 
 * {
@@ -105,6 +106,15 @@ main {
 }
 
 /* ---- 見出し: 描き文字風 ---- */
+.page-en {
+  font-family: var(--font-base);
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.42em;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
 .page h1,
 .manga-title {
   font-family: var(--font-title);
@@ -112,7 +122,71 @@ main {
   margin: 0 0 8px;
   letter-spacing: 0.03em;
   text-shadow: 3px 3px 0 var(--yellow);
-  transform: rotate(-0.6deg);
+}
+
+/* ---- ミニ吹き出し(カードや地図に出す最新コメント) ---- */
+.mini-bubble {
+  position: relative;
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.7;
+  margin-top: 10px;
+}
+
+.mini-bubble::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 22px;
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+  border-bottom: 12px solid var(--ink);
+  border-left-width: 2px;
+  border-right-width: 9px;
+}
+
+.mini-bubble::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 24px;
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  border-bottom: 9px solid var(--panel);
+  border-left-width: 1px;
+  border-right-width: 7px;
+}
+
+.mini-bubble .txt {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mini-bubble .who {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  font-family: var(--font-tegaki);
+}
+
+/* コメント数バッジ */
+.cbadge {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 900;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  padding: 1px 8px;
+  background: var(--yellow);
+  vertical-align: 2px;
 }
 
 .page-lead {
@@ -124,8 +198,10 @@ main {
 }
 
 .section-title {
-  font-family: var(--font-pop);
+  font-family: var(--font-base);
+  font-weight: 900;
   font-size: 20px;
+  letter-spacing: 0.02em;
   margin: 42px 0 4px;
   padding-left: 12px;
   border-left: 8px solid var(--accent);
@@ -163,16 +239,8 @@ main {
   transition: transform 0.1s, box-shadow 0.1s;
 }
 
-.works-grid .work-card:nth-child(3n + 1) {
-  transform: rotate(-0.4deg);
-}
-
-.works-grid .work-card:nth-child(3n) {
-  transform: rotate(0.4deg);
-}
-
 .work-card:hover {
-  transform: translate(-2px, -2px) rotate(0deg) !important;
+  transform: translate(-2px, -2px);
   box-shadow: 7px 7px 0 var(--ink);
 }
 
@@ -409,36 +477,70 @@ main {
   max-width: none;
 }
 
-/* 心の声(もくもく) */
+/* 心の声(雲形+丸いしっぽ) */
 .bubble-think {
-  border-radius: 50px;
-  border-style: dashed;
-  border-width: 3px;
-  padding: 22px 30px;
+  border-radius: 48% 52% 45% 55% / 62% 58% 42% 46%;
+  padding: 24px 32px;
 }
 
 .bubble-think::before {
   content: "";
   position: absolute;
   bottom: -18px;
-  left: 40px;
+  left: 42px;
   width: 14px;
   height: 14px;
   border-radius: 50%;
   background: var(--panel);
-  border: 3px dashed var(--ink);
+  border: 3px solid var(--ink);
 }
 
 .bubble-think::after {
   content: "";
   position: absolute;
   bottom: -32px;
-  left: 28px;
+  left: 30px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--panel);
-  border: 2px dashed var(--ink);
+  border: 2.5px solid var(--ink);
+}
+
+/* 小声・ぼそっ(点線) */
+.bubble-whisper {
+  border-style: dashed;
+  border-width: 2.5px;
+  border-radius: 40% 60% 55% 45% / 55% 50% 50% 45%;
+  padding: 20px 28px;
+  color: var(--ink-soft);
+}
+
+.bubble-whisper::before {
+  content: "";
+  position: absolute;
+  bottom: -19px;
+  left: 44px;
+  width: 0;
+  height: 0;
+  border: 12px solid transparent;
+  border-top: 19px solid var(--ink);
+  border-left-width: 3px;
+  border-right-width: 15px;
+  opacity: 0.55;
+}
+
+.bubble-whisper::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 47px;
+  width: 0;
+  height: 0;
+  border: 9px solid transparent;
+  border-top: 14px solid var(--panel);
+  border-left-width: 2px;
+  border-right-width: 11px;
 }
 
 /* ナレーション(四角) */
@@ -448,13 +550,14 @@ main {
   box-shadow: var(--shadow-sm);
 }
 
-/* 吹き出しフォント */
-.f-antique { font-family: var(--font-antique); }
-.f-tegaki { font-family: var(--font-tegaki); }
-.f-sakebi { font-family: var(--font-title); font-size: 17px; letter-spacing: 0.05em; }
-.f-pop { font-family: var(--font-pop); }
-.f-fude { font-family: var(--font-fude); font-size: 17px; }
-.f-dot { font-family: var(--font-dot); }
+/* 吹き出しフォント(マンガの組版慣習に対応) */
+.f-antique { font-family: var(--font-antique); } /* セリフ標準: アンチック体 */
+.f-mincho { font-family: var(--font-mincho); font-weight: 500; } /* モノローグ・回想: 明朝体 */
+.f-sakebi { font-family: var(--font-base); font-weight: 900; font-size: 17px; letter-spacing: 0.06em; } /* 叫び: 極太角ゴシック */
+.f-tegaki { font-family: var(--font-tegaki); } /* 欄外の手書きツッコミ */
+.f-shojo { font-family: var(--font-shojo); font-weight: 600; } /* 少女マンガの手書きモノローグ */
+.f-fude { font-family: var(--font-fude); font-size: 17px; } /* 時代劇・ホラーの筆文字 */
+.f-pop { font-family: var(--font-pop); } /* ギャグのポップ体 */
 
 /* ---- フォーム ---- */
 .post-form {
@@ -676,14 +779,6 @@ main {
   padding: 22px 24px 18px;
   margin-bottom: 34px;
   position: relative;
-}
-
-.era-block:nth-child(odd) {
-  transform: rotate(-0.35deg);
-}
-
-.era-block:nth-child(even) {
-  transform: rotate(0.35deg);
 }
 
 .era-block .era-span {

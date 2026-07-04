@@ -9,7 +9,9 @@ import type { Topology, GeometryCollection } from "topojson-specification";
 import { spotsOf, workById, type MapSpot } from "@/lib/data";
 import { amazonLink, coverSrc } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
+import { useVoicesByWork } from "@/lib/usePosts";
 import Cover, { AmazonButton } from "@/components/Cover";
+import MiniBubble from "@/components/MiniBubble";
 
 const INK = "#171310";
 const ACCENT = "#e33b2e";
@@ -57,6 +59,7 @@ export default function AtlasMap() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const fc = useGeo(mapKind);
   const meta = useMeta();
+  const voices = useVoicesByWork();
 
   const spots = spotsOf(mapKind);
   const selected: MapSpot | undefined = spots.find((s) => s.id === selectedId);
@@ -178,10 +181,12 @@ export default function AtlasMap() {
                       <Link href={`/works/${wk.id}`}>
                         <span className="t">
                           {wk.title}
-                          <span style={{ fontWeight: 400, fontSize: 11, color: "#4a4238" }}> ({wk.year})</span>
+                          <span style={{ fontWeight: 400, fontSize: 11, color: "#4a4238" }}> ({wk.year})</span>{" "}
+                          {voices[wk.id] && <span className="cbadge">💬 {voices[wk.id].count}</span>}
                         </span>
                       </Link>
                       <span className="n">{note}</span>
+                      {voices[wk.id]?.latest && <MiniBubble post={voices[wk.id].latest!} />}
                       {az && (
                         <div style={{ marginTop: 5 }}>
                           <AmazonButton href={az} small />

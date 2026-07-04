@@ -5,11 +5,14 @@ import Link from "next/link";
 import { CATEGORIES, WORKS, genreById, catOf, type CategoryId } from "@/lib/data";
 import { coverSrc } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
+import { useVoicesByWork } from "@/lib/usePosts";
 import Cover from "@/components/Cover";
+import MiniBubble from "@/components/MiniBubble";
 
 export default function WorksExplorer() {
   const [cat, setCat] = useState<CategoryId | "all">("all");
   const meta = useMeta();
+  const voices = useVoicesByWork();
 
   const works = useMemo(() => {
     const list = cat === "all" ? WORKS : WORKS.filter((w) => w.genres.some((g) => genreById(g)?.cat === cat));
@@ -54,7 +57,11 @@ export default function WorksExplorer() {
                 </div>
               </div>
               <p style={{ marginTop: 10 }}>{w.desc}</p>
-              <div className="badges">
+              {voices[w.id]?.latest && <MiniBubble post={voices[w.id].latest!} />}
+              <div className="badges" style={{ marginTop: 10 }}>
+                {voices[w.id] && (
+                  <span className="cbadge">💬 読者の声 {voices[w.id].count}</span>
+                )}
                 {w.genres.map((gid) => {
                   const g = genreById(gid);
                   if (!g) return null;

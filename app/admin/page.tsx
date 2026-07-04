@@ -5,6 +5,7 @@ export const metadata = { title: "管理画面 — MANGA MAP" };
 export default function AdminPage() {
   return (
     <div className="page">
+      <div className="page-en">ADMIN</div>
       <h1>管理画面</h1>
       <p className="page-lead">
         各作品の書影とAmazonアフィリエイトリンクを設定します。<strong>ASINを入れるだけ</strong>で、

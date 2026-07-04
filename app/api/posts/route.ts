@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addPost, readPosts, type BubbleFont, type BubbleStyle, type Post } from "@/lib/posts";
 
-const BUBBLES: BubbleStyle[] = ["speech", "shout", "think", "narration"];
-const FONTS: BubbleFont[] = ["antique", "tegaki", "sakebi", "pop", "fude", "dot"];
+const BUBBLES: BubbleStyle[] = ["speech", "shout", "think", "whisper", "narration"];
+const FONTS: BubbleFont[] = ["antique", "mincho", "sakebi", "tegaki", "shojo", "fude", "pop"];
 
 export const dynamic = "force-dynamic";
 
