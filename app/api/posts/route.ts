@@ -42,6 +42,14 @@ export async function POST(req: NextRequest) {
     text: text.trim().slice(0, 2000),
     createdAt: new Date().toISOString(),
   };
-  await addPost(post);
+  try {
+    await addPost(post);
+  } catch {
+    // Vercel等のサーバーレス環境はファイルシステムが読み取り専用のため保存不可
+    return NextResponse.json(
+      { error: "デモ公開環境のため投稿を保存できません。ローカルで起動した場合は保存されます。" },
+      { status: 503 }
+    );
+  }
   return NextResponse.json(post, { status: 201 });
 }
