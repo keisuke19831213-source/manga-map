@@ -20,6 +20,9 @@ import {
   type CategoryId,
   type EdgeKind,
 } from "@/lib/data";
+import { amazonLink, coverSrc } from "@/lib/affiliate";
+import { useMeta } from "@/lib/useMeta";
+import Cover, { AmazonButton } from "@/components/Cover";
 
 const EDGE_STYLE: Record<EdgeKind, { dash?: string; label: string; opacity: number }> = {
   evolution: { label: "直系の進化", opacity: 0.75 },
@@ -34,6 +37,7 @@ export default function MangaMap() {
   const [hovered, setHovered] = useState<string | null>(null);
   const [activeCats, setActiveCats] = useState<Set<CategoryId>>(new Set());
   const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
+  const meta = useMeta();
 
   // 初期表示: 横幅フィットでマップ上部(源流の時代)から
   useEffect(() => {
@@ -362,24 +366,37 @@ export default function MangaMap() {
             return (
               <>
                 <h3 style={{ fontSize: 13.5, margin: "18px 0 8px" }}>代表作品</h3>
-                {works.map((w) => (
-                  <Link
-                    key={w.id}
-                    href={`/works/${w.id}`}
-                    style={{
-                      display: "block",
-                      background: "var(--paper)",
-                      border: "2px solid #171310",
-                      boxShadow: "2px 2px 0 #171310",
-                      padding: "8px 12px",
-                      marginBottom: 8,
-                      fontSize: 13,
-                    }}
-                  >
-                    <strong>{w.title}</strong>
-                    <span style={{ color: "#6b6257", fontSize: 11.5 }}> — {w.author} ({w.year})</span>
-                  </Link>
-                ))}
+                {works.map((w) => {
+                  const az = amazonLink(meta, w.id);
+                  return (
+                    <div
+                      key={w.id}
+                      style={{
+                        display: "flex",
+                        gap: 10,
+                        background: "var(--paper)",
+                        border: "2px solid #171310",
+                        boxShadow: "2px 2px 0 #171310",
+                        padding: "8px 12px",
+                        marginBottom: 8,
+                        fontSize: 13,
+                      }}
+                    >
+                      <Cover src={coverSrc(meta, w.id)} title={w.title} width={42} />
+                      <div style={{ minWidth: 0 }}>
+                        <Link href={`/works/${w.id}`} style={{ display: "block" }}>
+                          <strong>{w.title}</strong>
+                          <span style={{ color: "#6b6257", fontSize: 11.5 }}> — {w.author} ({w.year})</span>
+                        </Link>
+                        {az && (
+                          <div style={{ marginTop: 4 }}>
+                            <AmazonButton href={az} small />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </>
             );
           })()}

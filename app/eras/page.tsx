@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { STORY_ERAS, workById } from "@/lib/data";
+import { coverSrc } from "@/lib/affiliate";
+import { readMeta } from "@/lib/meta-server";
+import Cover from "@/components/Cover";
 
 export const metadata = { title: "時代設定マップ — MANGA MAP" };
 
-export default function ErasPage() {
+export default async function ErasPage() {
+  const meta = await readMeta();
   return (
     <div className="page">
       <h1>時代設定マップ</h1>
@@ -24,9 +28,12 @@ export default function ErasPage() {
                   const w = workById(workId);
                   if (!w) return null;
                   return (
-                    <Link key={workId} href={`/works/${w.id}`} className="era-work">
-                      <span className="t">{w.title}</span>
-                      <span className="n">{note}</span>
+                    <Link key={workId} href={`/works/${w.id}`} className="era-work" style={{ display: "flex", gap: 10 }}>
+                      <Cover src={coverSrc(meta, w.id)} title={w.title} width={40} />
+                      <span style={{ minWidth: 0 }}>
+                        <span className="t">{w.title}</span>
+                        <span className="n">{note}</span>
+                      </span>
                     </Link>
                   );
                 })}

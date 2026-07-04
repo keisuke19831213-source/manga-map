@@ -466,8 +466,12 @@ main {
   position: relative;
 }
 
+.post-form.no-ribbon::before {
+  display: none;
+}
+
 .post-form::before {
-  content: "投稿コーナー";
+  content: var(--form-label, "投稿コーナー");
   position: absolute;
   top: -14px;
   left: 18px;

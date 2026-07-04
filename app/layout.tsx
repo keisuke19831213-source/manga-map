@@ -44,6 +44,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </nav>
         </header>
         <main>{children}</main>
+        <footer
+          style={{
+            borderTop: "4px solid #171310",
+            background: "#ffffff",
+            padding: "18px 20px",
+            fontSize: 11.5,
+            color: "#4a4238",
+            textAlign: "center",
+            lineHeight: 1.9,
+          }}
+        >
+          MANGA MAP — マンガの歴史とジャンルの進化を可視化するプロジェクト
+          <br />
+          Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
+        </footer>
       </body>
     </html>
   );

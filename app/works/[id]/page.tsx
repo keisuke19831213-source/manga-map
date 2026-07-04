@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { WORKS, workById, genreById, catOf } from "@/lib/data";
+import { amazonLink, coverSrc } from "@/lib/affiliate";
+import { readMeta } from "@/lib/meta-server";
 import WorkPosts from "@/components/WorkPosts";
+import Cover, { AmazonButton } from "@/components/Cover";
 
 export function generateStaticParams() {
   return WORKS.map((w) => ({ id: w.id }));
@@ -12,31 +15,39 @@ export default async function WorkDetail({ params }: { params: Promise<{ id: str
   const work = workById(id);
   if (!work) notFound();
 
+  const meta = await readMeta();
+  const cover = coverSrc(meta, work.id);
+  const az = amazonLink(meta, work.id);
+
   return (
     <div className="page">
       <div style={{ marginBottom: 14, fontSize: 13 }}>
-        <Link href="/works" style={{ color: "var(--text-dim)" }}>
+        <Link href="/works" style={{ color: "var(--ink-soft)" }}>
           ← 作品図鑑にもどる
         </Link>
       </div>
 
-      <div className="work-hero">
-        <h1>{work.title}</h1>
-        <div className="meta">
-          {work.author} · {work.year}年{work.magazine ? ` · 掲載: ${work.magazine}` : ""}
-        </div>
-        <p>{work.desc}</p>
-        <div className="badges">
-          {work.genres.map((gid) => {
-            const g = genreById(gid);
-            if (!g) return null;
-            const c = catOf(g).color;
-            return (
-              <Link key={gid} href="/" className="badge" style={{ borderColor: c + "99", color: c }}>
-                {g.name} をマップで見る
-              </Link>
-            );
-          })}
+      <div className="work-hero" style={{ display: "flex", gap: 22, flexWrap: "wrap" }}>
+        <Cover src={cover} title={work.title} width={130} />
+        <div style={{ flex: "1 1 300px" }}>
+          <h1>{work.title}</h1>
+          <div className="meta">
+            {work.author} · {work.year}年{work.magazine ? ` · 掲載: ${work.magazine}` : ""}
+          </div>
+          <p>{work.desc}</p>
+          <div className="badges" style={{ marginBottom: az ? 14 : 0 }}>
+            {work.genres.map((gid) => {
+              const g = genreById(gid);
+              if (!g) return null;
+              const c = catOf(g).color;
+              return (
+                <Link key={gid} href="/" className="badge" style={{ borderColor: c, color: c }}>
+                  {g.name} をマップで見る
+                </Link>
+              );
+            })}
+          </div>
+          {az && <AmazonButton href={az} />}
         </div>
       </div>
 

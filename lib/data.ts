@@ -651,13 +651,15 @@ export function worksOfGenre(genreId: string): Work[] {
 }
 
 // ================= 舞台マップ(世界/日本) =================
-// x,y は各地図SVGのviewBox座標(世界: 1000x500 / 日本: 600x700)
+// lon/lat は実座標(WGS84)。dx/dy は投影後のピクセル単位の重なり回避オフセット。
 
 export interface MapSpot {
   id: string;
   map: "world" | "japan";
-  x: number;
-  y: number;
+  lon: number;
+  lat: number;
+  dx?: number;
+  dy?: number;
   place: string;
   works: { workId: string; note: string }[];
 }
@@ -665,60 +667,60 @@ export interface MapSpot {
 export const SPOTS: MapSpot[] = [
   // ---- 世界 ----
   {
-    id: "w-versailles", map: "world", x: 505, y: 122, place: "フランス・パリ / ヴェルサイユ",
+    id: "w-versailles", map: "world", lon: 2.12, lat: 48.8, place: "フランス・パリ / ヴェルサイユ",
     works: [{ workId: "berubara", note: "革命前夜のヴェルサイユ宮殿。オスカルが駆けた石畳の街" }],
   },
   {
-    id: "w-arles", map: "world", x: 500, y: 140, place: "南フランス・アルル",
+    id: "w-arles", map: "world", lon: 4.63, lat: 43.68, dy: 8, place: "南フランス・アルル",
     works: [{ workId: "kaze_ki", note: "19世紀末、ラコンブラード学院の寄宿舎が物語の中心" }],
   },
   {
-    id: "w-uk", map: "world", x: 492, y: 108, place: "イギリス",
+    id: "w-uk", map: "world", lon: -0.13, lat: 51.51, dx: -8, dy: -6, place: "イギリス",
     works: [{ workId: "poe", note: "18世紀の英国から時を超えて旅するバンパネラの一族" }],
   },
   {
-    id: "w-nordlingen", map: "world", x: 528, y: 122, place: "ドイツ・ネルトリンゲン",
+    id: "w-nordlingen", map: "world", lon: 10.49, lat: 48.85, dx: 8, place: "ドイツ・ネルトリンゲン",
     works: [{ workId: "shingeki", note: "円形城壁に囲まれた実在の街。「壁の中の世界」のモデルと言われる" }],
   },
   {
-    id: "w-ny", map: "world", x: 293, y: 150, place: "ニューヨーク",
+    id: "w-ny", map: "world", lon: -74.01, lat: 40.71, place: "ニューヨーク",
     works: [{ workId: "golgo", note: "世界中が仕事場の超一流スナイパー。摩天楼の狙撃は定番シーン" }],
   },
   {
-    id: "w-seoul", map: "world", x: 851, y: 161, place: "韓国・ソウル",
+    id: "w-seoul", map: "world", lon: 126.98, lat: 37.57, dx: -6, place: "韓国・ソウル",
     works: [{ workId: "sololeveling", note: "ゲートとダンジョンが出現するソウル。ウェブトゥーンの都でもある" }],
   },
   {
-    id: "w-tokyo", map: "world", x: 887, y: 168, place: "日本・東京",
+    id: "w-tokyo", map: "world", lon: 139.77, lat: 35.68, dx: 6, dy: 4, place: "日本・東京",
     works: [
       { workId: "akira", note: "2019年ネオ東京。旧市街の上に築かれた未来都市" },
       { workId: "tetsuwan", note: "21世紀の東京。ロボットと人間が暮らすかつての「未来」" },
     ],
   },
   {
-    id: "w-grandline", map: "world", x: 165, y: 295, place: "偉大なる航路(架空)",
+    id: "w-grandline", map: "world", lon: -145, lat: -5, place: "偉大なる航路(架空)",
     works: [{ workId: "onepiece", note: "地図に載らない大海原。世界一周の大冒険はここから" }],
   },
   {
-    id: "w-isekai", map: "world", x: 950, y: 452, place: "異世界(地図の外)",
+    id: "w-isekai", map: "world", lon: 170, lat: -48, place: "異世界(地図の外)",
     works: [{ workId: "tensura", note: "転生先は地図の外。剣と魔法のジュラ大森林" }],
   },
 
   // ---- 日本 ----
   {
-    id: "j-tokachi", map: "japan", x: 455, y: 118, place: "北海道・十勝",
+    id: "j-tokachi", map: "japan", lon: 143.2, lat: 42.92, place: "北海道・十勝",
     works: [{ workId: "ginsaji", note: "大蝦夷農業高校。広大な畑と家畜と、食べることの授業" }],
   },
   {
-    id: "j-okutama", map: "japan", x: 399, y: 356, place: "東京・奥多摩(雲取山)",
+    id: "j-okutama", map: "japan", lon: 138.94, lat: 35.86, dx: -10, dy: -6, place: "東京・奥多摩(雲取山)",
     works: [{ workId: "kimetsu", note: "炭治郎の故郷は雲取山。大正の東京府から物語が始まる" }],
   },
   {
-    id: "j-saitama", map: "japan", x: 425, y: 351, place: "埼玉",
+    id: "j-saitama", map: "japan", lon: 139.65, lat: 35.91, dy: -10, place: "埼玉",
     works: [{ workId: "tondesaitama", note: "東京都民に虐げられる埼玉県民の逆襲。愛ある郷土ギャグの聖地" }],
   },
   {
-    id: "j-tokyo-center", map: "japan", x: 421, y: 365, place: "東京・都心",
+    id: "j-tokyo-center", map: "japan", lon: 139.76, lat: 35.68, place: "東京・都心",
     works: [
       { workId: "deathnote", note: "警視庁とLの捜査本部。夜神月の頭脳戦の舞台" },
       { workId: "sailor", note: "麻布十番が舞台。実在の商店街にセーラームーンの気配" },
@@ -730,7 +732,7 @@ export const SPOTS: MapSpot[] = [
     ],
   },
   {
-    id: "j-shitamachi", map: "japan", x: 434, y: 372, place: "東京・下町",
+    id: "j-shitamachi", map: "japan", lon: 139.8, lat: 35.73, dx: 12, dy: -4, place: "東京・下町",
     works: [
       { workId: "ashita", note: "山谷のドヤ街と泪橋。ジョーが立ち上がった場所" },
       { workId: "kyojin", note: "長屋で父・一徹との大リーグボール養成ギプス特訓" },
@@ -738,31 +740,31 @@ export const SPOTS: MapSpot[] = [
     ],
   },
   {
-    id: "j-chofu", map: "japan", x: 409, y: 366, place: "東京・調布/練馬",
+    id: "j-chofu", map: "japan", lon: 139.54, lat: 35.65, dx: -10, dy: 8, place: "東京・調布/練馬",
     works: [{ workId: "urusei", note: "友引町のモデルは東京郊外の住宅街。水木しげるの調布も近い" }],
   },
   {
-    id: "j-shonan", map: "japan", x: 415, y: 384, place: "神奈川・湘南",
+    id: "j-shonan", map: "japan", lon: 139.48, lat: 35.31, dy: 8, place: "神奈川・湘南",
     works: [{ workId: "slam", note: "湘北高校バスケ部。江ノ電の踏切は世界的聖地に" }],
   },
   {
-    id: "j-shimizu", map: "japan", x: 386, y: 396, place: "静岡・清水",
+    id: "j-shimizu", map: "japan", lon: 138.49, lat: 35.02, place: "静岡・清水",
     works: [{ workId: "chibimaruko", note: "昭和49年の清水市。まる子とたまちゃんの通学路" }],
   },
   {
-    id: "j-osaka", map: "japan", x: 331, y: 412, place: "大阪・下町",
+    id: "j-osaka", map: "japan", lon: 135.5, lat: 34.69, place: "大阪・下町",
     works: [{ workId: "chie", note: "チエちゃんが切り盛りするホルモン屋。関西弁の人情の街" }],
   },
   {
-    id: "j-sakaiminato", map: "japan", x: 262, y: 386, place: "鳥取・境港",
+    id: "j-sakaiminato", map: "japan", lon: 133.23, lat: 35.54, place: "鳥取・境港",
     works: [{ workId: "gegege", note: "水木しげるの故郷。水木しげるロードには177体の妖怪ブロンズ像" }],
   },
   {
-    id: "j-hakata", map: "japan", x: 206, y: 452, place: "福岡・博多",
+    id: "j-hakata", map: "japan", lon: 130.4, lat: 33.59, place: "福岡・博多",
     works: [{ workId: "cookingpapa", note: "荒岩家の食卓。博多の街と実用レシピ1500品以上" }],
   },
   {
-    id: "j-goto", map: "japan", x: 150, y: 488, place: "長崎・五島列島",
+    id: "j-goto", map: "japan", lon: 128.84, lat: 32.7, place: "長崎・五島列島",
     works: [{ workId: "barakamon", note: "書道家・半田先生が移住した島。方言と海と子どもたち" }],
   },
 ];
