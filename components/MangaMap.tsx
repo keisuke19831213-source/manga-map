@@ -107,7 +107,7 @@ export default function MangaMap() {
   for (let y = 1900; y <= 2020; y += 10) decades.push(y);
 
   return (
-    <div style={{ position: "relative", height: "calc(100vh - 56px)", overflow: "hidden" }}>
+    <div style={{ position: "relative", height: "calc(100vh - 60px)", overflow: "hidden" }}>
       {/* カテゴリフィルタ */}
       <div style={{ position: "absolute", top: 12, left: 12, zIndex: 10, display: "flex", flexWrap: "wrap", gap: 6, maxWidth: "calc(100% - 380px)" }}>
         {CATEGORIES.filter((c) => c.id !== "roots").concat(CATEGORIES.filter((c) => c.id === "roots")).map((c) => {
@@ -178,18 +178,19 @@ export default function MangaMap() {
           bottom: 18,
           left: 64,
           zIndex: 10,
-          background: "rgba(20,25,37,0.9)",
-          border: "1px solid var(--border)",
-          borderRadius: 10,
+          background: "#fff",
+          border: "3px solid #171310",
+          boxShadow: "4px 4px 0 #171310",
           padding: "10px 14px",
           fontSize: 11.5,
-          color: "var(--text-dim)",
+          color: "#4a4238",
+          fontWeight: 700,
           lineHeight: 2,
         }}
       >
-        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#9aa7bd" strokeWidth="2" /></svg> 直系の進化</div>
-        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#9aa7bd" strokeWidth="2" strokeDasharray="6 5" /></svg> 影響を与えた</div>
-        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#f87171" strokeWidth="2" strokeDasharray="2 4" /></svg> 対抗・反発から誕生</div>
+        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" /></svg> 直系の進化</div>
+        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" strokeDasharray="6 5" /></svg> 影響を与えた</div>
+        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#dc2626" strokeWidth="2.5" strokeDasharray="2 4" /></svg> 対抗・反発から誕生</div>
       </div>
 
       {/* マップ本体 */}
@@ -206,8 +207,8 @@ export default function MangaMap() {
             {/* 年代の帯 */}
             {decades.map((d) => (
               <g key={d}>
-                <line x1={0} y1={yearToY(d)} x2={MAP_W} y2={yearToY(d)} stroke="#1c2434" strokeWidth={1.5} />
-                <text x={10} y={yearToY(d) - 6} fill="#3d4a66" fontSize={15} fontWeight={800}>
+                <line x1={0} y1={yearToY(d)} x2={MAP_W} y2={yearToY(d)} stroke="#17131022" strokeWidth={1.5} strokeDasharray="8 6" />
+                <text x={10} y={yearToY(d) - 6} fill="#17131055" fontSize={16} fontWeight={900}>
                   {d}s
                 </text>
               </g>
@@ -231,7 +232,7 @@ export default function MangaMap() {
                 (neighborIds && !isFocused) ||
                 !catVisible(from.cat) ||
                 !catVisible(to.cat);
-              const stroke = e.kind === "counter" ? "#f87171" : fromCat.color;
+              const stroke = e.kind === "counter" ? "#dc2626" : fromCat.color;
               return (
                 <path
                   key={i}
@@ -240,7 +241,7 @@ export default function MangaMap() {
                   stroke={stroke}
                   strokeWidth={isFocused ? 3 : 1.8}
                   strokeDasharray={style.dash}
-                  opacity={dimmed ? 0.06 : isFocused ? 1 : style.opacity * 0.55}
+                  opacity={dimmed ? 0.05 : isFocused ? 1 : style.opacity * 0.8}
                 />
               );
             })}
@@ -265,20 +266,29 @@ export default function MangaMap() {
                   }}
                 >
                   <rect
+                    x={3}
+                    y={3}
                     width={NODE_W}
                     height={NODE_H}
-                    rx={9}
-                    fill={isSel ? cat.color : "#151b29"}
-                    stroke={cat.color}
-                    strokeWidth={isSel ? 2.5 : 1.6}
+                    rx={7}
+                    fill="#171310"
+                    opacity={isSel ? 1 : 0.9}
+                  />
+                  <rect
+                    width={NODE_W}
+                    height={NODE_H}
+                    rx={7}
+                    fill={isSel ? cat.color : "#ffffff"}
+                    stroke="#171310"
+                    strokeWidth={2.5}
                   />
                   <text
                     x={NODE_W / 2}
                     y={20}
                     textAnchor="middle"
-                    fill={isSel ? "#0d1017" : "#e7ecf5"}
+                    fill={isSel ? "#ffffff" : "#171310"}
                     fontSize={13}
-                    fontWeight={700}
+                    fontWeight={800}
                   >
                     {g.name}
                   </text>
@@ -286,7 +296,7 @@ export default function MangaMap() {
                     x={NODE_W / 2}
                     y={37}
                     textAnchor="middle"
-                    fill={isSel ? "#0d1017cc" : "#8b98b0"}
+                    fill={isSel ? "#ffffffcc" : "#6b6257"}
                     fontSize={10.5}
                   >
                     {g.year} · {g.en}
@@ -324,17 +334,17 @@ export default function MangaMap() {
             bottom: 18,
             width: 340,
             zIndex: 20,
-            background: "rgba(20,25,37,0.97)",
-            border: "1px solid var(--border)",
-            borderTop: `4px solid ${catOf(selectedGenre).color}`,
-            borderRadius: 12,
+            background: "#ffffff",
+            border: "3px solid #171310",
+            borderTop: `10px solid ${catOf(selectedGenre).color}`,
+            boxShadow: "5px 5px 0 #171310",
             padding: "18px 20px",
             overflowY: "auto",
           }}
         >
           <button
             onClick={() => setSelected(null)}
-            style={{ position: "absolute", top: 10, right: 12, background: "none", border: "none", color: "var(--text-dim)", fontSize: 18, cursor: "pointer" }}
+            style={{ position: "absolute", top: 10, right: 12, background: "none", border: "none", color: "#6b6257", fontSize: 20, fontWeight: 900, cursor: "pointer" }}
             aria-label="閉じる"
           >
             ×
@@ -342,32 +352,32 @@ export default function MangaMap() {
           <div style={{ fontSize: 11.5, fontWeight: 800, color: catOf(selectedGenre).color, letterSpacing: 1 }}>
             {catOf(selectedGenre).name} · {selectedGenre.year}年頃〜
           </div>
-          <h2 style={{ margin: "4px 0 2px", fontSize: 20 }}>{selectedGenre.name}</h2>
-          <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 12 }}>{selectedGenre.en}</div>
-          <p style={{ fontSize: 13, lineHeight: 1.9, color: "#c3ccdc" }}>{selectedGenre.desc}</p>
+          <h2 style={{ margin: "4px 0 2px", fontSize: 22, fontFamily: "var(--font-title)" }}>{selectedGenre.name}</h2>
+          <div style={{ fontSize: 12, color: "#6b6257", fontWeight: 700, marginBottom: 12 }}>{selectedGenre.en}</div>
+          <p style={{ fontSize: 13, lineHeight: 1.9, color: "#4a4238" }}>{selectedGenre.desc}</p>
 
           {(() => {
             const works = worksOfGenre(selectedGenre.id);
             if (works.length === 0) return null;
             return (
               <>
-                <h3 style={{ fontSize: 13.5, margin: "18px 0 8px", color: "var(--text)" }}>代表作品</h3>
+                <h3 style={{ fontSize: 13.5, margin: "18px 0 8px" }}>代表作品</h3>
                 {works.map((w) => (
                   <Link
                     key={w.id}
                     href={`/works/${w.id}`}
                     style={{
                       display: "block",
-                      background: "#10151f",
-                      border: "1px solid var(--border)",
-                      borderRadius: 8,
+                      background: "var(--paper)",
+                      border: "2px solid #171310",
+                      boxShadow: "2px 2px 0 #171310",
                       padding: "8px 12px",
-                      marginBottom: 6,
+                      marginBottom: 8,
                       fontSize: 13,
                     }}
                   >
                     <strong>{w.title}</strong>
-                    <span style={{ color: "var(--text-dim)", fontSize: 11.5 }}> — {w.author} ({w.year})</span>
+                    <span style={{ color: "#6b6257", fontSize: 11.5 }}> — {w.author} ({w.year})</span>
                   </Link>
                 ))}
               </>
@@ -386,18 +396,20 @@ export default function MangaMap() {
                     onClick={() => setSelected(other.id)}
                     style={{
                       display: "inline-block",
-                      margin: "0 6px 6px 0",
-                      background: "#10151f",
-                      border: `1px solid ${catOf(other).color}66`,
-                      color: "var(--text)",
+                      margin: "0 6px 8px 0",
+                      background: "#fff",
+                      border: `2px solid ${catOf(other).color}`,
+                      color: "#171310",
+                      fontWeight: 700,
                       borderRadius: 999,
                       padding: "4px 12px",
                       fontSize: 12,
                       cursor: "pointer",
+                      fontFamily: "var(--font-base)",
                     }}
                   >
                     {other.name}
-                    <span style={{ color: "var(--text-dim)", fontSize: 10.5 }}> · {EDGE_STYLE[e.kind].label}</span>
+                    <span style={{ color: "#6b6257", fontSize: 10.5 }}> · {EDGE_STYLE[e.kind].label}</span>
                   </button>
                 );
               });
@@ -430,16 +442,16 @@ export default function MangaMap() {
             right: 12,
             zIndex: 10,
             width: 300,
-            background: "rgba(20,25,37,0.92)",
-            border: "1px solid var(--border)",
-            borderRadius: 12,
+            background: "#ffffff",
+            border: "3px solid #171310",
+            boxShadow: "5px 5px 0 #171310",
             padding: "16px 18px",
             fontSize: 12.5,
             lineHeight: 1.9,
-            color: "var(--text-dim)",
+            color: "#4a4238",
           }}
         >
-          <strong style={{ color: "var(--text)", fontSize: 14 }}>マンガの系統樹へようこそ</strong>
+          <strong style={{ color: "#171310", fontSize: 15, fontFamily: "var(--font-pop)" }}>マンガの系統樹へようこそ</strong>
           <br />
           上が1900年、下が現在。ノード(ジャンル)をクリックすると解説と代表作が出ます。線はジャンル同士の影響関係。ドラッグで移動、ホイールで拡大縮小。
         </div>

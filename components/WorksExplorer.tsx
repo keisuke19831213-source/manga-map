@@ -39,7 +39,7 @@ export default function WorksExplorer() {
           const primary = genreById(w.genres[0]);
           const color = primary ? catOf(primary).color : "#94a3b8";
           return (
-            <Link key={w.id} href={`/works/${w.id}`} className="work-card" style={{ borderLeftColor: color }}>
+            <Link key={w.id} href={`/works/${w.id}`} className="work-card" style={{ borderTopColor: color }}>
               <h3>{w.title}</h3>
               <div className="meta">
                 {w.author} · {w.year}年{w.magazine ? ` · ${w.magazine}` : ""}

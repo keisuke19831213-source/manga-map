@@ -1,21 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
+import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/components/Bubble";
 import { WORKS, workById } from "@/lib/data";
-
-interface Post {
-  id: string;
-  type: "recommend" | "comment";
-  user: string;
-  workId?: string;
-  freeTitle?: string;
-  volume?: string;
-  page?: string;
-  panel?: string;
-  text: string;
-  createdAt: string;
-}
+import type { BubbleFont, BubbleStyle, Post } from "@/lib/posts";
 
 function fmtDate(iso: string) {
   const d = new Date(iso);
@@ -33,9 +21,11 @@ function locLabel(p: Post) {
 export default function CommunityBoard() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [user, setUser] = useState("");
-  const [workSel, setWorkSel] = useState(""); // 作品id or "__free__"
+  const [workSel, setWorkSel] = useState("");
   const [freeTitle, setFreeTitle] = useState("");
   const [text, setText] = useState("");
+  const [bubble, setBubble] = useState<BubbleStyle>("speech");
+  const [font, setFont] = useState<BubbleFont>("antique");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -62,6 +52,8 @@ export default function CommunityBoard() {
           workId: workSel && workSel !== "__free__" ? workSel : undefined,
           freeTitle: workSel === "__free__" ? freeTitle : undefined,
           text,
+          bubble,
+          font,
         }),
       });
       if (!res.ok) {
@@ -108,8 +100,31 @@ export default function CommunityBoard() {
         </div>
         <div className="row">
           <div className="field">
+            <label>吹き出しの形</label>
+            <div className="style-picker">
+              {BUBBLE_OPTIONS.map((b) => (
+                <button key={b.id} type="button" className={`style-opt ${bubble === b.id ? "on" : ""}`} onClick={() => setBubble(b.id)}>
+                  {b.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="field">
+            <label>文字の書体</label>
+            <div className="style-picker">
+              {FONT_OPTIONS.map((f) => (
+                <button key={f.id} type="button" className={`style-opt ${f.css} ${font === f.id ? "on" : ""}`} onClick={() => setFont(f.id)}>
+                  あ {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="field">
             <label>おすすめコメント</label>
             <textarea
+              className={fontClass(font)}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="この作品のどこが凄い? どんな人に読んでほしい?"
@@ -117,34 +132,41 @@ export default function CommunityBoard() {
             />
           </div>
         </div>
+        {text && (
+          <div className="row">
+            <div className="field">
+              <label>プレビュー</label>
+              <Bubble text={text} bubble={bubble} font={font} user={user || "名無しの読者"} />
+            </div>
+          </div>
+        )}
         <button className="btn" disabled={busy}>
-          {busy ? "投稿中…" : "おすすめを投稿する"}
+          {busy ? "投稿中…" : "おすすめを投稿する!!"}
         </button>
         {msg && <div className={`form-msg ${msg.ok ? "ok" : "err"}`}>{msg.text}</div>}
       </form>
 
-      {posts.length === 0 && <p style={{ color: "var(--text-dim)" }}>まだ投稿がありません。</p>}
+      {posts.length === 0 && <p style={{ color: "var(--ink-soft)" }}>まだ投稿がありません。</p>}
       {posts.map((p) => {
         const work = p.workId ? workById(p.workId) : undefined;
         return (
-          <div key={p.id} className="post-card">
-            <div className="head">
-              <span className={`type-tag ${p.type === "recommend" ? "type-recommend" : "type-comment"}`}>
-                {p.type === "recommend" ? "おすすめ" : "コマ語り"}
-              </span>
-              <span className="name">{p.user}</span>
-              {work ? (
-                <Link className="worklink" href={`/works/${work.id}`}>
-                  『{work.title}』
-                </Link>
-              ) : p.freeTitle ? (
-                <span className="worklink">『{p.freeTitle}』</span>
-              ) : null}
-              {locLabel(p) && <span className="loc">📍 {locLabel(p)}</span>}
-              <span>{fmtDate(p.createdAt)}</span>
-            </div>
-            <div className="body">{p.text}</div>
-          </div>
+          <Bubble
+            key={p.id}
+            text={p.text}
+            bubble={p.bubble}
+            font={p.font}
+            user={p.user}
+            meta={
+              <PostMeta
+                type={p.type}
+                loc={locLabel(p)}
+                date={fmtDate(p.createdAt)}
+                workTitle={work?.title}
+                workId={work?.id}
+                freeTitle={p.freeTitle}
+              />
+            }
+          />
         );
       })}
     </>

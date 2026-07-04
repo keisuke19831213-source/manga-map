@@ -2,6 +2,9 @@
 import { promises as fs } from "fs";
 import path from "path";
 
+export type BubbleStyle = "speech" | "shout" | "think" | "narration";
+export type BubbleFont = "antique" | "tegaki" | "sakebi" | "pop" | "fude" | "dot";
+
 export interface Post {
   id: string;
   type: "recommend" | "comment";
@@ -12,6 +15,8 @@ export interface Post {
   page?: string; // ページ
   panel?: string; // コマ
   text: string;
+  bubble?: BubbleStyle; // 吹き出しの形
+  font?: BubbleFont; // 吹き出しのフォント
   createdAt: string;
 }
 

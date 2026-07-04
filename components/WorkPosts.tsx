@@ -1,18 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-
-interface Post {
-  id: string;
-  type: "recommend" | "comment";
-  user: string;
-  workId?: string;
-  volume?: string;
-  page?: string;
-  panel?: string;
-  text: string;
-  createdAt: string;
-}
+import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/components/Bubble";
+import type { BubbleFont, BubbleStyle, Post } from "@/lib/posts";
 
 function fmtDate(iso: string) {
   const d = new Date(iso);
@@ -35,6 +25,8 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
   const [page, setPage] = useState("");
   const [panel, setPanel] = useState("");
   const [text, setText] = useState("");
+  const [bubble, setBubble] = useState<BubbleStyle>("speech");
+  const [font, setFont] = useState<BubbleFont>("antique");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -63,6 +55,8 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
           page: mode === "comment" ? page : undefined,
           panel: mode === "comment" ? panel : undefined,
           text,
+          bubble,
+          font,
         }),
       });
       if (!res.ok) {
@@ -89,7 +83,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
     <>
       <h2 className="section-title">読者の声を投稿する</h2>
       <p className="section-sub">
-        『{workTitle}』のおすすめポイントや、「この巻のこのページのこのコマ」へのピンポイントの語りを共有しましょう。
+        『{workTitle}』への熱いセリフをどうぞ。吹き出しの形と文字の書体も選べます。
       </p>
 
       <form className="post-form" onSubmit={submit}>
@@ -97,7 +91,6 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
           <button
             type="button"
             className={`chip ${mode === "recommend" ? "active" : ""}`}
-            style={mode === "recommend" ? { background: "#f97316", borderColor: "#f97316" } : {}}
             onClick={() => setMode("recommend")}
           >
             おすすめを書く
@@ -105,7 +98,6 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
           <button
             type="button"
             className={`chip ${mode === "comment" ? "active" : ""}`}
-            style={mode === "comment" ? { background: "#5b9cf6", borderColor: "#5b9cf6" } : {}}
             onClick={() => setMode("comment")}
           >
             ページ・コマにコメント
@@ -135,8 +127,43 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         </div>
         <div className="row">
           <div className="field">
+            <label>吹き出しの形</label>
+            <div className="style-picker">
+              {BUBBLE_OPTIONS.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  className={`style-opt ${bubble === b.id ? "on" : ""}`}
+                  onClick={() => setBubble(b.id)}
+                >
+                  {b.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="field">
+            <label>文字の書体</label>
+            <div className="style-picker">
+              {FONT_OPTIONS.map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className={`style-opt ${f.css} ${font === f.id ? "on" : ""}`}
+                  onClick={() => setFont(f.id)}
+                >
+                  あ {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="field">
             <label>{mode === "recommend" ? "おすすめコメント" : "そのコマ・ページのどこが凄い?"}</label>
             <textarea
+              className={fontClass(font)}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={
@@ -148,39 +175,50 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
             />
           </div>
         </div>
+        {text && (
+          <div className="row">
+            <div className="field">
+              <label>プレビュー</label>
+              <Bubble text={text} bubble={bubble} font={font} user={user || "名無しの読者"} />
+            </div>
+          </div>
+        )}
         <button className="btn" disabled={busy}>
-          {busy ? "投稿中…" : "投稿する"}
+          {busy ? "投稿中…" : "投稿する!!"}
         </button>
         {msg && <div className={`form-msg ${msg.ok ? "ok" : "err"}`}>{msg.text}</div>}
       </form>
 
       <h2 className="section-title">みんなのおすすめ ({recommends.length})</h2>
       <p className="section-sub">この作品を推す声</p>
-      {recommends.length === 0 && <p style={{ color: "var(--text-dim)", fontSize: 13 }}>まだ投稿がありません。最初のおすすめを書いてみませんか?</p>}
+      {recommends.length === 0 && (
+        <p style={{ color: "var(--ink-soft)", fontSize: 13 }}>まだ投稿がありません。最初のおすすめを書いてみませんか?</p>
+      )}
       {recommends.map((p) => (
-        <div key={p.id} className="post-card">
-          <div className="head">
-            <span className="type-tag type-recommend">おすすめ</span>
-            <span className="name">{p.user}</span>
-            <span>{fmtDate(p.createdAt)}</span>
-          </div>
-          <div className="body">{p.text}</div>
-        </div>
+        <Bubble
+          key={p.id}
+          text={p.text}
+          bubble={p.bubble}
+          font={p.font}
+          user={p.user}
+          meta={<PostMeta type="recommend" date={fmtDate(p.createdAt)} />}
+        />
       ))}
 
       <h2 className="section-title">ページ・コマへのコメント ({comments.length})</h2>
       <p className="section-sub">名場面・名ゴマをピンポイントで語る</p>
-      {comments.length === 0 && <p style={{ color: "var(--text-dim)", fontSize: 13 }}>まだコメントがありません。心に残ったコマを語ってみましょう。</p>}
+      {comments.length === 0 && (
+        <p style={{ color: "var(--ink-soft)", fontSize: 13 }}>まだコメントがありません。心に残ったコマを語ってみましょう。</p>
+      )}
       {comments.map((p) => (
-        <div key={p.id} className="post-card">
-          <div className="head">
-            <span className="type-tag type-comment">コマ語り</span>
-            <span className="name">{p.user}</span>
-            {locLabel(p) && <span className="loc">📍 {locLabel(p)}</span>}
-            <span>{fmtDate(p.createdAt)}</span>
-          </div>
-          <div className="body">{p.text}</div>
-        </div>
+        <Bubble
+          key={p.id}
+          text={p.text}
+          bubble={p.bubble}
+          font={p.font}
+          user={p.user}
+          meta={<PostMeta type="comment" loc={locLabel(p)} date={fmtDate(p.createdAt)} />}
+        />
       ))}
     </>
   );

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addPost, readPosts, type Post } from "@/lib/posts";
+import { addPost, readPosts, type BubbleFont, type BubbleStyle, type Post } from "@/lib/posts";
+
+const BUBBLES: BubbleStyle[] = ["speech", "shout", "think", "narration"];
+const FONTS: BubbleFont[] = ["antique", "tegaki", "sakebi", "pop", "fude", "dot"];
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +19,7 @@ export async function POST(req: NextRequest) {
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "invalid body" }, { status: 400 });
   }
-  const { type, user, workId, freeTitle, volume, page, panel, text } = body;
+  const { type, user, workId, freeTitle, volume, page, panel, text, bubble, font } = body;
   if (type !== "recommend" && type !== "comment") {
     return NextResponse.json({ error: "invalid type" }, { status: 400 });
   }
@@ -40,6 +43,8 @@ export async function POST(req: NextRequest) {
     page: typeof page === "string" && page.trim() ? page.trim() : undefined,
     panel: typeof panel === "string" && panel.trim() ? panel.trim() : undefined,
     text: text.trim().slice(0, 2000),
+    bubble: BUBBLES.includes(bubble) ? bubble : "speech",
+    font: FONTS.includes(font) ? font : "antique",
     createdAt: new Date().toISOString(),
   };
   try {

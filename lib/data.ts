@@ -50,49 +50,49 @@ export const CATEGORIES: Category[] = [
   {
     id: "seinen",
     name: "青年",
-    color: "#5b9cf6",
+    color: "#2563eb",
     colX: 170,
     blurb: "劇画から生まれた大人のためのマンガ。リアリズム、社会、仕事、SF。",
   },
   {
     id: "shonen",
     name: "少年",
-    color: "#f97316",
+    color: "#ea580c",
     colX: 445,
     blurb: "週刊少年誌が育てた王道。努力・友情・勝利からダークファンタジーまで。",
   },
   {
     id: "roots",
     name: "源流",
-    color: "#94a3b8",
+    color: "#64748b",
     colX: 720,
     blurb: "ポンチ絵から手塚治虫まで。すべてのマンガの出発点。",
   },
   {
     id: "gag",
     name: "ギャグ・コメディ",
-    color: "#eab308",
+    color: "#d97706",
     colX: 720,
     blurb: "赤塚不二夫が体系化した笑いの系譜。ナンセンス、不条理、日常系へ。",
   },
   {
     id: "shojo",
     name: "少女・女性",
-    color: "#ec4899",
+    color: "#db2777",
     colX: 995,
     blurb: "24年組が起こした表現革命。内面描写、ロマンス、BL、レディース。",
   },
   {
     id: "alt",
     name: "オルタナティブ",
-    color: "#a78bfa",
+    color: "#7c3aed",
     colX: 1270,
     blurb: "ガロとCOMに始まる実験精神。商業の外側でマンガ表現を拡張した。",
   },
   {
     id: "digital",
     name: "デジタル・新潮流",
-    color: "#22d3ee",
+    color: "#0891b2",
     colX: 1500,
     blurb: "Web・スマホ・SNSが生んだ新しいマンガのかたち。",
   },
@@ -605,6 +605,14 @@ export const WORKS: Work[] = [
   { id: "chainsaw", title: "チェンソーマン", author: "藤本タツキ", year: 2018, magazine: "週刊少年ジャンプ", genres: ["dark_fantasy"], desc: "チェンソーの悪魔と一体化した少年デンジ。映画的引用とアンモラルな疾走感で「ジャンプの限界」を更新し続ける。" },
   { id: "sololeveling", title: "俺だけレベルアップな件", author: "Chugong・DUBU", year: 2018, magazine: "ピッコマ", genres: ["webtoon"], desc: "最弱ハンターが独りレベルアップしていく韓国発ウェブトゥーン。縦読みフルカラーの日本市場開拓を象徴する大ヒット。" },
   { id: "wani", title: "100日後に死ぬワニ", author: "きくちゆうき", year: 2019, magazine: "Twitter(X)", genres: ["sns"], desc: "死まであと100日のカウントダウンを毎日1本ずつ投稿。SNSという発表形式自体が物語装置になった実験。" },
+  { id: "chie", title: "じゃりン子チエ", author: "はるき悦巳", year: 1978, magazine: "漫画アクション", genres: ["seinen_mag"], desc: "大阪の下町でホルモン屋を切り盛りする小学生チエ。関西弁の人情喜劇として青年誌で異彩を放った傑作。" },
+  { id: "tondesaitama", title: "翔んで埼玉", author: "魔夜峰央", year: 1982, magazine: "花とゆめ", genres: ["nonsense"], desc: "「埼玉県民にはそこらへんの草でも食わせておけ!」愛のある郷土ディスで30年後に映画化され再ブレイクした伝説のギャグ。" },
+  { id: "cookingpapa", title: "クッキングパパ", author: "うえやまとち", year: 1985, magazine: "モーニング", genres: ["gourmet"], desc: "博多の商社に勤める料理上手なパパ・荒岩一味。実用レシピ付きで愛され続ける長寿グルメマンガ。" },
+  { id: "chibimaruko", title: "ちびまる子ちゃん", author: "さくらももこ", year: 1986, magazine: "りぼん", genres: ["essay"], desc: "昭和49年の静岡・清水を舞台にした作者の少女時代。エッセイマンガの感覚を少女誌に持ち込んだ国民的作品。" },
+  { id: "conan", title: "名探偵コナン", author: "青山剛昌", year: 1994, magazine: "週刊少年サンデー", genres: ["shonen_mystery"], desc: "体が縮んだ高校生探偵・工藤新一。頭脳戦マンガの裾野を国民レベルに広げた長期連載ミステリー。" },
+  { id: "rurouni", title: "るろうに剣心", author: "和月伸宏", year: 1994, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "明治11年の東京。不殺を誓った元人斬り・緋村剣心。歴史設定×ジャンプバトルの金字塔。" },
+  { id: "barakamon", title: "ばらかもん", author: "ヨシノサツキ", year: 2009, magazine: "ガンガンONLINE", genres: ["webcomic"], desc: "都会での挫折を機に五島列島へ移住した若き書道家と島民たちの日常。Web連載発のご当地ヒット作。" },
+  { id: "ginsaji", title: "銀の匙 Silver Spoon", author: "荒川弘", year: 2011, magazine: "週刊少年サンデー", genres: ["weekly"], desc: "進学校から北海道の農業高校へ逃げてきた八軒くん。食と命に向き合う農業青春譚。少年誌の新しい「学園もの」を開拓した。" },
 ];
 
 // ---- helpers ----
@@ -641,3 +649,223 @@ export function workById(id: string): Work | undefined {
 export function worksOfGenre(genreId: string): Work[] {
   return WORKS.filter((w) => w.genres.includes(genreId)).sort((a, b) => a.year - b.year);
 }
+
+// ================= 舞台マップ(世界/日本) =================
+// x,y は各地図SVGのviewBox座標(世界: 1000x500 / 日本: 600x700)
+
+export interface MapSpot {
+  id: string;
+  map: "world" | "japan";
+  x: number;
+  y: number;
+  place: string;
+  works: { workId: string; note: string }[];
+}
+
+export const SPOTS: MapSpot[] = [
+  // ---- 世界 ----
+  {
+    id: "w-versailles", map: "world", x: 505, y: 122, place: "フランス・パリ / ヴェルサイユ",
+    works: [{ workId: "berubara", note: "革命前夜のヴェルサイユ宮殿。オスカルが駆けた石畳の街" }],
+  },
+  {
+    id: "w-arles", map: "world", x: 500, y: 140, place: "南フランス・アルル",
+    works: [{ workId: "kaze_ki", note: "19世紀末、ラコンブラード学院の寄宿舎が物語の中心" }],
+  },
+  {
+    id: "w-uk", map: "world", x: 492, y: 108, place: "イギリス",
+    works: [{ workId: "poe", note: "18世紀の英国から時を超えて旅するバンパネラの一族" }],
+  },
+  {
+    id: "w-nordlingen", map: "world", x: 528, y: 122, place: "ドイツ・ネルトリンゲン",
+    works: [{ workId: "shingeki", note: "円形城壁に囲まれた実在の街。「壁の中の世界」のモデルと言われる" }],
+  },
+  {
+    id: "w-ny", map: "world", x: 293, y: 150, place: "ニューヨーク",
+    works: [{ workId: "golgo", note: "世界中が仕事場の超一流スナイパー。摩天楼の狙撃は定番シーン" }],
+  },
+  {
+    id: "w-seoul", map: "world", x: 851, y: 161, place: "韓国・ソウル",
+    works: [{ workId: "sololeveling", note: "ゲートとダンジョンが出現するソウル。ウェブトゥーンの都でもある" }],
+  },
+  {
+    id: "w-tokyo", map: "world", x: 887, y: 168, place: "日本・東京",
+    works: [
+      { workId: "akira", note: "2019年ネオ東京。旧市街の上に築かれた未来都市" },
+      { workId: "tetsuwan", note: "21世紀の東京。ロボットと人間が暮らすかつての「未来」" },
+    ],
+  },
+  {
+    id: "w-grandline", map: "world", x: 165, y: 295, place: "偉大なる航路(架空)",
+    works: [{ workId: "onepiece", note: "地図に載らない大海原。世界一周の大冒険はここから" }],
+  },
+  {
+    id: "w-isekai", map: "world", x: 950, y: 452, place: "異世界(地図の外)",
+    works: [{ workId: "tensura", note: "転生先は地図の外。剣と魔法のジュラ大森林" }],
+  },
+
+  // ---- 日本 ----
+  {
+    id: "j-tokachi", map: "japan", x: 455, y: 118, place: "北海道・十勝",
+    works: [{ workId: "ginsaji", note: "大蝦夷農業高校。広大な畑と家畜と、食べることの授業" }],
+  },
+  {
+    id: "j-okutama", map: "japan", x: 399, y: 356, place: "東京・奥多摩(雲取山)",
+    works: [{ workId: "kimetsu", note: "炭治郎の故郷は雲取山。大正の東京府から物語が始まる" }],
+  },
+  {
+    id: "j-saitama", map: "japan", x: 425, y: 351, place: "埼玉",
+    works: [{ workId: "tondesaitama", note: "東京都民に虐げられる埼玉県民の逆襲。愛ある郷土ギャグの聖地" }],
+  },
+  {
+    id: "j-tokyo-center", map: "japan", x: 421, y: 365, place: "東京・都心",
+    works: [
+      { workId: "deathnote", note: "警視庁とLの捜査本部。夜神月の頭脳戦の舞台" },
+      { workId: "sailor", note: "麻布十番が舞台。実在の商店街にセーラームーンの気配" },
+      { workId: "oishinbo", note: "東西新聞社。築地や銀座の名店がモデルに多数登場" },
+      { workId: "shima", note: "初芝電器産業本社。昭和のサラリーマン東京" },
+      { workId: "conan", note: "米花町。事件発生率は日本一(たぶん)" },
+      { workId: "rurouni", note: "明治11年の東京・神谷道場" },
+      { workId: "azumanga", note: "どこにでもありそうな東京の高校の日常" },
+    ],
+  },
+  {
+    id: "j-shitamachi", map: "japan", x: 434, y: 372, place: "東京・下町",
+    works: [
+      { workId: "ashita", note: "山谷のドヤ街と泪橋。ジョーが立ち上がった場所" },
+      { workId: "kyojin", note: "長屋で父・一徹との大リーグボール養成ギプス特訓" },
+      { workId: "wani", note: "どこにでもある東京の日常の100日間" },
+    ],
+  },
+  {
+    id: "j-chofu", map: "japan", x: 409, y: 366, place: "東京・調布/練馬",
+    works: [{ workId: "urusei", note: "友引町のモデルは東京郊外の住宅街。水木しげるの調布も近い" }],
+  },
+  {
+    id: "j-shonan", map: "japan", x: 415, y: 384, place: "神奈川・湘南",
+    works: [{ workId: "slam", note: "湘北高校バスケ部。江ノ電の踏切は世界的聖地に" }],
+  },
+  {
+    id: "j-shimizu", map: "japan", x: 386, y: 396, place: "静岡・清水",
+    works: [{ workId: "chibimaruko", note: "昭和49年の清水市。まる子とたまちゃんの通学路" }],
+  },
+  {
+    id: "j-osaka", map: "japan", x: 331, y: 412, place: "大阪・下町",
+    works: [{ workId: "chie", note: "チエちゃんが切り盛りするホルモン屋。関西弁の人情の街" }],
+  },
+  {
+    id: "j-sakaiminato", map: "japan", x: 262, y: 386, place: "鳥取・境港",
+    works: [{ workId: "gegege", note: "水木しげるの故郷。水木しげるロードには177体の妖怪ブロンズ像" }],
+  },
+  {
+    id: "j-hakata", map: "japan", x: 206, y: 452, place: "福岡・博多",
+    works: [{ workId: "cookingpapa", note: "荒岩家の食卓。博多の街と実用レシピ1500品以上" }],
+  },
+  {
+    id: "j-goto", map: "japan", x: 150, y: 488, place: "長崎・五島列島",
+    works: [{ workId: "barakamon", note: "書道家・半田先生が移住した島。方言と海と子どもたち" }],
+  },
+];
+
+export function spotsOf(map: "world" | "japan"): MapSpot[] {
+  return SPOTS.filter((s) => s.map === map);
+}
+
+// ================= 物語の時代設定タイムライン =================
+
+export interface StoryEra {
+  id: string;
+  label: string;
+  span: string;
+  desc: string;
+  works: { workId: string; note: string }[];
+}
+
+export const STORY_ERAS: StoryEra[] = [
+  {
+    id: "edo", label: "江戸時代", span: "1603 — 1868",
+    desc: "侍と身分制度の時代。劇画がもっとも愛した舞台であり、時代劇画という一大ジャンルを生んだ。",
+    works: [{ workId: "kamui", note: "江戸初期。忍者カムイと被差別民・正助、三重の視点で身分社会を描く大河劇画" }],
+  },
+  {
+    id: "euro", label: "18〜19世紀ヨーロッパ", span: "革命と貴族の時代",
+    desc: "少女マンガが愛した金髪と宮殿とドレスの世界。24年組はここに人間の内面と歴史のうねりを描き込んだ。",
+    works: [
+      { workId: "berubara", note: "1789年フランス革命へ。オスカルとマリー・アントワネットの運命" },
+      { workId: "poe", note: "18世紀英国から現代へ。永遠を生きる一族の200年" },
+      { workId: "kaze_ki", note: "19世紀末南仏アルルの寄宿学校。ジルベールとセルジュ" },
+    ],
+  },
+  {
+    id: "meiji", label: "幕末・明治", span: "1853 — 1912",
+    desc: "刀の時代の終わりと文明開化。「変わりゆく時代を生きる剣士」はマンガの永遠のモチーフ。",
+    works: [{ workId: "rurouni", note: "明治11年、東京。人斬りの過去を背負い不殺を誓う流浪人" }],
+  },
+  {
+    id: "taisho", label: "大正", span: "1912 — 1926",
+    desc: "和と洋が混ざるモダンの時代。大正ロマンの意匠は2010年代マンガで大復活した。",
+    works: [{ workId: "kimetsu", note: "大正の東京と山々。鬼舞辻無惨を追う剣士たちの物語" }],
+  },
+  {
+    id: "senzen", label: "昭和・戦前", span: "1926 — 1945",
+    desc: "軍靴の音が近づく時代。マンガ自身がこの時代を生き、検閲と戦争に翻弄された。",
+    works: [{ workId: "norakuro", note: "犬の軍隊・猛犬連隊で出世していくのらくろ。時代の空気を映す鏡" }],
+  },
+  {
+    id: "sengo", label: "昭和・戦後〜高度成長", span: "1945 — 1974",
+    desc: "焼け跡から高度成長へ。スポ根の汗と涙、下町の人情。「貧しくても熱い」時代の物語群。",
+    works: [
+      { workId: "ashita", note: "昭和40年代、山谷のドヤ街。拳ひとつで成り上がるジョー" },
+      { workId: "kyojin", note: "高度成長期の球界。長屋での大リーグボール養成ギプス特訓" },
+      { workId: "gegege", note: "昭和の里山と路地裏には、まだ妖怪の居場所があった" },
+      { workId: "chibimaruko", note: "昭和49年の清水。コタツとみかんの日本の原風景" },
+      { workId: "chie", note: "昭和の大阪下町。小学生がホルモン屋を営む人情喜劇" },
+    ],
+  },
+  {
+    id: "bubble", label: "昭和末期〜バブル", span: "1975 — 1989",
+    desc: "豊かになった日本。ラブコメの学園、グルメの蘊蓄、サラリーマンの出世双六。日常が物語になった。",
+    works: [
+      { workId: "urusei", note: "宇宙人がいても平常運転の東京郊外・友引町" },
+      { workId: "touch", note: "甲子園と幼なじみ。永遠の夏の風景" },
+      { workId: "oishinbo", note: "グルメブーム前夜の東京。究極vs至高" },
+      { workId: "shima", note: "バブルへ向かう大企業ニッポンの出世街道" },
+    ],
+  },
+  {
+    id: "gendai", label: "平成〜令和(現代)", span: "1989 —",
+    desc: "失われた30年とスマホの時代。日常系の「何も起きない幸福」から頭脳戦の緊張まで、現代は最も混沌とした舞台。",
+    works: [
+      { workId: "slam", note: "90年代の湘南。高校バスケ、最高の夏" },
+      { workId: "sailor", note: "90年代の麻布十番。ただし前世は月、未来は30世紀の水晶東京" },
+      { workId: "conan", note: "体感では30年近く続く「現代」の米花町" },
+      { workId: "kaiji", note: "バブル崩壊後の借金地獄と地下労働施設" },
+      { workId: "chainsaw", note: "1997年の日本。悪魔と公安デビルハンター" },
+      { workId: "deathnote", note: "2003年の東京。ノートを拾った天才の6年間" },
+      { workId: "azumanga", note: "2000年前後の高校。日常系の原点" },
+      { workId: "ginsaji", note: "現代の北海道農業高校。食と命の授業" },
+      { workId: "barakamon", note: "現代の五島列島。スローライフと書道" },
+      { workId: "sololeveling", note: "ゲートが出現した現代ソウル" },
+      { workId: "wani", note: "SNS時代の東京。何気ない100日間" },
+    ],
+  },
+  {
+    id: "kinmirai", label: "近未来", span: "20XX年",
+    desc: "「ちょっと先の未来」はSFマンガの主戦場。描かれた未来を現実が追い越していくのもマンガ史の醍醐味。",
+    works: [
+      { workId: "tetsuwan", note: "アトム誕生は2003年4月7日。かつての未来、いまや過去" },
+      { workId: "akira", note: "2019年ネオ東京、翌年に東京オリンピック開催予定…だった" },
+    ],
+  },
+  {
+    id: "fantasy", label: "架空世界・異世界", span: "時間軸の外",
+    desc: "地図にも年表にも載らない世界。90年代以降、マンガの主舞台は現実からどんどん自由になっていった。",
+    works: [
+      { workId: "onepiece", note: "大海賊時代。偉大なる航路を東へ" },
+      { workId: "dragonball", note: "地球…のはずだが恐竜もカプセルハウスもある世界" },
+      { workId: "hokuto", note: "199X年、核の炎に包まれた世紀末" },
+      { workId: "shingeki", note: "三重の壁に囲まれた、巨人が支配する世界" },
+      { workId: "tensura", note: "転生先のジュラ大森林。スライム、国を作る" },
+    ],
+  },
+];
