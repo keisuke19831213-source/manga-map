@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { TIMELINE, TL_REGIONS, workById, type TimelineEntry } from "@/lib/data";
-import { amazonLink, coverSrc } from "@/lib/affiliate";
+import { amazonLink, coverSrc, coverThumb } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useVoicesByWork } from "@/lib/usePosts";
 import { AmazonButton } from "@/components/Cover";
@@ -200,7 +200,10 @@ export default function EraTimeline() {
   const pinchDist = useRef<number | null>(null);
 
   const onPointerDown = (e: React.PointerEvent) => {
-    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    try {
+      // iOS Safariはタッチ由来のpointerIdでNotFoundErrorを投げることがある
+      (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    } catch {}
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
       drag.current = { x: e.clientX, y: e.clientY, tx, ty, moved: false };
@@ -303,6 +306,7 @@ export default function EraTimeline() {
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerLeave={onPointerUp}
+            onPointerCancel={onPointerUp}
             onDoubleClick={() => zoomBy(1.7)}
           >
             {/* 架空ゾーンの背景 */}
@@ -401,7 +405,7 @@ export default function EraTimeline() {
                     if (!wk) return null;
                     const lane = lanes.get(e.workId) ?? 0;
                     const { above, dist } = laneOffset(lane);
-                    const cover = coverSrc(meta, wk.id);
+                    const cover = s > 1.7 ? coverSrc(meta, wk.id) : coverThumb(meta, wk.id);
                     const active = selected?.workId === e.workId && selected.region === e.region;
                     const boxH = coverH + (showYears ? 16 : 0); // 年チップぶん
                     const pinTop = above ? cy - dist - boxH : cy + dist;
@@ -549,9 +553,9 @@ export default function EraTimeline() {
               </h3>
               <div className="sw" style={{ display: "flex", gap: 10 }}>
                 <div style={{ flex: "0 0 56px" }}>
-                  {coverSrc(meta, selWork.id) ? (
+                  {coverThumb(meta, selWork.id) ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={coverSrc(meta, selWork.id)!} alt={selWork.title} style={{ width: 56, height: 80, objectFit: "cover", border: "2px solid #171310", boxShadow: "2px 2px 0 #171310" }} />
+                    <img src={coverThumb(meta, selWork.id)!} alt={selWork.title} style={{ width: 56, height: 80, objectFit: "cover", border: "2px solid #171310", boxShadow: "2px 2px 0 #171310" }} />
                   ) : (
                     <div style={{ width: 56, height: 80, border: "2px solid #171310", display: "flex", alignItems: "center", justifyContent: "center", background: "#f1e9d6" }}>📖</div>
                   )}

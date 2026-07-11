@@ -7,7 +7,7 @@ import { feature } from "topojson-client";
 import type { FeatureCollection } from "geojson";
 import type { Topology, GeometryCollection } from "topojson-specification";
 import { spotsOf, workById, type MapSpot } from "@/lib/data";
-import { amazonLink, coverSrc } from "@/lib/affiliate";
+import { amazonLink, coverSrc, coverThumb } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useVoicesByWork } from "@/lib/usePosts";
 import type { Post } from "@/lib/posts";
@@ -137,7 +137,10 @@ export default function AtlasMap() {
   const pinchDist = useRef<number | null>(null);
 
   const onPointerDown = (e: React.PointerEvent) => {
-    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    try {
+      // iOS Safariはタッチ由来のpointerIdでNotFoundErrorを投げることがある
+      (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    } catch {}
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
       drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
@@ -244,6 +247,7 @@ export default function AtlasMap() {
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerLeave={onPointerUp}
+            onPointerCancel={onPointerUp}
             onDoubleClick={() => zoomBy(1.7)}
           >
             <svg viewBox={`0 0 ${w} ${h}`} className="atlas-svg" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} role="img" aria-label={mapKind === "world" ? "世界地図" : "日本地図"}>
@@ -270,7 +274,8 @@ export default function AtlasMap() {
                 if (sx < -60 || sx > cw + 60 || sy < -80 || sy > mapH + 40) return null;
                 const active = s.id === selectedId;
                 const first = workById(s.works[0].workId);
-                const cover = first ? coverSrc(meta, first.id) : null;
+                // 通常は軽量サムネ、ズームで大きく表示される時だけ大判に切替
+                const cover = first ? (cs > 2 ? coverSrc(meta, first.id) : coverThumb(meta, first.id)) : null;
                 return (
                   <div
                     key={s.id}
@@ -341,7 +346,7 @@ export default function AtlasMap() {
                 const wk = workById(workId);
                 if (!wk) return null;
                 const az = amazonLink(meta, wk.id);
-                const cover = coverSrc(meta, wk.id);
+                const cover = coverThumb(meta, wk.id);
                 return (
                   <div key={workId} className="sw" style={{ display: "flex", gap: 10 }}>
                     <div style={{ flex: "0 0 46px" }}>

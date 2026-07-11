@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { CATEGORIES, genreById, catOf, type CategoryId } from "@/lib/data";
-import { coverSrc } from "@/lib/affiliate";
+import { coverThumb } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useVoicesByWork } from "@/lib/usePosts";
 import { useWorks } from "@/lib/useWorks";
@@ -50,7 +50,7 @@ export default function WorksExplorer() {
           return (
             <Link key={w.id} href={`/works/${w.id}`} className="work-card" style={{ borderTopColor: color }}>
               <div style={{ display: "flex", gap: 12 }}>
-                <Cover src={coverSrc(meta, w.id)} title={w.title} width={58} />
+                <Cover src={coverThumb(meta, w.id)} title={w.title} width={58} />
                 <div style={{ minWidth: 0 }}>
                   <h3>{w.title}</h3>
                   <div className="meta">

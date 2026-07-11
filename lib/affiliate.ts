@@ -24,6 +24,12 @@ export function amazonLink(meta: SiteMeta, workId: string): string | null {
   return null;
 }
 
+// 一覧・地図ピン用の軽量サムネイル(約160px, 大判の1/6サイズ)。モバイルのメモリ対策
+export function coverThumb(meta: SiteMeta, workId: string): string | null {
+  const src = coverSrc(meta, workId);
+  return src ? src.replace("._SCLZZZZZZZ_.", "._SL160_.") : null;
+}
+
 export function coverSrc(meta: SiteMeta, workId: string): string | null {
   const m = meta.works[workId];
   if (!m) return null;

@@ -19,7 +19,7 @@ import {
   type CategoryId,
   type EdgeKind,
 } from "@/lib/data";
-import { amazonLink, coverSrc } from "@/lib/affiliate";
+import { amazonLink, coverThumb } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useAllPosts } from "@/lib/usePosts";
 import { useWorks } from "@/lib/useWorks";
@@ -93,7 +93,10 @@ export default function MangaMap() {
   const pinchDist = useRef<number | null>(null);
 
   const onPointerDown = (e: React.PointerEvent) => {
-    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    try {
+      // iOS Safariはタッチ由来のpointerIdでNotFoundErrorを投げることがある
+      (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    } catch {}
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
       drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
@@ -256,6 +259,7 @@ export default function MangaMap() {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerUp}
+            onPointerCancel={onPointerUp}
       >
         <svg width="100%" height="100%" style={{ display: "block" }}>
           <g transform={`translate(${view.tx},${view.ty}) scale(${view.k})`}>
@@ -429,7 +433,7 @@ export default function MangaMap() {
                         fontSize: 13,
                       }}
                     >
-                      <Cover src={coverSrc(meta, w.id)} title={w.title} width={42} />
+                      <Cover src={coverThumb(meta, w.id)} title={w.title} width={42} />
                       <div style={{ minWidth: 0 }}>
                         <Link href={`/works/${w.id}`} style={{ display: "block" }}>
                           <strong>{w.title}</strong>

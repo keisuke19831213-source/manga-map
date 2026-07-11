@@ -1,7 +1,7 @@
 "use client";
 
 // クライアント例外時のフォールバック(素のApplication errorの代わり)
-export default function ErrorPage({ reset }: { error: Error; reset: () => void }) {
+export default function ErrorPage({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="page" style={{ textAlign: "center", paddingTop: 70 }}>
       <div style={{ fontSize: 44, marginBottom: 10 }}>📖💦</div>
@@ -26,6 +26,23 @@ export default function ErrorPage({ reset }: { error: Error; reset: () => void }
           トップへもどる
         </button>
       </div>
+      {/* 原因調査用にエラー内容を小さく表示 */}
+      <pre
+        style={{
+          marginTop: 30,
+          fontSize: 10,
+          color: "var(--ink-soft)",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-all",
+          textAlign: "left",
+          maxWidth: 480,
+          marginLeft: "auto",
+          marginRight: "auto",
+          opacity: 0.7,
+        }}
+      >
+        {error?.message?.slice(0, 300)}
+      </pre>
     </div>
   );
 }
