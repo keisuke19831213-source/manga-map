@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { BubbleFont, BubbleStyle } from "@/lib/posts";
 
@@ -27,98 +28,206 @@ export function fontClass(font?: string): string {
   return FONT_OPTIONS.find((f) => f.id === font)?.css ?? "f-antique";
 }
 
-/* ================= SVG吹き出し形状 =================
- * 吹き出しは viewBox 240x130 のパスで描き、preserveAspectRatio="none" で
- * コンテンツサイズに追従させる。vector-effect: non-scaling-stroke で
- * 線の太さは常に一定 = どのサイズでも「ペンで引いた」線になる。
- * しっぽは輪郭と一体のパスなので、貼り付け感のない本物の吹き出しになる。 */
+/* ================= 実測ベースのマンガ吹き出しエンジン =================
+ * テキストの実寸を測ってから、そのサイズにぴったりの吹き出しをSVGパスで生成する。
+ * ・引き伸ばしを一切しないので形が歪まない
+ * ・テキストは楕円の内接領域に必ず収まる(はみ出しゼロ)
+ * ・本物のマンガのように文字の周囲へたっぷり余白をとる
+ */
 
-// セリフ: なめらかな楕円 + 左下に流れる一体のしっぽ
-const SPEECH_PATH =
-  "M 10 63 C 10 22 58 6 120 6 C 184 6 232 24 232 64 C 232 95 196 111 140 114 " +
-  "C 114 115.5 90 114 68 108 C 61 119 48 126 30 130 C 41 121 46 112 47 102 " +
-  "C 24 95 10 82 10 63 Z";
-
-// ぼそっ(点線): しっぽ無しの楕円ブロブ
-const WHISPER_PATH =
-  "M 12 65 C 12 24 60 8 120 8 C 182 8 230 26 230 65 C 230 96 194 112 138 115 " +
-  "C 80 118 12 104 12 65 Z";
-const WHISPER_TAIL = "M 52 113 Q 46 122 36 128";
-
-// 叫び: 不揃いなトゲの爆発型(決め打ちの疑似乱数で毎回同じ形)
-function burstPath(): string {
-  const cx = 120, cy = 65;
-  const spikes = 13;
-  const vary = [1.0, 1.3, 0.92, 1.22, 1.06, 0.86, 1.25, 0.95, 1.32, 0.9, 1.12, 0.84, 1.2];
-  const pts: string[] = [];
-  for (let i = 0; i < spikes; i++) {
-    const a = (i / spikes) * Math.PI * 2 - Math.PI / 2;
-    const b = ((i + 0.5) / spikes) * Math.PI * 2 - Math.PI / 2;
-    const ox = cx + Math.cos(a) * 90 * vary[i];
-    const oy = cy + Math.sin(a) * 46 * vary[i];
-    const ix = cx + Math.cos(b) * 68;
-    const iy = cy + Math.sin(b) * 33;
-    pts.push(`${i === 0 ? "M" : "L"} ${ox.toFixed(1)} ${oy.toFixed(1)} L ${ix.toFixed(1)} ${iy.toFixed(1)}`);
-  }
-  return pts.join(" ") + " Z";
+interface Shape {
+  d: string;
+  dash?: string;
+  sw?: number;
+  fill?: string;
 }
-const SHOUT_PATH = burstPath();
 
-// 心の声: もくもくの雲形(外向きの弧の連続)
-function cloudPath(): string {
-  const cx = 120, cy = 65, rx = 96, ry = 46;
-  const n = 11;
-  const pt = (i: number) => {
-    const a = (i / n) * Math.PI * 2 - Math.PI / 2;
-    return [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry];
+interface Geom {
+  W: number;
+  H: number;
+  shapes: Shape[];
+  dots?: { cx: number; cy: number; r: number }[];
+  tx: number;
+  ty: number;
+}
+
+const f1 = (n: number) => n.toFixed(1);
+
+function pt(cx: number, cy: number, rx: number, ry: number, deg: number): [number, number] {
+  const a = (deg * Math.PI) / 180;
+  return [cx + rx * Math.cos(a), cy + ry * Math.sin(a)];
+}
+
+// セリフ: 楕円と一体のしっぽ(輪郭は一筆書きの単一パス)
+function speechGeom(tw: number, th: number): Geom {
+  const rx = Math.max(tw * 0.72 + 8, 44);
+  const ry = Math.max(th * 0.74 + 7, 26);
+  const pad = 3;
+  const tailH = 26;
+  const cx = rx + pad;
+  const cy = ry + pad;
+  const W = 2 * (rx + pad);
+  const H = 2 * ry + pad * 2 + tailH;
+  const [ax, ay] = pt(cx, cy, rx, ry, 97); // しっぽ右付け根
+  const [bx, by] = pt(cx, cy, rx, ry, 128); // しっぽ左付け根
+  const tipX = cx - rx * 0.68;
+  const tipY = H - 2;
+  const d =
+    `M ${f1(bx)} ${f1(by)} A ${f1(rx)} ${f1(ry)} 0 1 1 ${f1(ax)} ${f1(ay)}` +
+    ` Q ${f1(ax - rx * 0.05)} ${f1(ay + tailH * 0.66)} ${f1(tipX)} ${f1(tipY)}` +
+    ` Q ${f1(bx - rx * 0.01)} ${f1(by + tailH * 0.3)} ${f1(bx)} ${f1(by)} Z`;
+  return { W, H, shapes: [{ d }], tx: cx - tw / 2, ty: cy - th / 2 };
+}
+
+// ぼそっ: 破線の楕円 + 破線のしっぽ
+function whisperGeom(tw: number, th: number): Geom {
+  const rx = Math.max(tw * 0.72 + 8, 44);
+  const ry = Math.max(th * 0.74 + 7, 24);
+  const pad = 3;
+  const cx = rx + pad;
+  const cy = ry + pad;
+  const W = 2 * (rx + pad);
+  const H = 2 * (ry + pad) + 18;
+  const [p0x, p0y] = pt(cx, cy, rx, ry, 0);
+  const [p1x, p1y] = pt(cx, cy, rx, ry, 180);
+  const d =
+    `M ${f1(p0x)} ${f1(p0y)} A ${f1(rx)} ${f1(ry)} 0 1 1 ${f1(p1x)} ${f1(p1y)}` +
+    ` A ${f1(rx)} ${f1(ry)} 0 1 1 ${f1(p0x)} ${f1(p0y)} Z`;
+  const tail = `M ${f1(cx - rx * 0.45)} ${f1(cy + ry * 0.9)} Q ${f1(cx - rx * 0.56)} ${f1(cy + ry + 7)} ${f1(cx - rx * 0.68)} ${f1(cy + ry + 14)}`;
+  return {
+    W,
+    H,
+    shapes: [
+      { d, dash: "7 5" },
+      { d: tail, dash: "4 4", fill: "none", sw: 2 },
+    ],
+    tx: cx - tw / 2,
+    ty: cy - th / 2,
   };
-  const ctrl = (i: number) => {
-    const a = ((i + 0.5) / n) * Math.PI * 2 - Math.PI / 2;
-    return [cx + Math.cos(a) * rx * 1.24, cy + Math.sin(a) * ry * 1.3];
-  };
-  let d = `M ${pt(0)[0].toFixed(1)} ${pt(0)[1].toFixed(1)}`;
+}
+
+// 叫び: 不揃いなトゲの爆発型
+function burstGeom(tw: number, th: number): Geom {
+  const rxI = Math.max(tw * 0.66 + 12, 48);
+  const ryI = Math.max(th * 0.72 + 10, 30);
+  const n = Math.max(11, Math.min(19, Math.round((rxI + ryI) / 22)));
+  const vary = [1.35, 0.72, 1.1, 0.9, 1.5, 0.8, 1.2, 1.0, 1.55, 0.85, 1.25, 0.95, 1.4, 0.78, 1.15, 1.02, 1.3, 0.88, 1.45];
+  const ext = 17;
+  const maxExt = ext * 1.55;
+  const pad = 3;
+  const cx = rxI + maxExt + pad;
+  const cy = ryI + maxExt * 0.78 + pad;
+  const W = 2 * cx;
+  const H = 2 * cy;
+  const parts: string[] = [];
   for (let i = 0; i < n; i++) {
-    const c = ctrl(i);
-    const p = pt(i + 1);
-    d += ` Q ${c[0].toFixed(1)} ${c[1].toFixed(1)} ${p[0].toFixed(1)} ${p[1].toFixed(1)}`;
+    const e = ext * vary[i % vary.length];
+    const [ox, oy] = pt(cx, cy, rxI + e, ryI + e * 0.78, (i / n) * 360 - 90);
+    const [ix, iy] = pt(cx, cy, rxI * 0.97, ryI * 0.97, ((i + 0.5) / n) * 360 - 90);
+    parts.push(`${i ? "L" : "M"} ${f1(ox)} ${f1(oy)} L ${f1(ix)} ${f1(iy)}`);
   }
-  return d + " Z";
+  return { W, H, shapes: [{ d: parts.join(" ") + " Z", sw: 2.7 }], tx: cx - tw / 2, ty: cy - th / 2 };
 }
-const THINK_PATH = cloudPath();
 
-export function BubbleBg({ kind }: { kind: string }) {
-  let d = SPEECH_PATH;
-  let dash: string | undefined;
-  let tail: string | undefined;
-  if (kind === "shout") d = SHOUT_PATH;
-  else if (kind === "think") d = THINK_PATH;
-  else if (kind === "whisper") {
-    d = WHISPER_PATH;
-    dash = "7 6";
-    tail = WHISPER_TAIL;
+// 心の声: もくもく雲形 + 泡のしっぽ
+function cloudGeom(tw: number, th: number): Geom {
+  const rx = Math.max(tw * 0.7 + 10, 46);
+  const ry = Math.max(th * 0.74 + 9, 28);
+  const n = Math.max(9, Math.min(16, Math.round((rx + ry) / 24)));
+  const bump = 1.15;
+  const pad = 3;
+  const cx = rx * bump + pad;
+  const cy = ry * bump + pad;
+  const W = 2 * cx;
+  const H = 2 * cy + 30;
+  const p0 = pt(cx, cy, rx, ry, -90);
+  let d = `M ${f1(p0[0])} ${f1(p0[1])}`;
+  for (let i = 0; i < n; i++) {
+    const c = pt(cx, cy, rx * bump * 1.09, ry * bump * 1.12, ((i + 0.5) / n) * 360 - 90);
+    const p = pt(cx, cy, rx, ry, ((i + 1) / n) * 360 - 90);
+    d += ` Q ${f1(c[0])} ${f1(c[1])} ${f1(p[0])} ${f1(p[1])}`;
   }
+  d += " Z";
+  const dots = [
+    { cx: cx - rx * 0.5, cy: cy + ry * bump + 8, r: 6 },
+    { cx: cx - rx * 0.64, cy: cy + ry * bump + 20, r: 3.8 },
+  ];
+  return { W, H, shapes: [{ d }], dots, tx: cx - tw / 2, ty: cy - th / 2 };
+}
+
+function computeGeom(kind: string, tw: number, th: number): Geom {
+  if (kind === "shout") return burstGeom(tw, th);
+  if (kind === "think") return cloudGeom(tw, th);
+  if (kind === "whisper") return whisperGeom(tw, th);
+  return speechGeom(tw, th);
+}
+
+export function MangaBubble({
+  kind = "speech",
+  maxWidth = 380,
+  className = "",
+  textClassName = "",
+  children,
+}: {
+  kind?: string;
+  maxWidth?: number;
+  className?: string;
+  textClassName?: string;
+  children: React.ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [sz, setSz] = useState<{ w: number; h: number } | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      setSz((prev) =>
+        prev && Math.abs(prev.w - r.width) < 0.6 && Math.abs(prev.h - r.height) < 0.6 ? prev : { w: r.width, h: r.height }
+      );
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    measure();
+    // Webフォント読込後に再測定
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      document.fonts.ready.then(measure).catch(() => {});
+    }
+    return () => ro.disconnect();
+  }, []);
+
+  const g = sz ? computeGeom(kind, Math.max(sz.w, 24), Math.max(sz.h, 16)) : null;
+
   return (
-    <svg className="bx-bg" viewBox="0 0 240 130" preserveAspectRatio="none" aria-hidden>
-      <path
-        d={d}
-        fill="#ffffff"
-        stroke="#171310"
-        strokeWidth={2.6}
-        strokeLinejoin="round"
-        strokeDasharray={dash}
-        style={{ vectorEffect: "non-scaling-stroke" }}
-      />
-      {tail && (
-        <path
-          d={tail}
-          fill="none"
-          stroke="#171310"
-          strokeWidth={2.2}
-          strokeDasharray="5 5"
-          style={{ vectorEffect: "non-scaling-stroke" }}
-        />
+    <div className={`mb mb-${kind} ${className}`} style={{ width: g?.W, height: g?.H }}>
+      {g && (
+        <svg className="mb-svg" width={g.W} height={g.H} aria-hidden>
+          {g.shapes.map((s, i) => (
+            <path
+              key={i}
+              d={s.d}
+              fill={s.fill ?? "#ffffff"}
+              stroke="#171310"
+              strokeWidth={s.sw ?? 2.4}
+              strokeLinejoin={kind === "shout" ? "miter" : "round"}
+              strokeLinecap="round"
+              strokeDasharray={s.dash}
+            />
+          ))}
+          {g.dots?.map((c, i) => (
+            <circle key={i} cx={c.cx} cy={c.cy} r={c.r} fill="#fff" stroke="#171310" strokeWidth={2.2} />
+          ))}
+        </svg>
       )}
-    </svg>
+      <div
+        ref={ref}
+        className={`mb-text ${textClassName}`}
+        style={{ maxWidth, left: g?.tx ?? 0, top: g?.ty ?? 0, visibility: g ? "visible" : "hidden" }}
+      >
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -127,7 +236,7 @@ interface BubbleProps {
   bubble?: string;
   font?: string;
   user: string;
-  meta?: React.ReactNode; // タグ・日付・作品リンクなど
+  meta?: React.ReactNode;
 }
 
 export default function Bubble({ text, bubble = "speech", font = "antique", user, meta }: BubbleProps) {
@@ -139,18 +248,11 @@ export default function Bubble({ text, bubble = "speech", font = "antique", user
         {meta}
       </div>
       {bubble === "narration" ? (
-        <div className={`bx bx-narration ${fc}`}>{text}</div>
+        <div className={`bx-narration ${fc}`}>{text}</div>
       ) : (
-        <div className={`bx bx-${bubble}`}>
-          <BubbleBg kind={bubble} />
-          {bubble === "think" && (
-            <>
-              <span className="bx-dot bx-dot1" />
-              <span className="bx-dot bx-dot2" />
-            </>
-          )}
-          <div className={`bx-content ${fc}`}>{text}</div>
-        </div>
+        <MangaBubble kind={bubble} className="mb-post" textClassName={fc} maxWidth={400}>
+          {text}
+        </MangaBubble>
       )}
     </div>
   );

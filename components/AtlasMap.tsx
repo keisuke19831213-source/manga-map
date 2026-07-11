@@ -213,6 +213,11 @@ export default function AtlasMap() {
   const bubbleSpot = selected && spotVoice[selected.id] ? selected : voiceSpots.length > 0 ? voiceSpots[voiceIdx % voiceSpots.length] : null;
 
   const mapH = cw * (h / w);
+  // ズームに連動して書影も拡大(見上げるほど大きく、上限あり)
+  const cs = Math.min(3.4, Math.pow(view.k, 0.72));
+  const pinW = Math.round(34 * cs);
+  const pinH = Math.round(48 * cs);
+  const showLabels = view.k > 2.1;
 
   return (
     <>
@@ -281,15 +286,15 @@ export default function AtlasMap() {
                     <div className="map-pin-card">
                       {cover ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={cover} alt={first?.title ?? s.place} loading="lazy" />
+                        <img src={cover} alt={first?.title ?? s.place} loading="lazy" style={{ width: pinW, height: pinH }} />
                       ) : (
-                        <span className="ph">📖</span>
+                        <span className="ph" style={{ width: pinW, height: pinH, fontSize: 14 + cs * 4 }}>📖</span>
                       )}
                       {s.works.length > 1 && <span className="cnt">{s.works.length}</span>}
                     </div>
                     <div className="map-pin-tip" />
                     <div className="map-pin-dot" />
-                    <div className="map-pin-label">{s.place}</div>
+                    <div className={`map-pin-label ${showLabels ? "show" : ""}`}>{s.place}</div>
                   </div>
                 );
               })}
@@ -302,17 +307,17 @@ export default function AtlasMap() {
                 const [sx, sy] = p;
                 if (sx < 0 || sx > cw || sy < 0 || sy > mapH) return null;
                 const post = spotVoice[bubbleSpot.id];
-                const flip = sx > cw - 240;
+                const flip = sx > cw - 280;
                 return (
                   <div
                     className="map-voice"
                     style={{
-                      left: flip ? sx - 210 + 26 : sx - 26,
-                      top: sy - 62,
-                      transform: "translateY(-100%)" + (flip ? " scaleX(1)" : ""),
+                      left: flip ? sx - 250 : sx - 42,
+                      top: sy - pinH - 26,
+                      transform: "translateY(-100%)",
                     }}
                   >
-                    <MiniBubble post={post} style={{ marginTop: 0, width: 210 }} />
+                    <MiniBubble post={post} style={{ marginTop: 0 }} />
                   </div>
                 );
               })()}

@@ -143,6 +143,18 @@ export default function EraTimeline() {
   const tx = view?.tx ?? 0;
   const X = (year: number) => tlX(year) * k + tx;
 
+  // ズームに連動して書影も拡大
+  const s = Math.min(2.7, Math.max(1, Math.pow(k / (kFit || 1e-6), 0.55)));
+  const coverW = Math.round(36 * s);
+  const coverH = Math.round(52 * s);
+  const showYears = s > 1.3;
+
+  // 物語内年代のコンパクト表示
+  const yearChip = (e: TimelineEntry): string => {
+    if (e.region === "fantasy") return "時間外";
+    return e.year < 0 ? `BC${-e.year}` : `${e.year}`;
+  };
+
   // ホイールズーム(横方向)
   useEffect(() => {
     const el = wrapRef.current;
@@ -223,11 +235,11 @@ export default function EraTimeline() {
   const trackData = useMemo(() => {
     return TL_REGIONS.map((region, ti) => {
       const entries = TIMELINE.filter((e) => e.region === region.id).map((e) => ({ e, x: X(e.year) }));
-      const lanes = assignLanes(entries, 56);
+      const lanes = assignLanes(entries, coverW + 26);
       return { region, ti, entries, lanes };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [k, tx, cw]);
+  }, [k, tx, cw, coverW]);
 
   // コメントのある作品(吹き出しローテーション)
   const voiceEntries = useMemo(() => TIMELINE.filter((e) => voices[e.workId]?.latest), [voices]);
@@ -240,9 +252,9 @@ export default function EraTimeline() {
     selected && voices[selected.workId]?.latest ? selected : voiceEntries.length > 0 ? voiceEntries[voiceIdx % voiceEntries.length] : null;
 
   const laneOffset = (lane: number): { above: boolean; dist: number } => {
-    // 0:上近 1:下近 2:上遠 3:下遠
+    // 0:上近 1:下近 2:上遠 3:下遠 (書影サイズに追従)
     const above = lane % 2 === 0;
-    const dist = lane < 2 ? 12 : 66;
+    const dist = lane < 2 ? 13 : 13 + coverH * 0.72 + 14;
     return { above, dist };
   };
 
@@ -263,7 +275,16 @@ export default function EraTimeline() {
           <div
             ref={wrapRef}
             className="atlas-wrap"
-            style={{ position: "relative", overflow: "hidden", height: H, cursor: drag.current ? "grabbing" : "grab", touchAction: "none", background: "#f4efe2" }}
+            style={{
+              position: "relative",
+              overflow: "hidden",
+              height: H,
+              cursor: drag.current ? "grabbing" : "grab",
+              touchAction: "none",
+              backgroundColor: "#f6f1e4",
+              backgroundImage: "radial-gradient(rgba(23,19,16,0.055) 1px, transparent 1.3px)",
+              backgroundSize: "10px 10px",
+            }}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -283,19 +304,21 @@ export default function EraTimeline() {
               }}
             />
 
-            {/* 年目盛り */}
+            {/* 年代軸(定規バー) */}
+            <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: AXIS_H, background: "#fffdf4", borderBottom: "2.5px solid var(--ink)", zIndex: 2, pointerEvents: "none" }} />
             {TICKS.map((t) => {
               const x = X(t.year);
               if (x < -40 || x > cw + 40) return null;
               return (
                 <div key={t.year} style={{ position: "absolute", left: x, top: 0, height: H, pointerEvents: "none" }}>
-                  <div style={{ width: 1.5, height: "100%", background: "rgba(23,19,16,0.1)" }} />
-                  <div style={{ position: "absolute", top: 6, left: 4, fontSize: 11, fontWeight: 900, color: "rgba(23,19,16,0.45)" }}>{t.label}</div>
+                  <div style={{ position: "absolute", top: AXIS_H, width: 1.5, height: H - AXIS_H, background: "rgba(23,19,16,0.09)" }} />
+                  <div style={{ position: "absolute", top: AXIS_H - 12, width: 2, height: 12, background: "var(--ink)", zIndex: 3 }} />
+                  <div style={{ position: "absolute", top: 8, left: 5, fontSize: 11.5, fontWeight: 900, color: "var(--ink)", zIndex: 3, fontFamily: "var(--font-base)" }}>{t.label}</div>
                 </div>
               );
             })}
             {/* 架空ゾーンラベル */}
-            <div style={{ position: "absolute", left: FANTASY_X * k + tx + 10, top: 6, fontSize: 11, fontWeight: 900, color: "#db2777", pointerEvents: "none" }}>
+            <div style={{ position: "absolute", left: FANTASY_X * k + tx + 10, top: 12, fontSize: 11, fontWeight: 900, color: "#db2777", zIndex: 3, pointerEvents: "none", whiteSpace: "nowrap" }}>
               ⟵ここから先は時間軸の外(架空・異世界)
             </div>
 
@@ -305,8 +328,8 @@ export default function EraTimeline() {
               const cy = top + TRACK_H / 2;
               return (
                 <div key={region.id}>
-                  {/* 帯の背景と境界 */}
-                  <div style={{ position: "absolute", left: 0, right: 0, top, height: TRACK_H, background: ti % 2 ? "rgba(23,19,16,0.025)" : "transparent", borderTop: "1.5px solid rgba(23,19,16,0.14)", pointerEvents: "none" }} />
+                  {/* 帯の背景(地域色の薄いトーン)と境界 */}
+                  <div style={{ position: "absolute", left: 0, right: 0, top, height: TRACK_H, background: `${region.color}09`, borderTop: "1.5px solid rgba(23,19,16,0.16)", pointerEvents: "none" }} />
                   {/* 日本トラックの時代帯 */}
                   {region.id === "japan" &&
                     JP_ERAS.map((era) => {
@@ -365,16 +388,16 @@ export default function EraTimeline() {
                     const { above, dist } = laneOffset(lane);
                     const cover = coverSrc(meta, wk.id);
                     const active = selected?.workId === e.workId && selected.region === e.region;
-                    const coverH = 56;
-                    const pinTop = above ? cy - dist - coverH : cy + dist;
+                    const boxH = coverH + (showYears ? 16 : 0); // 年チップぶん
+                    const pinTop = above ? cy - dist - boxH : cy + dist;
                     return (
                       <div key={e.workId}>
                         {/* 引き出し線 */}
-                        <div style={{ position: "absolute", left: x - 1, top: above ? pinTop + coverH - 2 : cy, width: 2, height: above ? cy - (pinTop + coverH) + 2 : pinTop - cy + 2, background: region.color, pointerEvents: "none" }} />
+                        <div style={{ position: "absolute", left: x - 0.75, top: above ? pinTop + boxH - 2 : cy, width: 1.5, height: above ? cy - (pinTop + boxH) + 2 : pinTop - cy + 2, background: region.color, opacity: 0.8, pointerEvents: "none" }} />
                         <div style={{ position: "absolute", left: x - 3.5, top: cy - 3.5, width: 7, height: 7, borderRadius: "50%", background: region.color, border: "1.5px solid var(--ink)", pointerEvents: "none" }} />
                         <div
                           className={`map-pin ${active ? "on" : ""}`}
-                          style={{ left: x, top: pinTop + coverH, zIndex: active ? 8 : 5 }}
+                          style={{ left: x, top: pinTop + boxH, zIndex: active ? 8 : 5 }}
                           onClick={(ev) => {
                             ev.stopPropagation();
                             if (drag.current?.moved) return;
@@ -382,15 +405,20 @@ export default function EraTimeline() {
                           }}
                           title={`${wk.title} — ${e.label}`}
                         >
+                          {showYears && (
+                            <div className="tl-year" style={{ borderColor: region.color, color: region.color }}>
+                              {yearChip(e)}
+                            </div>
+                          )}
                           <div className="map-pin-card">
                             {cover ? (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={cover} alt={wk.title} loading="lazy" style={{ width: 36, height: 52 }} />
+                              <img src={cover} alt={wk.title} loading="lazy" style={{ width: coverW, height: coverH }} />
                             ) : (
-                              <span className="ph" style={{ width: 36, height: 52 }}>📖</span>
+                              <span className="ph" style={{ width: coverW, height: coverH, fontSize: 13 + s * 3 }}>📖</span>
                             )}
                           </div>
-                          <div className="map-pin-label" style={{ bottom: -18 }}>{wk.title}</div>
+                          <div className={`map-pin-label ${s > 1.6 ? "show" : ""}`} style={{ bottom: -18 }}>{wk.title}</div>
                         </div>
                       </div>
                     );
