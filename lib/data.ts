@@ -613,6 +613,95 @@ export const WORKS: Work[] = [
   { id: "rurouni", title: "るろうに剣心", author: "和月伸宏", year: 1994, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "明治11年の東京。不殺を誓った元人斬り・緋村剣心。歴史設定×ジャンプバトルの金字塔。" },
   { id: "barakamon", title: "ばらかもん", author: "ヨシノサツキ", year: 2009, magazine: "ガンガンONLINE", genres: ["webcomic"], desc: "都会での挫折を機に五島列島へ移住した若き書道家と島民たちの日常。Web連載発のご当地ヒット作。" },
   { id: "ginsaji", title: "銀の匙 Silver Spoon", author: "荒川弘", year: 2011, magazine: "週刊少年サンデー", genres: ["weekly"], desc: "進学校から北海道の農業高校へ逃げてきた八軒くん。食と命に向き合う農業青春譚。少年誌の新しい「学園もの」を開拓した。" },
+
+  // ===== 追加: 名作・ヒット作(源流〜昭和の古典) =====
+  { id: "sazae", title: "サザエさん", author: "長谷川町子", year: 1946, magazine: "夕刊フクニチ→朝日新聞", genres: ["newspaper"], desc: "磯野家を中心とした日常を描く新聞4コマの金字塔。戦後日本の家庭像そのものとなり、国民的アニメへと続いた。" },
+  { id: "tetsujin28", title: "鉄人28号", author: "横山光輝", year: 1956, magazine: "少年", genres: ["gekkan"], desc: "リモコンで操る巨大ロボットと少年・金田正太郎。鉄腕アトムと並ぶ巨大ロボットマンガの原点となった。" },
+  { id: "osomatsu", title: "おそ松くん", author: "赤塚不二夫", year: 1962, magazine: "週刊少年サンデー", genres: ["akatsuka"], desc: "六つ子とイヤミ、チビ太らが暴れるギャグの古典。「シェー」は流行語となり、キャラクターギャグを確立した。" },
+  { id: "hinotori", title: "火の鳥", author: "手塚治虫", year: 1967, magazine: "COM", genres: ["com", "story"], desc: "生命と輪廻を壮大なスケールで描く手塚治虫のライフワーク。過去編と未来編が交互に進む構成で「マンガの神様」の思想が凝縮されている。" },
+  { id: "doraemon", title: "ドラえもん", author: "藤子・F・不二雄", year: 1969, magazine: "小学館の学年誌", genres: ["gekkan"], desc: "未来から来た猫型ロボットと、のび太のひみつ道具をめぐる物語。国民的キャラクターとして世界中で愛される児童マンガの最高峰。" },
+  { id: "ginga999", title: "銀河鉄道999", author: "松本零士", year: 1977, magazine: "週刊少年キング", genres: ["seinen_sf"], desc: "機械の体を求めて銀河を旅する鉄郎とメーテル。一話ごとの叙情的なSFで、70年代アニメブームの象徴となった。" },
+  { id: "kochikame", title: "こちら葛飾区亀有公園前派出所", author: "秋本治", year: 1976, magazine: "週刊少年ジャンプ", genres: ["weekly", "nonsense"], desc: "破天荒な下町の警官・両津勘吉のドタバタ。40年・全200巻の連載を完走した、ギネス記録を持つ長寿ギャグマンガ。" },
+
+  // ===== 追加: ジャンプ黄金期〜現在の少年バトル =====
+  { id: "drslump", title: "Dr.スランプ", author: "鳥山明", year: 1980, magazine: "週刊少年ジャンプ", genres: ["nonsense"], desc: "発明博士とロボット少女アラレの底抜けに明るいギャグ。鳥山明の画力とセンスが80年代ジャンプの土台を築いた。" },
+  { id: "kinnikuman", title: "キン肉マン", author: "ゆでたまご", year: 1979, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "nonsense"], desc: "落ちこぼれ超人キン肉マンの成長を描くギャグ&プロレスバトル。個性的な超人たちと消しゴム人形は社会現象となった。" },
+  { id: "captsubasa", title: "キャプテン翼", author: "高橋陽一", year: 1981, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "「ボールはともだち」大空翼のサッカー物語。世界のトッププロにも影響を与え、日本のサッカー人気を牽引した金字塔。" },
+  { id: "seiya", title: "聖闘士星矢", author: "車田正美", year: 1985, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "聖衣をまとった少年たちが女神アテナのために戦う。ギリシャ神話と星座を題材にした様式美で、キャラクター商品も大ヒット。" },
+  { id: "jojo", title: "ジョジョの奇妙な冒険", author: "荒木飛呂彦", year: 1987, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "ジョースター家の宿命と「スタンド」バトルを描く長大な群像劇。独特のポーズと擬音、緻密な頭脳戦で唯一無二の世界を築いた。" },
+  { id: "cityhunter", title: "シティーハンター", author: "北条司", year: 1985, magazine: "週刊少年ジャンプ", genres: ["weekly", "gekiga"], desc: "新宿の凄腕スイーパー・冴羽獠のハードボイルド&コメディ。大人の色気とギャグの緩急で青年層まで取り込んだ。" },
+  { id: "yuyu", title: "幽☆遊☆白書", author: "冨樫義博", year: 1990, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "不良少年・浦飯幽助が霊界探偵となり戦う。霊力バトルと魅力的な敵キャラで90年代前半ジャンプを支えた。" },
+  { id: "yugioh", title: "遊☆戯☆王", author: "高橋和希", year: 1996, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "闇のゲームとカードデュエルを描く。作中のカードゲームが現実で世界的商品となった、メディアミックスの金字塔。" },
+  { id: "hikaru", title: "ヒカルの碁", author: "ほったゆみ・小畑健", year: 1998, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "少年ヒカルと平安の霊・佐為が挑む囲碁の世界。地味な題材を白熱の対局に変え、子どもの囲碁ブームを起こした。" },
+  { id: "naruto", title: "NARUTO -ナルト-", author: "岸本斉史", year: 1999, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "落ちこぼれ忍者ナルトが仲間と絆で成長する。忍術バトルと「認められたい」というテーマで世界的ヒットとなった。" },
+  { id: "prince_tennis", title: "テニスの王子様", author: "許斐剛", year: 1999, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "天才少年・越前リョーマの中学テニス。必殺技インフレとキャラ人気でスポーツマンガに新たな読者層を開いた。" },
+  { id: "bleach", title: "BLEACH", author: "久保帯人", year: 2001, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "dark_fantasy"], desc: "死神の力を得た黒崎一護の戦い。洗練された画面構成とキャラデザインで2000年代ジャンプの看板を担った。" },
+  { id: "eyeshield", title: "アイシールド21", author: "稲垣理一郎・村田雄介", year: 2002, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "俊足の小早川瀬那が挑むアメフト。マイナー競技を圧倒的な画力と戦略で描き切った異色のスポーツマンガ。" },
+  { id: "gintama", title: "銀魂", author: "空知英秋", year: 2004, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "nonsense"], desc: "天人が来訪した江戸を舞台にした万事屋・坂田銀時の物語。下ネタ全開のギャグと熱いシリアスの落差で熱狂的支持を得た。" },
+  { id: "kurobas", title: "黒子のバスケ", author: "藤巻忠俊", year: 2008, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "影の6人目・黒子とキセキの世代のバスケ。能力バトル的な演出でスポーツマンガに新風を吹き込んだ。" },
+  { id: "haikyu", title: "ハイキュー!!", author: "古舘春一", year: 2012, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "小柄な日向翔陽が挑む高校バレー。緻密な試合描写とチーム群像で、2010年代スポーツマンガの代表作となった。" },
+  { id: "hero_aca", title: "僕のヒーローアカデミア", author: "堀越耕平", year: 2014, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "誰もが個性(能力)を持つ世界で、無個性の緑谷出久が最高のヒーローを目指す。アメコミ的世界観で世界的人気を獲得した。" },
+  { id: "promised", title: "約束のネバーランド", author: "白井カイウ・出水ぽすか", year: 2016, magazine: "週刊少年ジャンプ", genres: ["shonen_mystery", "dark_fantasy"], desc: "農園という名の孤児院に隠された真実に、子どもたちが知略で立ち向かう。頭脳戦とダークな世界観を融合させた話題作。" },
+  { id: "drstone", title: "Dr.STONE", author: "稲垣理一郎・Boichi", year: 2017, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "seinen_sf"], desc: "人類が石化した世界を科学の力で再建する千空の物語。「科学で無双」という新機軸で少年誌に知的興奮を持ち込んだ。" },
+  { id: "jujutsu", title: "呪術廻戦", author: "芥見下々", year: 2018, magazine: "週刊少年ジャンプ", genres: ["dark_fantasy"], desc: "呪いを祓う呪術師たちの死闘。負の感情から生まれる呪霊という設定と現代的な演出で、令和のジャンプを代表するヒットに。" },
+  { id: "spyfamily", title: "SPY×FAMILY", author: "遠藤達哉", year: 2019, magazine: "少年ジャンプ+", genres: ["webcomic", "nonsense"], desc: "スパイ・超能力者・殺し屋が「仮初めの家族」を演じるホームコメディ。Web連載発で全世代的な大ヒットとなった。" },
+  { id: "fma", title: "鋼の錬金術師", author: "荒川弘", year: 2001, magazine: "月刊少年ガンガン", genres: ["dark_fantasy", "jump_battle"], desc: "錬金術で身体を失った兄弟の旅。等価交換のテーマと緻密な伏線回収で、月刊少年誌屈指の完成度を誇る名作。" },
+  { id: "dai", title: "DRAGON QUEST ダイの大冒険", author: "三条陸・稲田浩司", year: 1989, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "ゲーム『ドラゴンクエスト』の世界を舞台にした勇者ダイの冒険。王道ファンタジーバトルの完成形として今も愛される。" },
+
+  // ===== 追加: サンデー・マガジンの名作 =====
+  { id: "ranma", title: "らんま1/2", author: "高橋留美子", year: 1987, magazine: "週刊少年サンデー", genres: ["lovecome", "nonsense"], desc: "水をかぶると女になる少年・乱馬をめぐる格闘ラブコメ。高橋留美子の看板作として国内外で絶大な人気を得た。" },
+  { id: "inuyasha", title: "犬夜叉", author: "高橋留美子", year: 1996, magazine: "週刊少年サンデー", genres: ["yokai", "lovecome"], desc: "戦国時代へ迷い込んだ現代の少女かごめと半妖・犬夜叉の冒険。妖怪と恋愛を融合した長編で90〜00年代を代表した。" },
+  { id: "maison", title: "めぞん一刻", author: "高橋留美子", year: 1980, magazine: "ビッグコミックスピリッツ", genres: ["lovecome", "seinen_mag"], desc: "古アパートを舞台にした管理人・響子と浪人生・五代のじれったい恋。青年誌ラブコメの金字塔。" },
+  { id: "ushiotora", title: "うしおととら", author: "藤田和日郎", year: 1990, magazine: "週刊少年サンデー", genres: ["yokai", "jump_battle"], desc: "少年・潮と妖怪・とらの凸凹コンビが大妖に挑む。熱い友情と迫力の作画で妖怪バトルの傑作とされる。" },
+  { id: "major", title: "MAJOR", author: "満田拓也", year: 1994, magazine: "週刊少年サンデー", genres: ["spokon"], desc: "本田吾郎が幼少からメジャーリーグまで駆け上がる野球一代記。一人の選手の生涯を追う長期スポ根の代表作。" },
+  { id: "kindaichi", title: "金田一少年の事件簿", author: "天樹征丸・さとうふみや", year: 1992, magazine: "週刊少年マガジン", genres: ["shonen_mystery"], desc: "名探偵の孫・一が難事件に挑む本格ミステリー。少年誌に密室殺人と論理パズルを持ち込みブームを起こした。" },
+  { id: "gto", title: "GTO", author: "藤沢とおる", year: 1997, magazine: "週刊少年マガジン", genres: ["weekly"], desc: "元暴走族の型破り教師・鬼塚英吉が学級崩壊した教室を再生させる。痛快な学園ドラマとして幅広い世代に支持された。" },
+  { id: "ippo", title: "はじめの一歩", author: "森川ジョージ", year: 1989, magazine: "週刊少年マガジン", genres: ["spokon"], desc: "いじめられっ子の幕之内一歩がボクシングで成長する。丁寧な試合描写と練習描写で長年愛される王道スポ根。" },
+  { id: "fairytail", title: "FAIRY TAIL", author: "真島ヒロ", year: 2006, magazine: "週刊少年マガジン", genres: ["jump_battle"], desc: "魔導士ギルド「妖精の尻尾」の仲間たちの冒険。仲間の絆と魔法バトルの王道で世界的な人気を博した。" },
+  { id: "tokyorev", title: "東京卍リベンジャーズ", author: "和久井健", year: 2017, magazine: "週刊少年マガジン", genres: ["weekly", "dark_fantasy"], desc: "タイムリープで過去に戻り、恋人と親友を救うため不良抗争に挑む。ヤンキー×タイムリープで社会現象的ヒットに。" },
+  { id: "bluelock", title: "ブルーロック", author: "金城宗幸・ノ村優介", year: 2018, magazine: "週刊少年マガジン", genres: ["spokon"], desc: "「世界一のエゴイストFW」を育てる過激なサッカー育成プロジェクト。従来のチームスポ根を覆す価値観で新世代の支持を得た。" },
+  { id: "frieren", title: "葬送のフリーレン", author: "山田鐘人・アベツカサ", year: 2020, magazine: "週刊少年サンデー", genres: ["dark_fantasy"], desc: "魔王を倒した後の世界を生きる長命のエルフ魔法使いフリーレン。死と時間、他者への理解を静かに描く「冒険の後」の物語。" },
+
+  // ===== 追加: 青年誌の傑作 =====
+  { id: "berserk", title: "ベルセルク", author: "三浦建太郎", year: 1989, magazine: "月刊アニマルハウス→ヤングアニマル", genres: ["dark_fantasy", "gekiga"], desc: "剣士ガッツの復讐と因果を描く暗黒中世ファンタジー。凄絶な描き込みと重厚な物語で、ダークファンタジーの頂点とされる。" },
+  { id: "ghost", title: "攻殻機動隊", author: "士郎正宗", year: 1989, magazine: "ヤングマガジン海賊版", genres: ["seinen_sf"], desc: "電脳化社会の公安部隊・草薙素子の活躍。情報と身体、意識の境界を問うサイバーパンクの世界的名作。" },
+  { id: "twentieth", title: "20世紀少年", author: "浦沢直樹", year: 1999, magazine: "ビッグコミックスピリッツ", genres: ["shakai", "seinen_sf"], desc: "子ども時代の空想の「よげんの書」が現実の陰謀とつながっていく。少年時代の郷愁と巨大な謎で読者を熱狂させた。" },
+  { id: "monster", title: "MONSTER", author: "浦沢直樹", year: 1994, magazine: "ビッグコミックオリジナル", genres: ["shakai", "shonen_mystery"], desc: "天才外科医テンマが救った少年が連続殺人鬼に。ドイツを舞台にした重厚な人間ドラマとサスペンスの傑作。" },
+  { id: "yawara", title: "YAWARA!", author: "浦沢直樹", year: 1986, magazine: "ビッグコミックスピリッツ", genres: ["spokon"], desc: "天才柔道少女・猪熊柔の日常と競技。バブル期の空気を軽やかに描いた青年誌スポーツ&ラブコメの名作。" },
+  { id: "vagabond", title: "バガボンド", author: "井上雄彦", year: 1998, magazine: "モーニング", genres: ["gekiga_jidai", "gekiga"], desc: "吉川英治『宮本武蔵』を原作に、剣豪の生と強さの意味を描く。圧倒的な筆致で時代劇画を新たな高みへ引き上げた。" },
+  { id: "kingdom", title: "キングダム", author: "原泰久", year: 2006, magazine: "週刊ヤングジャンプ", genres: ["gekiga_jidai"], desc: "古代中国・春秋戦国末期、下僕の少年・信が大将軍を目指す。壮大な戦記と群像劇で青年誌屈指の大ヒットとなった。" },
+  { id: "vinland", title: "ヴィンランド・サガ", author: "幸村誠", year: 2005, magazine: "週刊少年マガジン→アフタヌーン", genres: ["gekiga_jidai"], desc: "11世紀の北欧、復讐に生きる青年トルフィンが「真の戦士」へと変わっていく。史実に基づくヴァイキング叙事詩。" },
+  { id: "planetes", title: "プラネテス", author: "幸村誠", year: 1999, magazine: "モーニング", genres: ["seinen_sf"], desc: "宇宙のデブリ回収員たちを描く近未来SF。宇宙開発のリアルと人間の内面を静かに描いた叙情的傑作。" },
+  { id: "uchukyodai", title: "宇宙兄弟", author: "小山宙哉", year: 2007, magazine: "モーニング", genres: ["seinen_sf", "shakai"], desc: "宇宙飛行士を目指す兄弟の物語。夢と挫折を大人のリアリティで描き、実際の宇宙開発ファンにも支持された。" },
+  { id: "goldenkamuy", title: "ゴールデンカムイ", author: "野田サトル", year: 2014, magazine: "週刊ヤングジャンプ", genres: ["shakai", "gekiga_jidai"], desc: "明治末期の北海道、元兵士とアイヌの少女が金塊を追う。アイヌ文化・狩猟・グルメ・ギャグを詰め込んだ唯一無二の冒険譚。" },
+  { id: "tokyoghoul", title: "東京喰種", author: "石田スイ", year: 2011, magazine: "週刊ヤングジャンプ", genres: ["dark_fantasy"], desc: "人を喰う種族「喰種」となった青年カネキの苦悩。人と怪物の狭間を耽美な絵で描き、ダークヒーローものとして人気を集めた。" },
+  { id: "kaguya", title: "かぐや様は告らせたい", author: "赤坂アカ", year: 2015, magazine: "ミラクルジャンプ→週刊ヤングジャンプ", genres: ["lovecome"], desc: "秀才の生徒会長と副会長が「先に告白させたら負け」と頭脳戦を繰り広げる恋愛頭脳戦コメディ。令和ラブコメの代表作。" },
+  { id: "sangatsu", title: "3月のライオン", author: "羽海野チカ", year: 2007, magazine: "ヤングアニマル", genres: ["seinen_mag", "spokon"], desc: "孤独な少年棋士・桐山零が将棋と人との関わりの中で再生していく。繊細な心理描写で将棋を人間ドラマに昇華した。" },
+  { id: "ooku", title: "大奥", author: "よしながふみ", year: 2004, magazine: "MELODY", genres: ["ladies", "gekiga_jidai"], desc: "男女の役割が逆転した江戸幕府の「男子禁制ならぬ女将軍」という歴史改変。緻密な時代考証とジェンダー考察で高く評価された。" },
+  { id: "kinou", title: "きのう何食べた?", author: "よしながふみ", year: 2007, magazine: "モーニング", genres: ["gourmet", "essay"], desc: "中年ゲイカップルの日常と食卓を淡々と描く。実用的なレシピと等身大の暮らしで幅広い読者に愛される。" },
+  { id: "uzumaki", title: "うずまき", author: "伊藤潤二", year: 1998, magazine: "ビッグコミックスピリッツ", genres: ["shojo_horror"], desc: "「渦」に取り憑かれた町の怪異を描く伊藤潤二の代表作。理不尽で美しい恐怖のイメージで世界的カルト人気を持つ。" },
+  { id: "dorohedoro", title: "ドロヘドロ", author: "林田球", year: 2000, magazine: "月刊サンデーGX", genres: ["dark_fantasy", "seinen_sf"], desc: "魔法使いと「ホール」の住人が交錯する混沌の世界。緻密で異形な世界観とブラックな笑いで熱狂的ファンを持つ。" },
+  { id: "mob", title: "モブサイコ100", author: "ONE", year: 2012, magazine: "裏サンデー", genres: ["webcomic"], desc: "強大な超能力を持つ地味な少年モブの成長物語。『ワンパンマン』の作者ONEによるWeb発の人気作。" },
+
+  // ===== 追加: 少女・女性マンガの名作 =====
+  { id: "ace_nerae", title: "エースをねらえ!", author: "山本鈴美香", year: 1973, magazine: "週刊マーガレット", genres: ["shojo_romance", "spokon"], desc: "平凡な少女・岡ひろみが厳しい指導のもとテニスに打ち込む。スポ根と少女マンガを融合させ、後続に大きな影響を与えた。" },
+  { id: "candy", title: "キャンディ・キャンディ", author: "いがらしゆみこ・水木杏子", year: 1975, magazine: "なかよし", genres: ["shojo_romance"], desc: "孤児の少女キャンディの波乱の半生を描く大河ロマン。70年代を代表する少女マンガとして絶大な人気を誇った。" },
+  { id: "hanadan", title: "花より男子", author: "神尾葉子", year: 1992, magazine: "マーガレット", genres: ["shojo_romance"], desc: "庶民の少女つくしと御曹司集団「F4」のラブストーリー。少女マンガ歴代最多クラスの発行部数を記録した大ヒット作。" },
+  { id: "nana", title: "NANA", author: "矢沢あい", year: 2000, magazine: "Cookie", genres: ["ladies", "shojo_romance"], desc: "同じ名前の二人の「ナナ」の恋と夢と友情。音楽と等身大の青春でカリスマ的支持を集めた女性マンガの代表作。" },
+  { id: "fruits", title: "フルーツバスケット", author: "高屋奈月", year: 1998, magazine: "花とゆめ", genres: ["shojo_romance"], desc: "十二支の呪いを持つ草摩家と少女・透の交流。傷ついた心の再生を丁寧に描き、少女マンガ屈指の売上を記録した。" },
+  { id: "ccs", title: "カードキャプターさくら", author: "CLAMP", year: 1996, magazine: "なかよし", genres: ["battle_bishojo", "shojo_romance"], desc: "カードを集める魔法少女・木之本桜の物語。かわいらしさと多彩な衣装で魔法少女ものの新たな古典となった。" },
+  { id: "kimitodoke", title: "君に届け", author: "椎名軽穂", year: 2005, magazine: "別冊マーガレット", genres: ["shojo_romance"], desc: "誤解されがちな少女・爽子の初恋と友情。純度の高い青春描写で2000年代の少女マンガを代表する作品となった。" },
+  { id: "chihaya", title: "ちはやふる", author: "末次由紀", year: 2007, magazine: "BE・LOVE", genres: ["shojo_romance", "spokon"], desc: "競技かるたに青春を懸ける千早たちの物語。少女マンガとスポ根を融合し、競技かるたブームを巻き起こした。" },
+  { id: "nodame", title: "のだめカンタービレ", author: "二ノ宮知子", year: 2001, magazine: "Kiss", genres: ["ladies"], desc: "破天荒なピアニスト・のだめと指揮者志望の千秋のクラシック音楽ラブコメ。音大を舞台に音楽ブームを牽引した。" },
+  { id: "hachikuro", title: "ハチミツとクローバー", author: "羽海野チカ", year: 2000, magazine: "ヤングユー→コーラス", genres: ["ladies"], desc: "美大生たちの片思いと青春を瑞々しく描く。切なさとユーモアの絶妙な筆致で、後の羽海野作品の原点となった。" },
+
+  // ===== 追加: ギャグ・日常系 =====
+  { id: "crayon", title: "クレヨンしんちゃん", author: "臼井儀人", year: 1990, magazine: "漫画アクション", genres: ["nonsense", "yonkoma"], desc: "5歳児しんのすけの下品でおませなギャグ。国民的アニメとなり、日常ギャグマンガの代表格として世代を超えて愛される。" },
+  { id: "bobobo", title: "ボボボーボ・ボーボボ", author: "澤井啓夫", year: 2001, magazine: "週刊少年ジャンプ", genres: ["nonsense"], desc: "鼻毛真拳を操るボーボボの不条理ギャグ。理屈を超えたハイテンションとシュールさでカルト的人気を博した。" },
+  { id: "hiwa", title: "ギャグマンガ日和", author: "増田こうすけ", year: 2000, magazine: "月刊少年ジャンプ→ジャンプSQ.", genres: ["nonsense"], desc: "歴史上の偉人などを題材にした脱力系ショートギャグ。独特のテンポとシュールさでアニメ化もされた人気作。" },
+  { id: "yotsuba", title: "よつばと!", author: "あずまきよひこ", year: 2003, magazine: "月刊コミック電撃大王", genres: ["moe_yonkoma", "essay"], desc: "好奇心のかたまりの少女よつばと、彼女をとりまく人々の何気ない毎日。『あずまんが大王』の作者が描く日常系の到達点。" },
+  { id: "keion", title: "けいおん!", author: "かきふらい", year: 2007, magazine: "まんがタイムきらら", genres: ["moe_yonkoma"], desc: "軽音楽部の女の子たちのゆるい日常を描く4コマ。アニメ化で社会現象となり、「日常系×バンド」ブームを作った。" },
+  { id: "yurucamp", title: "ゆるキャン△", author: "あfろ", year: 2015, magazine: "まんがタイムきららフォワード", genres: ["moe_yonkoma"], desc: "少女たちのゆるやかなアウトドアと冬キャンプ。丁寧な風景描写と癒しの空気でキャンプブームの火付け役となった。" },
 ];
 
 // ---- helpers ----
@@ -698,6 +787,14 @@ export const SPOTS: MapSpot[] = [
     ],
   },
   {
+    id: "w-china", map: "world", lon: 108.9, lat: 34.3, place: "中国・咸陽(古代中国)",
+    works: [{ workId: "kingdom", note: "春秋戦国末期の中華。信と嬴政が天下統一を目指す" }],
+  },
+  {
+    id: "w-scandinavia", map: "world", lon: 10.0, lat: 56.0, dy: -6, place: "北欧・デンマーク",
+    works: [{ workId: "vinland", note: "11世紀、ヴァイキングの時代。トルフィンの復讐と再生" }],
+  },
+  {
     id: "w-grandline", map: "world", lon: -145, lat: -5, place: "偉大なる航路(架空)",
     works: [{ workId: "onepiece", note: "地図に載らない大海原。世界一周の大冒険はここから" }],
   },
@@ -707,6 +804,10 @@ export const SPOTS: MapSpot[] = [
   },
 
   // ---- 日本 ----
+  {
+    id: "j-otaru", map: "japan", lon: 141.0, lat: 43.19, dx: -10, place: "北海道・小樽/札幌",
+    works: [{ workId: "goldenkamuy", note: "明治末期の北海道。金塊と、アイヌ文化と、狩りと食" }],
+  },
   {
     id: "j-tokachi", map: "japan", lon: 143.2, lat: 42.92, place: "北海道・十勝",
     works: [{ workId: "ginsaji", note: "大蝦夷農業高校。広大な畑と家畜と、食べることの授業" }],
@@ -787,7 +888,11 @@ export const STORY_ERAS: StoryEra[] = [
   {
     id: "edo", label: "江戸時代", span: "1603 — 1868",
     desc: "侍と身分制度の時代。劇画がもっとも愛した舞台であり、時代劇画という一大ジャンルを生んだ。",
-    works: [{ workId: "kamui", note: "江戸初期。忍者カムイと被差別民・正助、三重の視点で身分社会を描く大河劇画" }],
+    works: [
+      { workId: "kamui", note: "江戸初期。忍者カムイと被差別民・正助、三重の視点で身分社会を描く大河劇画" },
+      { workId: "vagabond", note: "関ヶ原前後。剣豪・宮本武蔵の求道と成長" },
+      { workId: "ooku", note: "男女の役割が逆転した江戸城大奥という歴史改変" },
+    ],
   },
   {
     id: "euro", label: "18〜19世紀ヨーロッパ", span: "革命と貴族の時代",
@@ -801,7 +906,10 @@ export const STORY_ERAS: StoryEra[] = [
   {
     id: "meiji", label: "幕末・明治", span: "1853 — 1912",
     desc: "刀の時代の終わりと文明開化。「変わりゆく時代を生きる剣士」はマンガの永遠のモチーフ。",
-    works: [{ workId: "rurouni", note: "明治11年、東京。人斬りの過去を背負い不殺を誓う流浪人" }],
+    works: [
+      { workId: "rurouni", note: "明治11年、東京。人斬りの過去を背負い不殺を誓う流浪人" },
+      { workId: "goldenkamuy", note: "明治末期の北海道。元兵士とアイヌの少女が金塊を追う" },
+    ],
   },
   {
     id: "taisho", label: "大正", span: "1912 — 1926",
@@ -868,6 +976,10 @@ export const STORY_ERAS: StoryEra[] = [
       { workId: "hokuto", note: "199X年、核の炎に包まれた世紀末" },
       { workId: "shingeki", note: "三重の壁に囲まれた、巨人が支配する世界" },
       { workId: "tensura", note: "転生先のジュラ大森林。スライム、国を作る" },
+      { workId: "fma", note: "錬金術が科学として発達したもう一つの世界" },
+      { workId: "berserk", note: "使徒と烙印が支配する暗黒の中世風世界" },
+      { workId: "frieren", note: "魔王討伐後、長命のエルフが旅を続ける剣と魔法の世界" },
+      { workId: "dai", note: "『ドラゴンクエスト』の勇者と魔王の世界" },
     ],
   },
 ];
