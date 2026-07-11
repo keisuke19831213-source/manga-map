@@ -127,11 +127,16 @@ export default function MangaMap() {
       pinchDist.current = d;
       return;
     }
-    if (!drag.current) return;
-    const dx = e.clientX - drag.current.x;
-    const dy = e.clientY - drag.current.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) drag.current.moved = true;
-    setView((v) => ({ ...v, tx: drag.current!.tx + dx, ty: drag.current!.ty + dy }));
+    const d0 = drag.current;
+    if (!d0) return;
+    const dx = e.clientX - d0.x;
+    const dy = e.clientY - d0.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) d0.moved = true;
+    // 更新関数の実行が遅延した後に指が離れてdrag.currentがnullになっても
+    // 落ちないよう、値はここでキャプチャしておく
+    const ntx = d0.tx + dx;
+    const nty = d0.ty + dy;
+    setView((v) => ({ ...v, tx: ntx, ty: nty }));
   };
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId);
