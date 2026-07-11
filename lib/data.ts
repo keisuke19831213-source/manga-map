@@ -702,6 +702,65 @@ export const WORKS: Work[] = [
   { id: "yotsuba", title: "よつばと!", author: "あずまきよひこ", year: 2003, magazine: "月刊コミック電撃大王", genres: ["moe_yonkoma", "essay"], desc: "好奇心のかたまりの少女よつばと、彼女をとりまく人々の何気ない毎日。『あずまんが大王』の作者が描く日常系の到達点。" },
   { id: "keion", title: "けいおん!", author: "かきふらい", year: 2007, magazine: "まんがタイムきらら", genres: ["moe_yonkoma"], desc: "軽音楽部の女の子たちのゆるい日常を描く4コマ。アニメ化で社会現象となり、「日常系×バンド」ブームを作った。" },
   { id: "yurucamp", title: "ゆるキャン△", author: "あfろ", year: 2015, magazine: "まんがタイムきららフォワード", genres: ["moe_yonkoma"], desc: "少女たちのゆるやかなアウトドアと冬キャンプ。丁寧な風景描写と癒しの空気でキャンプブームの火付け役となった。" },
+
+  // ===== 追加(第2弾): 昭和ギャグ・スポ根の名作 =====
+  { id: "bakabon", title: "天才バカボン", author: "赤塚不二夫", year: 1967, magazine: "週刊少年マガジン", genres: ["akatsuka"], desc: "「これでいいのだ」バカボンのパパの破壊的ナンセンス。赤塚ギャグの代表作として世代を超えて親しまれる。" },
+  { id: "gakideka", title: "がきデカ", author: "山上たつひこ", year: 1974, magazine: "週刊少年チャンピオン", genres: ["nonsense"], desc: "少年警察官こまわり君の下品で過激なギャグ。「死刑!」の決めポーズで70年代ギャグ革命を象徴した。" },
+  { id: "macaroni", title: "マカロニほうれん荘", author: "鴨川つばめ", year: 1977, magazine: "週刊少年チャンピオン", genres: ["nonsense"], desc: "ハイテンションとパロディを詰め込んだ狂騒的ギャグ。後のギャグマンガの疾走感に絶大な影響を与えた伝説的作品。" },
+  { id: "kimenzu", title: "ハイスクール!奇面組", author: "新沢基栄", year: 1982, magazine: "週刊少年ジャンプ", genres: ["nonsense"], desc: "個性派5人組「奇面組」が繰り広げる学園ギャグ。80年代ジャンプのギャグ路線を支えた人気作。" },
+  { id: "cobra", title: "コブラ", author: "寺沢武一", year: 1978, magazine: "週刊少年ジャンプ", genres: ["seinen_sf"], desc: "サイコガンを持つ宇宙海賊コブラの活躍。日本初期のアメコミ的スペースオペラとして高い人気を得た。" },
+  { id: "dokaben", title: "ドカベン", author: "水島新司", year: 1972, magazine: "週刊少年チャンピオン", genres: ["spokon"], desc: "山田太郎を中心とした高校野球群像劇。緻密な試合描写で野球マンガの一時代を築いた長期連載。" },
+  { id: "captain_chiba", title: "キャプテン", author: "ちばあきお", year: 1972, magazine: "月刊少年ジャンプ", genres: ["spokon"], desc: "平凡な選手たちが努力で強豪になる中学野球。派手さのない誠実なスポ根として今も評価が高い名作。" },
+  { id: "ring", title: "リングにかけろ", author: "車田正美", year: 1977, magazine: "週刊少年ジャンプ", genres: ["spokon", "jump_battle"], desc: "必殺ブローが炸裂するボクシング。スポ根に超人的な演出を持ち込み、後の車田作品と少年バトルの原型となった。" },
+  { id: "rookies", title: "ROOKIES", author: "森田まさのり", year: 1998, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "不良だらけの野球部を熱血教師が再生させる。汗と涙の青春群像で幅広い支持を集めた。" },
+  { id: "hoshin", title: "封神演義", author: "藤崎竜", year: 1996, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "中国古典を大胆にアレンジした仙人バトル。スタイリッシュな作画と独自の解釈でカルト的人気を博した。" },
+
+  // ===== 追加(第2弾): ジャンプ系バトル/近年のヒット =====
+  { id: "reborn", title: "家庭教師ヒットマンREBORN!", author: "天野明", year: 2004, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "ダメ中学生ツナがマフィアのボス修行に巻き込まれる。ギャグから本格バトルへ転じる構成で人気を集めた。" },
+  { id: "toriko", title: "トリコ", author: "島袋光年", year: 2008, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "gourmet"], desc: "美食屋トリコが究極の食材を狩る。グルメとバトルを融合した豪快な世界観が特徴。" },
+  { id: "ansatsu", title: "暗殺教室", author: "松井優征", year: 2012, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "nonsense"], desc: "地球を破壊すると宣言した謎の生物「殺せんせー」を暗殺する学園もの。教育と成長を軸にした異色作。" },
+  { id: "souma", title: "食戟のソーマ", author: "附田祐斗・佐伯俊", year: 2012, magazine: "週刊少年ジャンプ", genres: ["gourmet", "jump_battle"], desc: "料理対決「食戟」に挑む幸平創真。バトルマンガの熱量を料理に注ぎ込んだグルメ×ジャンプの人気作。" },
+  { id: "dgray", title: "D.Gray-man", author: "星野桂", year: 2004, magazine: "週刊少年ジャンプ", genres: ["dark_fantasy"], desc: "悪魔「AKUMA」と戦うエクソシストの物語。ゴシックで緻密な世界観とキャラ人気で支持を得た。" },
+  { id: "kaiju8", title: "怪獣8号", author: "松本直也", year: 2020, magazine: "少年ジャンプ+", genres: ["webcomic", "dark_fantasy"], desc: "怪獣の力を得た中年男が防衛隊で戦う。Web連載発で国内外の同時人気を獲得した新世代のヒット作。" },
+  { id: "oshinoko", title: "【推しの子】", author: "赤坂アカ・横槍メンゴ", year: 2020, magazine: "週刊ヤングジャンプ", genres: ["shakai", "shonen_mystery"], desc: "アイドルの子に転生した主人公が芸能界の闇に挑む。転生×芸能×サスペンスで社会現象的ヒットとなった。" },
+  { id: "sakamoto", title: "SAKAMOTO DAYS", author: "鈴木祐斗", year: 2020, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "引退した伝説の殺し屋・坂本が家族を守るために戦う。洗練されたアクション演出で人気を集める。" },
+  { id: "dandadan", title: "ダンダダン", author: "龍幸伸", year: 2021, magazine: "少年ジャンプ+", genres: ["webcomic", "dark_fantasy", "yokai"], desc: "オカルトと宇宙人が交錯する青春バトル。圧倒的な画力とテンポでWeb発の話題作となった。" },
+
+  // ===== 追加(第2弾): サンデー・マガジンの名作 =====
+  { id: "h2", title: "H2", author: "あだち充", year: 1992, magazine: "週刊少年サンデー", genres: ["lovecome", "spokon"], desc: "野球と幼なじみたちの三角関係。あだち充の集大成的な青春野球ラブコメの名作。" },
+  { id: "kyoukara", title: "今日から俺は!!", author: "西森博之", year: 1988, magazine: "週刊少年サンデー", genres: ["nonsense"], desc: "転校を機に不良デビューした二人組のヤンキーギャグ。テンポの良い笑いとケンカで長く愛される。" },
+  { id: "diamond", title: "ダイヤのA", author: "寺嶋裕二", year: 2006, magazine: "週刊少年マガジン", genres: ["spokon"], desc: "名門野球部で成長する投手・沢村栄純。ポジション争いの緊張感を丁寧に描く本格野球マンガ。" },
+  { id: "nanatsu", title: "七つの大罪", author: "鈴木央", year: 2012, magazine: "週刊少年マガジン", genres: ["jump_battle", "dark_fantasy"], desc: "伝説の騎士団「七つの大罪」の冒険。王道ファンタジーバトルとして世界的にヒットした。" },
+  { id: "gotoubun", title: "五等分の花嫁", author: "春場ねぎ", year: 2017, magazine: "週刊少年マガジン", genres: ["lovecome"], desc: "五つ子の家庭教師をする少年の恋の行方。「誰と結ばれるか」の謎で読者を熱狂させたラブコメの代表作。" },
+  { id: "ajin", title: "亜人", author: "桜井画門", year: 2012, magazine: "good!アフタヌーン", genres: ["seinen_sf", "dark_fantasy"], desc: "死なない新人類「亜人」をめぐる攻防。冷徹な頭脳戦とアクションで青年誌のヒットとなった。" },
+  { id: "initiald", title: "頭文字D", author: "しげの秀一", year: 1995, magazine: "週刊ヤングマガジン", genres: ["seinen_mag"], desc: "峠を攻める公道バトルを描く走り屋マンガ。ドリフトブームを生み、走り屋文化の象徴となった。" },
+
+  // ===== 追加(第2弾): 青年誌の傑作 =====
+  { id: "mushishi", title: "蟲師", author: "漆原友紀", year: 1999, magazine: "月刊アフタヌーン", genres: ["yokai", "seinen_mag"], desc: "「蟲」と人の関わりを描く幻想譚。静謐で詩的な世界観が高く評価される連作短編の名作。" },
+  { id: "historie", title: "ヒストリエ", author: "岩明均", year: 2003, magazine: "月刊アフタヌーン", genres: ["gekiga_jidai"], desc: "古代ギリシャの書記官エウメネスの生涯。『寄生獣』の岩明均が描く緻密な歴史大河。" },
+  { id: "baki", title: "グラップラー刃牙", author: "板垣恵介", year: 1991, magazine: "週刊少年チャンピオン", genres: ["jump_battle", "spokon"], desc: "最強を求める格闘家・範馬刃牙の死闘。過剰な肉体描写と独特の格闘理論でカルト的人気を誇る。" },
+  { id: "akagi", title: "アカギ", author: "福本伸行", year: 1992, magazine: "近代麻雀", genres: ["gamble"], desc: "天才・赤木しげるの麻雀と生き様。命を賭けた勝負の哲学で麻雀劇画の頂点に立つ。" },
+  { id: "ten", title: "天 天和通りの快男児", author: "福本伸行", year: 1989, magazine: "近代麻雀ゴールド", genres: ["gamble"], desc: "麻雀を軸に男たちの生き方を描く。後半の赤木しげるの死と対話は劇画屈指の名場面とされる。" },
+  { id: "kintaro", title: "サラリーマン金太郎", author: "本宮ひろ志", year: 1994, magazine: "週刊ヤングジャンプ", genres: ["business"], desc: "元暴走族総長のサラリーマンが正論と行動力で会社を動かす。痛快なビジネスマンガの代表作。" },
+  { id: "pluto", title: "PLUTO", author: "浦沢直樹・手塚治虫", year: 2003, magazine: "ビッグコミックオリジナル", genres: ["seinen_sf"], desc: "手塚治虫『鉄腕アトム』の「地上最大のロボット」を浦沢直樹がリメイク。ロボットと戦争を重厚に描いた傑作。" },
+  { id: "kodoku", title: "孤独のグルメ", author: "久住昌之・谷口ジロー", year: 1994, magazine: "月刊PANJA", genres: ["gourmet"], desc: "中年男が一人で飯を食うだけの物語。派手な蘊蓄も事件もない「ただ食べる」ことの豊かさで新境地を開いた。" },
+  { id: "shinya", title: "深夜食堂", author: "安倍夜郎", year: 2006, magazine: "ビッグコミックオリジナル", genres: ["gourmet"], desc: "深夜だけ開く小さな食堂に集う人々の人情群像。一皿ごとに描かれる市井のドラマが胸を打つ。" },
+  { id: "bluegiant", title: "BLUE GIANT", author: "石塚真一", year: 2013, magazine: "ビッグコミック", genres: ["seinen_mag"], desc: "世界一のジャズプレイヤーを目指す少年の物語。音を絵で聴かせる圧巻の演奏描写で高く評価された。" },
+  { id: "kusuriya", title: "薬屋のひとりごと", author: "日向夏・ねこクラゲ", year: 2017, magazine: "月刊サンデーGX / ビッグガンガン", genres: ["shonen_mystery", "gekiga_jidai"], desc: "後宮を舞台に、薬の知識で事件を解く少女・猫猫。中華風ミステリーとして大ヒットしたコミカライズ。" },
+
+  // ===== 追加(第2弾): 少女・女性・BLの名作 =====
+  { id: "animal_doctor", title: "動物のお医者さん", author: "佐々木倫子", year: 1987, magazine: "花とゆめ", genres: ["nonsense"], desc: "北海道の獣医学部を舞台にした脱力系コメディ。シベリアンハスキーブームを起こした少女誌の異色作。" },
+  { id: "patalliro", title: "パタリロ!", author: "魔夜峰央", year: 1978, magazine: "花とゆめ", genres: ["nonsense", "bl"], desc: "常若の王パタリロが引き起こすギャグと美形スパイの物語。少女誌の長寿ギャグ&BLの先駆けとして知られる。" },
+  { id: "yona", title: "暁のヨナ", author: "草凪みずほ", year: 2009, magazine: "花とゆめ", genres: ["shojo_romance"], desc: "国を追われた王女ヨナの成長と冒険。ファンタジー大河として少女マンガの枠を広げた人気作。" },
+  { id: "ouran", title: "桜蘭高校ホスト部", author: "葉鳥ビスコ", year: 2002, magazine: "LaLa", genres: ["shojo_romance"], desc: "名門校のホスト部に巻き込まれた少女ハルヒ。逆ハーレムコメディの代表作として人気を博した。" },
+  { id: "tarareba", title: "東京タラレバ娘", author: "東村アキコ", year: 2014, magazine: "Kiss", genres: ["ladies"], desc: "アラサー女子の恋と焦りをシビアかつコミカルに描く。等身大の共感で女性読者の圧倒的支持を得た。" },
+  { id: "sekaiichi", title: "世界一初恋", author: "中村春菊", year: 2006, magazine: "エメラルド", genres: ["bl"], desc: "編集部を舞台にした社会人BLの人気作。商業BLの拡大を象徴する代表的シリーズ。" },
+
+  // ===== 追加(第2弾): 日常系・デジタル =====
+  { id: "lucky", title: "らき☆すた", author: "美水かがみ", year: 2004, magazine: "月刊コンプティーク", genres: ["moe_yonkoma"], desc: "オタク女子高生たちのゆるい4コマ。アニメ化で聖地巡礼ブームを生み、日常系文化を象徴した。" },
+  { id: "saint_oniisan", title: "聖☆おにいさん", author: "中村光", year: 2006, magazine: "モーニング・ツー", genres: ["nonsense", "essay"], desc: "ブッダとイエスが下界で暮らすゆるい日常コメディ。宗教をやわらかく扱う発想の妙で人気を得た。" },
+  { id: "nichijou", title: "日常", author: "あらゐけいいち", year: 2006, magazine: "月刊少年エース", genres: ["nonsense", "moe_yonkoma"], desc: "淡々とした日常が突然シュールに崩れるギャグ。独特のテンポと不条理さで熱狂的ファンを持つ。" },
+  { id: "relife", title: "ReLIFE", author: "夜宵草", year: 2013, magazine: "comico", genres: ["webtoon"], desc: "ニートの主人公が薬で高校生に戻りやり直す。縦読みフルカラーアプリ発の初期ヒット作。" },
 ];
 
 // ---- helpers ----
