@@ -1,5 +1,5 @@
-import MangaMap from "@/components/MangaMap";
+import GenreView from "@/components/GenreView";
 
 export default function Home() {
-  return <MangaMap />;
+  return <GenreView />;
 }

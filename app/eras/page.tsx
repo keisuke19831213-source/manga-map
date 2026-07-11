@@ -1,4 +1,4 @@
-import EraTimeline from "@/components/EraTimeline";
+import EraView from "@/components/EraView";
 
 export const metadata = { title: "時代設定マップ — MANGA MAP" };
 
@@ -11,7 +11,7 @@ export default function ErasPage() {
         「いつの時代の物語か」で全人類史にマンガをマッピング。日本・中国・ヨーロッパなど地域別のタイムラインから、
         引き出し線で書影がつながります。紀元前のキングダムから時間軸の外の異世界まで、ズームして旅してください。
       </p>
-      <EraTimeline />
+      <EraView />
     </div>
   );
 }
