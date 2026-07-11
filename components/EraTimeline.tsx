@@ -310,20 +310,20 @@ export default function EraTimeline() {
             />
 
             {/* 年代軸(定規バー) */}
-            <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: AXIS_H, background: "#fffdf4", borderBottom: "2.5px solid var(--ink)", zIndex: 2, pointerEvents: "none" }} />
+            <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: AXIS_H, background: "#fffdf4", borderBottom: "2.5px solid var(--ink)", zIndex: 9, pointerEvents: "none" }} />
             {TICKS.map((t) => {
               const x = X(t.year);
               if (x < -40 || x > cw + 40) return null;
               return (
                 <div key={t.year} style={{ position: "absolute", left: x, top: 0, height: VH, pointerEvents: "none" }}>
                   <div style={{ position: "absolute", top: AXIS_H, width: 1.5, height: VH - AXIS_H, background: "rgba(23,19,16,0.09)" }} />
-                  <div style={{ position: "absolute", top: AXIS_H - 12, width: 2, height: 12, background: "var(--ink)", zIndex: 3 }} />
-                  <div style={{ position: "absolute", top: 8, left: 5, fontSize: 11.5, fontWeight: 900, color: "var(--ink)", zIndex: 3, fontFamily: "var(--font-base)" }}>{t.label}</div>
+                  <div style={{ position: "absolute", top: AXIS_H - 12, width: 2, height: 12, background: "var(--ink)", zIndex: 10 }} />
+                  <div style={{ position: "absolute", top: 8, left: 5, fontSize: 11.5, fontWeight: 900, color: "var(--ink)", zIndex: 10, fontFamily: "var(--font-base)" }}>{t.label}</div>
                 </div>
               );
             })}
             {/* 架空ゾーンラベル */}
-            <div style={{ position: "absolute", left: FANTASY_X * k + tx + 10, top: 12, fontSize: 11, fontWeight: 900, color: "#db2777", zIndex: 3, pointerEvents: "none", whiteSpace: "nowrap" }}>
+            <div style={{ position: "absolute", left: FANTASY_X * k + tx + 10, top: 12, fontSize: 11, fontWeight: 900, color: "#db2777", zIndex: 10, pointerEvents: "none", whiteSpace: "nowrap" }}>
               ⟵ここから先は時間軸の外(架空・異世界)
             </div>
 
@@ -457,6 +457,73 @@ export default function EraTimeline() {
               <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 17 }} onClick={(e) => { e.stopPropagation(); zoomBy(1 / 1.5); }} onPointerDown={(e) => e.stopPropagation()}>－</button>
               <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 10 }} onClick={(e) => { e.stopPropagation(); setView({ tx: 0, ty: 0, k: kFit }); }} onPointerDown={(e) => e.stopPropagation()}>全体</button>
             </div>
+          </div>
+
+          {/* ミニマップ(全期間ナビ: クリック/ドラッグで移動) */}
+          <div
+            className="tl-minimap"
+            onPointerDown={(e) => {
+              const bar = e.currentTarget.getBoundingClientRect();
+              const jump = (clientX: number) => {
+                const fx = Math.max(0, Math.min(1, (clientX - bar.left) / bar.width));
+                setView((v) => {
+                  const cur = v ?? { tx: 0, ty: 0, k: kFit };
+                  return { ...cur, tx: cw / 2 - fx * TL_W * cur.k };
+                });
+              };
+              jump(e.clientX);
+              const move = (ev: PointerEvent) => jump(ev.clientX);
+              const up = () => {
+                window.removeEventListener("pointermove", move);
+                window.removeEventListener("pointerup", up);
+              };
+              window.addEventListener("pointermove", move);
+              window.addEventListener("pointerup", up);
+            }}
+          >
+            {/* 架空ゾーン */}
+            <div
+              style={{
+                position: "absolute",
+                left: `${(FANTASY_X / TL_W) * 100}%`,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                background: "repeating-linear-gradient(-45deg, rgba(219,39,119,0.12), rgba(219,39,119,0.12) 4px, transparent 4px, transparent 8px)",
+              }}
+            />
+            {/* 作品の分布ドット */}
+            {TIMELINE.map((e) => {
+              const region = TL_REGIONS.find((r) => r.id === e.region);
+              return (
+                <span
+                  key={`${e.region}-${e.workId}`}
+                  style={{
+                    position: "absolute",
+                    left: `${(tlX(e.year) / TL_W) * 100}%`,
+                    top: `${18 + TL_REGIONS.findIndex((r) => r.id === e.region) * 11}%`,
+                    width: 5,
+                    height: 5,
+                    marginLeft: -2.5,
+                    borderRadius: "50%",
+                    background: region?.color,
+                  }}
+                />
+              );
+            })}
+            {/* 現在の表示範囲 */}
+            <div
+              style={{
+                position: "absolute",
+                left: `${Math.max(0, ((-tx) / (TL_W * k)) * 100)}%`,
+                width: `${Math.min(100, (cw / (TL_W * k)) * 100)}%`,
+                top: 0,
+                bottom: 0,
+                border: "2px solid var(--accent)",
+                background: "rgba(227,59,46,0.09)",
+                boxSizing: "border-box",
+              }}
+            />
           </div>
         </div>
 

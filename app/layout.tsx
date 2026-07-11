@@ -1,11 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import SearchBox from "@/components/SearchBox";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "MANGA MAP — マンガの歴史とジャンルの進化マップ",
   description:
     "musicmapのマンガ版。ジャンル系統マップ、舞台マップ(世界/日本)、時代設定タイムラインでマンガの歴史を可視化。おすすめ投稿とコマ単位のコメントは吹き出しで。",
+  openGraph: {
+    title: "MANGA MAP — マンガの歴史とジャンルの進化マップ",
+    description:
+      "171作品のマンガをジャンル系統図・舞台マップ・時代設定タイムラインで可視化。読者の声はマンガの吹き出しで。",
+    siteName: "MANGA MAP",
+    type: "website",
+    locale: "ja_JP",
+  },
+  twitter: {
+    card: "summary",
+    title: "MANGA MAP — マンガの歴史とジャンルの進化マップ",
+    description: "マンガの歴史・ジャンル・舞台・時代を1つのサイトで可視化",
+  },
 };
 
 // マンガの組版慣習に沿ったフォントセット
@@ -49,6 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/history">マンガ史年表</Link>
             <Link href="/community">みんなの投稿</Link>
           </nav>
+          <SearchBox />
         </header>
         <main>{children}</main>
         <footer
