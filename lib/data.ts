@@ -854,6 +854,14 @@ export const SPOTS: MapSpot[] = [
     works: [{ workId: "vinland", note: "11世紀、ヴァイキングの時代。トルフィンの復讐と再生" }],
   },
   {
+    id: "w-dusseldorf", map: "world", lon: 6.78, lat: 51.22, dx: -6, dy: -8, place: "ドイツ・デュッセルドルフ",
+    works: [{ workId: "monster", note: "テンマが働いたアイスラー記念病院の街。物語はドイツ各地へ" }],
+  },
+  {
+    id: "w-macedonia", map: "world", lon: 22.54, lat: 40.75, dy: 6, place: "ギリシャ・マケドニア",
+    works: [{ workId: "historie", note: "アレクサンドロス大王に仕えた書記官エウメネスの生涯" }],
+  },
+  {
     id: "w-grandline", map: "world", lon: -145, lat: -5, place: "偉大なる航路(架空)",
     works: [{ workId: "onepiece", note: "地図に載らない大海原。世界一周の大冒険はここから" }],
   },
@@ -877,7 +885,22 @@ export const SPOTS: MapSpot[] = [
   },
   {
     id: "j-saitama", map: "japan", lon: 139.65, lat: 35.91, dy: -10, place: "埼玉",
-    works: [{ workId: "tondesaitama", note: "東京都民に虐げられる埼玉県民の逆襲。愛ある郷土ギャグの聖地" }],
+    works: [
+      { workId: "tondesaitama", note: "東京都民に虐げられる埼玉県民の逆襲。愛ある郷土ギャグの聖地" },
+      { workId: "crayon", note: "春日部の野原一家。しんちゃんは市の子育て応援キャラクター" },
+    ],
+  },
+  {
+    id: "j-gunma", map: "japan", lon: 138.87, lat: 36.47, dy: -8, place: "群馬・榛名山(秋名)",
+    works: [{ workId: "initiald", note: "ハチロクが下る秋名の峠。モデルは榛名山のワインディング" }],
+  },
+  {
+    id: "j-sendai", map: "japan", lon: 140.87, lat: 38.27, place: "宮城・仙台",
+    works: [{ workId: "bluegiant", note: "大が広瀬川の河原でテナーサックスを吹き続けた街" }],
+  },
+  {
+    id: "j-omi", map: "japan", lon: 135.85, lat: 35.03, dx: -8, dy: -10, place: "滋賀・近江神宮",
+    works: [{ workId: "chihaya", note: "競技かるたの聖地。名人位・クイーン位戦の舞台" }],
   },
   {
     id: "j-tokyo-center", map: "japan", lon: 139.76, lat: 35.68, place: "東京・都心",

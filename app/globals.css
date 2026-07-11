@@ -1100,3 +1100,60 @@ main {
   color: var(--ink-soft);
   line-height: 1.6;
 }
+
+/* ================= モバイル調整 ================= */
+@media (max-width: 640px) {
+  .site-header {
+    height: 52px;
+    gap: 10px;
+    padding: 0 10px;
+  }
+
+  .site-logo {
+    font-size: 18px;
+  }
+
+  .site-nav a {
+    font-size: 11px;
+    padding: 3px 8px;
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+
+  .page {
+    padding: 22px 12px 60px;
+  }
+
+  .page h1,
+  .manga-title {
+    font-size: 25px;
+  }
+
+  .page-lead {
+    font-size: 12.5px;
+  }
+
+  .bx-content {
+    font-size: 13px;
+    line-height: 1.85;
+  }
+
+  .bx-narration {
+    font-size: 12.5px;
+  }
+
+  .work-hero {
+    padding: 18px 16px;
+  }
+
+  .works-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .era-work {
+    max-width: 100%;
+  }
+
+  .post-form .field.small {
+    flex: 1 1 30%;
+  }
+}

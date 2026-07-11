@@ -133,18 +133,51 @@ export default function AtlasMap() {
     });
   };
 
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinchDist = useRef<number | null>(null);
+
   const onPointerDown = (e: React.PointerEvent) => {
-    (e.target as Element).setPointerCapture?.(e.pointerId);
-    drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 1) {
+      drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
+    } else {
+      // 2本目の指: ドラッグをやめてピンチへ
+      drag.current = null;
+      pinchDist.current = null;
+    }
   };
   const onPointerMove = (e: React.PointerEvent) => {
+    if (!pointers.current.has(e.pointerId)) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const pts = [...pointers.current.values()];
+    if (pts.length >= 2) {
+      // ピンチズーム(2本指の中点を基準に拡大縮小)
+      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      const rect = wrapRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const mx = ((pts[0].x + pts[1].x) / 2 - rect.left) / f;
+      const my = ((pts[0].y + pts[1].y) / 2 - rect.top) / f;
+      if (pinchDist.current) {
+        const factor = d / pinchDist.current;
+        setView((v) => {
+          const k = Math.min(12, Math.max(1, v.k * factor));
+          const s = k / v.k;
+          return { k, tx: mx - (mx - v.tx) * s, ty: my - (my - v.ty) * s };
+        });
+      }
+      pinchDist.current = d;
+      return;
+    }
     if (!drag.current) return;
     const dx = (e.clientX - drag.current.x) / f;
     const dy = (e.clientY - drag.current.y) / f;
     if (Math.abs(dx) + Math.abs(dy) > 3) drag.current.moved = true;
     setView((v) => ({ ...v, tx: drag.current!.tx + dx, ty: drag.current!.ty + dy }));
   };
-  const onPointerUp = () => {
+  const onPointerUp = (e: React.PointerEvent) => {
+    pointers.current.delete(e.pointerId);
+    pinchDist.current = null;
     drag.current = null;
   };
 

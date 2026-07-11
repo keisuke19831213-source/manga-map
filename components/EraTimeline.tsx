@@ -57,6 +57,28 @@ const TICKS: { year: number; label: string }[] = [
   { year: 2100, label: "2100" },
 ];
 
+// 各トラックに添える歴史イベント(時代の道しるべ)
+const EVENTS: { region: string; year: number; label: string }[] = [
+  { region: "japan", year: 1603, label: "江戸幕府成立" },
+  { region: "japan", year: 1868, label: "明治維新" },
+  { region: "japan", year: 1923, label: "関東大震災" },
+  { region: "japan", year: 1945, label: "終戦" },
+  { region: "japan", year: 1964, label: "東京五輪" },
+  { region: "japan", year: 1991, label: "バブル崩壊" },
+  { region: "japan", year: 2011, label: "東日本大震災" },
+  { region: "asia", year: -221, label: "秦が中華統一" },
+  { region: "asia", year: 618, label: "唐の建国" },
+  { region: "asia", year: 1912, label: "清の滅亡" },
+  { region: "europe", year: -334, label: "アレクサンドロス東征" },
+  { region: "europe", year: 793, label: "ヴァイキング時代はじまる" },
+  { region: "europe", year: 1789, label: "フランス革命" },
+  { region: "europe", year: 1914, label: "第一次世界大戦" },
+  { region: "europe", year: 1989, label: "ベルリンの壁崩壊" },
+  { region: "world", year: 1776, label: "アメリカ独立" },
+  { region: "world", year: 1929, label: "世界恐慌" },
+  { region: "world", year: 1969, label: "人類、月に立つ" },
+];
+
 // 日本トラックの時代帯
 const JP_ERAS: { from: number; to: number; name: string }[] = [
   { from: 1603, to: 1868, name: "江戸" },
@@ -150,18 +172,50 @@ export default function EraTimeline() {
     });
   };
 
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinchDist = useRef<number | null>(null);
+
   const onPointerDown = (e: React.PointerEvent) => {
-    (e.target as Element).setPointerCapture?.(e.pointerId);
-    drag.current = { x: e.clientX, tx, moved: false };
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 1) {
+      drag.current = { x: e.clientX, tx, moved: false };
+    } else {
+      drag.current = null;
+      pinchDist.current = null;
+    }
   };
   const onPointerMove = (e: React.PointerEvent) => {
+    if (!pointers.current.has(e.pointerId)) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const pts = [...pointers.current.values()];
+    if (pts.length >= 2) {
+      // ピンチで時間軸をズーム(2本指の中点基準)
+      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      const rect = wrapRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const mx = (pts[0].x + pts[1].x) / 2 - rect.left;
+      if (pinchDist.current) {
+        const factor = d / pinchDist.current;
+        setView((v) => {
+          const cur = v ?? { tx: 0, k: kFit };
+          const kMin = kFit * 0.9;
+          const nk = Math.min(kMin * 60, Math.max(kMin, cur.k * factor));
+          return { k: nk, tx: mx - ((mx - cur.tx) * nk) / cur.k };
+        });
+      }
+      pinchDist.current = d;
+      return;
+    }
     if (!drag.current) return;
     const dx = e.clientX - drag.current.x;
     if (Math.abs(dx) > 3) drag.current.moved = true;
     const ntx = drag.current.tx + dx;
     setView((v) => ({ k: v?.k ?? kFit, tx: ntx }));
   };
-  const onPointerUp = () => {
+  const onPointerUp = (e: React.PointerEvent) => {
+    pointers.current.delete(e.pointerId);
+    pinchDist.current = null;
     drag.current = null;
   };
 
@@ -269,6 +323,19 @@ export default function EraTimeline() {
                     })}
                   {/* 中心線 */}
                   <div style={{ position: "absolute", left: 0, right: 0, top: cy - 1, height: 2, background: region.color, opacity: 0.5, pointerEvents: "none" }} />
+                  {/* 歴史イベント(道しるべ) */}
+                  {EVENTS.filter((ev) => ev.region === region.id).map((ev) => {
+                    const ex = X(ev.year);
+                    if (ex < -60 || ex > cw + 60) return null;
+                    return (
+                      <div key={ev.label} style={{ position: "absolute", left: ex, top: cy, zIndex: 1, pointerEvents: "none" }}>
+                        <div style={{ position: "absolute", left: -4, top: -4, width: 8, height: 8, background: "#fff", border: `2px solid ${region.color}`, transform: "rotate(45deg)" }} />
+                        <div style={{ position: "absolute", left: 7, top: 4, fontSize: 9.5, fontWeight: 700, color: "rgba(23,19,16,0.55)", whiteSpace: "nowrap" }}>
+                          {ev.label}
+                        </div>
+                      </div>
+                    );
+                  })}
                   {/* 地域ラベル(固定) */}
                   <div
                     style={{
