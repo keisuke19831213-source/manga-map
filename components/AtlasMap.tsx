@@ -67,6 +67,25 @@ export default function AtlasMap() {
   const [mapKind, setMapKind] = useState<MapKind>("japan");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [view, setView] = useState({ tx: 0, ty: 0, k: 1 });
+  // ドラッグ/ピンチ中の更新をフレーム毎1回に間引く(モバイルの描画詰まり対策)
+  const viewRef = useRef(view);
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+  const pendingView = useRef<{ tx: number; ty: number; k: number } | null>(null);
+  const rafId = useRef(0);
+  const pushView = (fn: (v: { tx: number; ty: number; k: number }) => { tx: number; ty: number; k: number }) => {
+    pendingView.current = fn(pendingView.current ?? viewRef.current);
+    if (!rafId.current) {
+      rafId.current = requestAnimationFrame(() => {
+        rafId.current = 0;
+        if (pendingView.current) {
+          setView(pendingView.current);
+          pendingView.current = null;
+        }
+      });
+    }
+  };
   const [voiceIdx, setVoiceIdx] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
@@ -97,6 +116,18 @@ export default function AtlasMap() {
     };
   }, [fc, mapKind, w, h]);
 
+  // ベース地図(50前後のパス)はメモ化し、パン/ズーム中の再構築を避ける
+  const baseLayer = useMemo(
+    () => (
+      <g fill="#ffffff" stroke={INK} strokeWidth={mapKind === "world" ? 0.6 : 0.9} strokeLinejoin="round" style={{ vectorEffect: "non-scaling-stroke" }}>
+        {paths.map((d, i) => (
+          <path key={i} d={d} style={{ vectorEffect: "non-scaling-stroke" }} />
+        ))}
+      </g>
+    ),
+    [paths, mapKind]
+  );
+
   // マップ切替時にビューをリセット
   useEffect(() => {
     setView({ tx: 0, ty: 0, k: 1 });
@@ -113,7 +144,7 @@ export default function AtlasMap() {
       const fx = el.clientWidth / VIEW[mapKind].w;
       const mx = (e.clientX - rect.left) / fx;
       const my = (e.clientY - rect.top) / fx;
-      setView((v) => {
+      pushView((v) => {
         const k = Math.min(12, Math.max(1, v.k * Math.exp(-e.deltaY * 0.0016)));
         const s = k / v.k;
         return { k, tx: mx - (mx - v.tx) * s, ty: my - (my - v.ty) * s };
@@ -143,7 +174,8 @@ export default function AtlasMap() {
     } catch {}
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
-      drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
+      const vc = pendingView.current ?? viewRef.current;
+      drag.current = { x: e.clientX, y: e.clientY, tx: vc.tx, ty: vc.ty, moved: false };
     } else {
       // 2本目の指: ドラッグをやめてピンチへ
       drag.current = null;
@@ -163,7 +195,7 @@ export default function AtlasMap() {
       const my = ((pts[0].y + pts[1].y) / 2 - rect.top) / f;
       if (pinchDist.current) {
         const factor = d / pinchDist.current;
-        setView((v) => {
+        pushView((v) => {
           const k = Math.min(12, Math.max(1, v.k * factor));
           const s = k / v.k;
           return { k, tx: mx - (mx - v.tx) * s, ty: my - (my - v.ty) * s };
@@ -181,7 +213,7 @@ export default function AtlasMap() {
     // 落ちないよう、値はここでキャプチャしておく
     const ntx = d0.tx + dx;
     const nty = d0.ty + dy;
-    setView((v) => ({ ...v, tx: ntx, ty: nty }));
+    pushView((v) => ({ ...v, tx: ntx, ty: nty }));
   };
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId);
@@ -261,13 +293,7 @@ export default function AtlasMap() {
                   地図を読み込み中…
                 </text>
               )}
-              <g transform={`translate(${view.tx},${view.ty}) scale(${view.k})`}>
-                <g fill="#ffffff" stroke={INK} strokeWidth={mapKind === "world" ? 0.6 : 0.9} strokeLinejoin="round" style={{ vectorEffect: "non-scaling-stroke" }}>
-                  {paths.map((d, i) => (
-                    <path key={i} d={d} style={{ vectorEffect: "non-scaling-stroke" }} />
-                  ))}
-                </g>
-              </g>
+              <g transform={`translate(${view.tx},${view.ty}) scale(${view.k})`}>{baseLayer}</g>
             </svg>
 
             {/* ===== 書影ピン(HTMLオーバーレイ・ズームしても大きさ一定) ===== */}

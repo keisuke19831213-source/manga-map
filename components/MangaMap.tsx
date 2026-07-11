@@ -35,6 +35,25 @@ const EDGE_STYLE: Record<EdgeKind, { dash?: string; label: string; opacity: numb
 export default function MangaMap() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState({ tx: 0, ty: 0, k: 0.8 });
+  // ドラッグ/ピンチ中の更新をフレーム毎1回に間引く(モバイルの描画詰まり対策)
+  const viewRef = useRef(view);
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+  const pendingView = useRef<{ tx: number; ty: number; k: number } | null>(null);
+  const rafId = useRef(0);
+  const pushView = (fn: (v: { tx: number; ty: number; k: number }) => { tx: number; ty: number; k: number }) => {
+    pendingView.current = fn(pendingView.current ?? viewRef.current);
+    if (!rafId.current) {
+      rafId.current = requestAnimationFrame(() => {
+        rafId.current = 0;
+        if (pendingView.current) {
+          setView(pendingView.current);
+          pendingView.current = null;
+        }
+      });
+    }
+  };
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [activeCats, setActiveCats] = useState<Set<CategoryId>>(new Set());
@@ -74,7 +93,7 @@ export default function MangaMap() {
       const rect = el.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
-      setView((v) => {
+      pushView((v) => {
         const factor = Math.exp(-e.deltaY * 0.0015);
         const k = Math.min(3, Math.max(0.25, v.k * factor));
         const scale = k / v.k;
@@ -99,7 +118,8 @@ export default function MangaMap() {
     } catch {}
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
-      drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
+      const vc = pendingView.current ?? viewRef.current;
+      drag.current = { x: e.clientX, y: e.clientY, tx: vc.tx, ty: vc.ty, moved: false };
     } else {
       drag.current = null;
       pinchDist.current = null;
@@ -118,7 +138,7 @@ export default function MangaMap() {
       const my = (pts[0].y + pts[1].y) / 2 - rect.top;
       if (pinchDist.current) {
         const factor = d / pinchDist.current;
-        setView((v) => {
+        pushView((v) => {
           const k = Math.min(3, Math.max(0.25, v.k * factor));
           const s = k / v.k;
           return { k, tx: mx - (mx - v.tx) * s, ty: my - (my - v.ty) * s };
@@ -136,7 +156,7 @@ export default function MangaMap() {
     // 落ちないよう、値はここでキャプチャしておく
     const ntx = d0.tx + dx;
     const nty = d0.ty + dy;
-    setView((v) => ({ ...v, tx: ntx, ty: nty }));
+    pushView((v) => ({ ...v, tx: ntx, ty: nty }));
   };
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId);
@@ -168,106 +188,11 @@ export default function MangaMap() {
   const decades: number[] = [];
   for (let y = 1900; y <= 2020; y += 10) decades.push(y);
 
-  return (
-    <div className="gm-wrap">
-      {/* カテゴリフィルタ */}
-      <div className="gm-filters">
-        {CATEGORIES.filter((c) => c.id !== "roots").concat(CATEGORIES.filter((c) => c.id === "roots")).map((c) => {
-          const active = activeCats.has(c.id);
-          return (
-            <button
-              key={c.id}
-              className={`chip ${active ? "active" : ""}`}
-              style={active ? { background: c.color, borderColor: c.color } : { borderColor: c.color + "88" }}
-              onClick={() =>
-                setActiveCats((prev) => {
-                  const next = new Set(prev);
-                  if (next.has(c.id)) next.delete(c.id);
-                  else next.add(c.id);
-                  return next;
-                })
-              }
-            >
-              {c.name}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ズームコントロール */}
-      <div style={{ position: "absolute", bottom: 18, left: 12, zIndex: 10, display: "flex", flexDirection: "column", gap: 6 }}>
-        {[
-          { label: "＋", f: 1.35 },
-          { label: "－", f: 1 / 1.35 },
-        ].map((b) => (
-          <button
-            key={b.label}
-            className="chip"
-            style={{ width: 40, height: 40, fontSize: 17, padding: 0 }}
-            onClick={() => {
-              const el = wrapRef.current;
-              if (!el) return;
-              const mx = el.clientWidth / 2;
-              const my = el.clientHeight / 2;
-              setView((v) => {
-                const k = Math.min(3, Math.max(0.25, v.k * b.f));
-                const scale = k / v.k;
-                return { k, tx: mx - (mx - v.tx) * scale, ty: my - (my - v.ty) * scale };
-              });
-            }}
-          >
-            {b.label}
-          </button>
-        ))}
-        <button
-          className="chip"
-          style={{ width: 40, height: 40, fontSize: 11, padding: 0 }}
-          onClick={() => {
-            const el = wrapRef.current;
-            if (!el) return;
-            const k = Math.min(el.clientWidth / MAP_W, 1);
-            setView({ tx: (el.clientWidth - MAP_W * k) / 2, ty: 12, k });
-          }}
-        >
-          全体
-        </button>
-      </div>
-
-      {/* 凡例 */}
-      <div
-        className="gm-legend"
-        style={{
-          position: "absolute",
-          bottom: 18,
-          left: 64,
-          zIndex: 10,
-          background: "#fff",
-          border: "3px solid #171310",
-          boxShadow: "4px 4px 0 #171310",
-          padding: "10px 14px",
-          fontSize: 11.5,
-          color: "#4a4238",
-          fontWeight: 700,
-          lineHeight: 2,
-        }}
-      >
-        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" /></svg> 直系の進化</div>
-        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" strokeDasharray="6 5" /></svg> 影響を与えた</div>
-        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#dc2626" strokeWidth="2.5" strokeDasharray="2 4" /></svg> 対抗・反発から誕生</div>
-      </div>
-
-      {/* マップ本体 */}
-      <div
-        ref={wrapRef}
-        style={{ width: "100%", height: "100%", cursor: drag.current ? "grabbing" : "grab", touchAction: "none" }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerLeave={onPointerUp}
-            onPointerCancel={onPointerUp}
-      >
-        <svg width="100%" height="100%" style={{ display: "block" }}>
-          <g transform={`translate(${view.tx},${view.ty}) scale(${view.k})`}>
+  // 静的レイヤー(年代帯・エッジ・ノード・見出し)をメモ化。
+  // ドラッグ/ズーム中の毎フレーム再構築を避け、モバイルでも滑らかに動かす
+  const mapLayers = useMemo(
+    () => (
+      <>
             {/* 年代の帯 */}
             {decades.map((d) => (
               <g key={d}>
@@ -384,6 +309,113 @@ export default function MangaMap() {
                 {c.id === "roots" ? "源流 → ギャグ" : c.name}
               </text>
             ))}
+      </>
+    ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusId, neighborIds, activeCats, selected]
+  );
+
+  return (
+    <div className="gm-wrap">
+      {/* カテゴリフィルタ */}
+      <div className="gm-filters">
+        {CATEGORIES.filter((c) => c.id !== "roots").concat(CATEGORIES.filter((c) => c.id === "roots")).map((c) => {
+          const active = activeCats.has(c.id);
+          return (
+            <button
+              key={c.id}
+              className={`chip ${active ? "active" : ""}`}
+              style={active ? { background: c.color, borderColor: c.color } : { borderColor: c.color + "88" }}
+              onClick={() =>
+                setActiveCats((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(c.id)) next.delete(c.id);
+                  else next.add(c.id);
+                  return next;
+                })
+              }
+            >
+              {c.name}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ズームコントロール */}
+      <div style={{ position: "absolute", bottom: 18, left: 12, zIndex: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+        {[
+          { label: "＋", f: 1.35 },
+          { label: "－", f: 1 / 1.35 },
+        ].map((b) => (
+          <button
+            key={b.label}
+            className="chip"
+            style={{ width: 40, height: 40, fontSize: 17, padding: 0 }}
+            onClick={() => {
+              const el = wrapRef.current;
+              if (!el) return;
+              const mx = el.clientWidth / 2;
+              const my = el.clientHeight / 2;
+              setView((v) => {
+                const k = Math.min(3, Math.max(0.25, v.k * b.f));
+                const scale = k / v.k;
+                return { k, tx: mx - (mx - v.tx) * scale, ty: my - (my - v.ty) * scale };
+              });
+            }}
+          >
+            {b.label}
+          </button>
+        ))}
+        <button
+          className="chip"
+          style={{ width: 40, height: 40, fontSize: 11, padding: 0 }}
+          onClick={() => {
+            const el = wrapRef.current;
+            if (!el) return;
+            const k = Math.min(el.clientWidth / MAP_W, 1);
+            setView({ tx: (el.clientWidth - MAP_W * k) / 2, ty: 12, k });
+          }}
+        >
+          全体
+        </button>
+      </div>
+
+      {/* 凡例 */}
+      <div
+        className="gm-legend"
+        style={{
+          position: "absolute",
+          bottom: 18,
+          left: 64,
+          zIndex: 10,
+          background: "#fff",
+          border: "3px solid #171310",
+          boxShadow: "4px 4px 0 #171310",
+          padding: "10px 14px",
+          fontSize: 11.5,
+          color: "#4a4238",
+          fontWeight: 700,
+          lineHeight: 2,
+        }}
+      >
+        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" /></svg> 直系の進化</div>
+        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" strokeDasharray="6 5" /></svg> 影響を与えた</div>
+        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#dc2626" strokeWidth="2.5" strokeDasharray="2 4" /></svg> 対抗・反発から誕生</div>
+      </div>
+
+      {/* マップ本体 */}
+      <div
+        ref={wrapRef}
+        style={{ width: "100%", height: "100%", cursor: drag.current ? "grabbing" : "grab", touchAction: "none" }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerLeave={onPointerUp}
+            onPointerCancel={onPointerUp}
+      >
+        <svg width="100%" height="100%" style={{ display: "block" }}>
+          <g transform={`translate(${view.tx},${view.ty}) scale(${view.k})`}>
+            {mapLayers}
           </g>
         </svg>
       </div>

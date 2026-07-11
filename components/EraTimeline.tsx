@@ -153,6 +153,27 @@ export default function EraTimeline() {
   const tx = view?.tx ?? 0;
   const ty = view?.ty ?? 0;
   const minTy = Math.min(0, VH - H);
+
+  // ドラッグ/ピンチ中の更新をフレーム毎1回に間引く(モバイルの描画詰まり対策)
+  const viewRef = useRef(view);
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+  const pendingView = useRef<{ tx: number; ty: number; k: number } | null>(null);
+  const rafId = useRef(0);
+  const pushView = (fn: (v: { tx: number; ty: number; k: number }) => { tx: number; ty: number; k: number }) => {
+    const base = pendingView.current ?? viewRef.current ?? { tx: 0, ty: 0, k: kFit };
+    pendingView.current = fn(base);
+    if (!rafId.current) {
+      rafId.current = requestAnimationFrame(() => {
+        rafId.current = 0;
+        if (pendingView.current) {
+          setView(pendingView.current);
+          pendingView.current = null;
+        }
+      });
+    }
+  };
   const X = (year: number) => tlX(year) * k + tx;
 
   // ズームに連動して書影も拡大
@@ -175,8 +196,7 @@ export default function EraTimeline() {
       e.preventDefault();
       const rect = el.getBoundingClientRect();
       const mx = e.clientX - rect.left;
-      setView((v) => {
-        const cur = v ?? { tx: 0, ty: 0, k: el.clientWidth / TL_W };
+      pushView((cur) => {
         const kMin = (el.clientWidth / TL_W) * 0.9;
         const nk = Math.min(kMin * 60, Math.max(kMin, cur.k * Math.exp(-e.deltaY * 0.0016)));
         return { k: nk, ty: cur.ty, tx: mx - ((mx - cur.tx) * nk) / cur.k };
@@ -206,7 +226,8 @@ export default function EraTimeline() {
     } catch {}
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
-      drag.current = { x: e.clientX, y: e.clientY, tx, ty, moved: false };
+      const vc = pendingView.current ?? viewRef.current ?? { tx: 0, ty: 0, k: kFit };
+      drag.current = { x: e.clientX, y: e.clientY, tx: vc.tx, ty: vc.ty, moved: false };
     } else {
       drag.current = null;
       pinchDist.current = null;
@@ -224,8 +245,7 @@ export default function EraTimeline() {
       const mx = (pts[0].x + pts[1].x) / 2 - rect.left;
       if (pinchDist.current) {
         const factor = d / pinchDist.current;
-        setView((v) => {
-          const cur = v ?? { tx: 0, ty: 0, k: kFit };
+        pushView((cur) => {
           const kMin = kFit * 0.9;
           const nk = Math.min(kMin * 60, Math.max(kMin, cur.k * factor));
           return { k: nk, ty: cur.ty, tx: mx - ((mx - cur.tx) * nk) / cur.k };
@@ -234,13 +254,14 @@ export default function EraTimeline() {
       pinchDist.current = d;
       return;
     }
-    if (!drag.current) return;
-    const dx = e.clientX - drag.current.x;
-    const dy = e.clientY - drag.current.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) drag.current.moved = true;
-    const ntx = drag.current.tx + dx;
-    const nty = Math.max(minTy, Math.min(0, drag.current.ty + dy));
-    setView((v) => ({ k: v?.k ?? kFit, tx: ntx, ty: nty }));
+    const d0 = drag.current;
+    if (!d0) return;
+    const dx = e.clientX - d0.x;
+    const dy = e.clientY - d0.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) d0.moved = true;
+    const ntx = d0.tx + dx;
+    const nty = Math.max(minTy, Math.min(0, d0.ty + dy));
+    pushView((cur) => ({ k: cur.k, tx: ntx, ty: nty }));
   };
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId);
@@ -249,14 +270,15 @@ export default function EraTimeline() {
   };
 
   // 地域ごとのエントリ + レーン
+  // レーンはtxに依存しない座標(tlX*k)で計算 → パン中は再計算不要
   const trackData = useMemo(() => {
     return TL_REGIONS.map((region, ti) => {
-      const entries = TIMELINE.filter((e) => e.region === region.id).map((e) => ({ e, x: X(e.year) }));
+      const entries = TIMELINE.filter((e) => e.region === region.id).map((e) => ({ e, x: tlX(e.year) * k }));
       const lanes = assignLanes(entries, coverW + 26);
       return { region, ti, entries, lanes };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [k, tx, cw, coverW]);
+  }, [k, coverW]);
 
   // コメントのある作品(吹き出しローテーション)
   const voiceEntries = useMemo(() => TIMELINE.filter((e) => voices[e.workId]?.latest), [voices]);
@@ -274,6 +296,108 @@ export default function EraTimeline() {
     const dist = lane < 2 ? 13 : 13 + coverH * 0.72 + 14;
     return { above, dist };
   };
+
+  // 可動コンテンツをメモ化: パン(tx/ty)では再構築せず、ズーム(k)時のみ再計算。
+  // パン中はコンテナのtransform(GPU)だけが動くので、モバイルでも滑らか
+  const tlContent = useMemo(() => {
+    return (
+      <>
+        {/* 架空ゾーンの背景 */}
+        <div style={{ position: "absolute", left: FANTASY_X * k, top: 0, width: Math.max(0, (TL_W - FANTASY_X) * k), height: H, background: "repeating-linear-gradient(-45deg, rgba(219,39,119,0.05), rgba(219,39,119,0.05) 8px, transparent 8px, transparent 16px)", borderLeft: "2px dashed #db277788", pointerEvents: "none" }} />
+        {trackData.map(({ region, ti, entries, lanes }) => {
+          const top = AXIS_H + ti * TH;
+          const cy = top + TH / 2;
+          return (
+            <div key={region.id}>
+              {/* 日本トラックの時代帯 */}
+              {region.id === "japan" &&
+                JP_ERAS.map((era) => {
+                  const x0 = tlX(era.from) * k;
+                  const x1 = tlX(era.to) * k;
+                  return (
+                    <div key={era.name} style={{ position: "absolute", left: x0, top: top + 2, width: x1 - x0, height: TH - 4, background: "rgba(212,61,46,0.055)", borderLeft: "1px solid rgba(212,61,46,0.3)", pointerEvents: "none" }}>
+                      {x1 - x0 > 34 && (
+                        <span style={{ position: "absolute", top: 2, left: 4, fontSize: 10, fontWeight: 900, color: "rgba(212,61,46,0.65)" }}>{era.name}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              {/* 歴史イベント(道しるべ) */}
+              {EVENTS.filter((ev) => ev.region === region.id).map((ev) => {
+                const ex = tlX(ev.year) * k;
+                return (
+                  <div key={ev.label} style={{ position: "absolute", left: ex, top: cy, zIndex: 1, pointerEvents: "none" }}>
+                    <div style={{ position: "absolute", left: -4, top: -4, width: 8, height: 8, background: "#fff", border: `2px solid ${region.color}`, transform: "rotate(45deg)" }} />
+                    <div style={{ position: "absolute", left: 7, top: 4, fontSize: 9.5, fontWeight: 700, color: "rgba(23,19,16,0.55)", whiteSpace: "nowrap" }}>
+                      {ev.label}
+                    </div>
+                  </div>
+                );
+              })}
+              {/* 作品(書影 + 引き出し線) */}
+              {entries.map(({ e, x }) => {
+                const wk = workById(e.workId);
+                if (!wk) return null;
+                const lane = lanes.get(e.workId) ?? 0;
+                const { above, dist } = laneOffset(lane);
+                const cover = s > 1.7 ? coverSrc(meta, wk.id) : coverThumb(meta, wk.id);
+                const active = selected?.workId === e.workId && selected.region === e.region;
+                const boxH = coverH + (showYears ? 16 : 0);
+                const pinTop = above ? cy - dist - boxH : cy + dist;
+                return (
+                  <div key={e.workId}>
+                    <div style={{ position: "absolute", left: x - 0.75, top: above ? pinTop + boxH - 2 : cy, width: 1.5, height: above ? cy - (pinTop + boxH) + 2 : pinTop - cy + 2, background: region.color, opacity: 0.8, pointerEvents: "none" }} />
+                    <div style={{ position: "absolute", left: x - 3.5, top: cy - 3.5, width: 7, height: 7, borderRadius: "50%", background: region.color, border: "1.5px solid var(--ink)", pointerEvents: "none" }} />
+                    <div
+                      className={`map-pin ${active ? "on" : ""}`}
+                      style={{ left: x, top: pinTop + boxH, zIndex: active ? 8 : 5 }}
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        if (drag.current?.moved) return;
+                        setSelected(active ? null : e);
+                      }}
+                      title={`${wk.title} — ${e.label}`}
+                    >
+                      {showYears && (
+                        <div className="tl-year" style={{ borderColor: region.color, color: region.color }}>
+                          {yearChip(e)}
+                        </div>
+                      )}
+                      <div className="map-pin-card">
+                        {cover ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={cover} alt={wk.title} loading="lazy" style={{ width: coverW, height: coverH }} />
+                        ) : (
+                          <span className="ph" style={{ width: coverW, height: coverH, fontSize: 13 + s * 3 }}>📖</span>
+                        )}
+                      </div>
+                      <div className={`map-pin-label ${s > 1.6 ? "show" : ""}`} style={{ bottom: -18 }}>{wk.title}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </>
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackData, k, TH, H, coverW, coverH, s, showYears, meta, selected]);
+
+  // ミニマップの分布ドット(完全に静的)
+  const mmDots = useMemo(
+    () =>
+      TIMELINE.map((e) => {
+        const region = TL_REGIONS.find((r) => r.id === e.region);
+        return (
+          <span
+            key={`${e.region}-${e.workId}`}
+            style={{ position: "absolute", left: `${(tlX(e.year) / TL_W) * 100}%`, top: `${18 + TL_REGIONS.findIndex((r) => r.id === e.region) * 11}%`, width: 5, height: 5, marginLeft: -2.5, borderRadius: "50%", background: region?.color }}
+          />
+        );
+      }),
+    []
+  );
 
   const selWork = selected ? workById(selected.workId) : null;
   const selPosts = selected ? (voices[selected.workId]?.count ? voices[selected.workId] : null) : null;
@@ -309,19 +433,6 @@ export default function EraTimeline() {
             onPointerCancel={onPointerUp}
             onDoubleClick={() => zoomBy(1.7)}
           >
-            {/* 架空ゾーンの背景 */}
-            <div
-              style={{
-                position: "absolute",
-                left: FANTASY_X * k + tx,
-                top: 0,
-                width: Math.max(0, (TL_W - FANTASY_X) * k),
-                height: VH,
-                background: "repeating-linear-gradient(-45deg, rgba(219,39,119,0.05), rgba(219,39,119,0.05) 8px, transparent 8px, transparent 16px)",
-                borderLeft: "2px dashed #db277788",
-              }}
-            />
-
             {/* 年代軸(定規バー) */}
             <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: AXIS_H, background: "#fffdf4", borderBottom: "2.5px solid var(--ink)", zIndex: 9, pointerEvents: "none" }} />
             {TICKS.map((t) => {
@@ -340,111 +451,26 @@ export default function EraTimeline() {
               ⟵ここから先は時間軸の外(架空・異世界)
             </div>
 
-            {/* トラック */}
-            {trackData.map(({ region, ti, entries, lanes }) => {
+            {/* トラックの帯・中心線・地域ラベル(横幅いっぱい・縦のみ追従) */}
+            {TL_REGIONS.map((region, ti) => {
               const top = AXIS_H + ti * TH + ty;
               const cy = top + TH / 2;
-              if (top > VH || top + TH < AXIS_H) return null;
+              if (top > VH || top + TH < 0) return null;
               return (
                 <div key={region.id}>
-                  {/* 帯の背景(地域色の薄いトーン)と境界 */}
                   <div style={{ position: "absolute", left: 0, right: 0, top, height: TH, background: `${region.color}09`, borderTop: "1.5px solid rgba(23,19,16,0.16)", pointerEvents: "none" }} />
-                  {/* 日本トラックの時代帯 */}
-                  {region.id === "japan" &&
-                    JP_ERAS.map((era) => {
-                      const x0 = X(era.from);
-                      const x1 = X(era.to);
-                      if (x1 < 0 || x0 > cw) return null;
-                      return (
-                        <div key={era.name} style={{ position: "absolute", left: x0, top: top + 2, width: x1 - x0, height: TH - 4, background: "rgba(212,61,46,0.055)", borderLeft: "1px solid rgba(212,61,46,0.3)", pointerEvents: "none" }}>
-                          {x1 - x0 > 34 && (
-                            <span style={{ position: "absolute", top: 2, left: 4, fontSize: 10, fontWeight: 900, color: "rgba(212,61,46,0.65)" }}>{era.name}</span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  {/* 中心線 */}
                   <div style={{ position: "absolute", left: 0, right: 0, top: cy - 1, height: 2, background: region.color, opacity: 0.5, pointerEvents: "none" }} />
-                  {/* 歴史イベント(道しるべ) */}
-                  {EVENTS.filter((ev) => ev.region === region.id).map((ev) => {
-                    const ex = X(ev.year);
-                    if (ex < -60 || ex > cw + 60) return null;
-                    return (
-                      <div key={ev.label} style={{ position: "absolute", left: ex, top: cy, zIndex: 1, pointerEvents: "none" }}>
-                        <div style={{ position: "absolute", left: -4, top: -4, width: 8, height: 8, background: "#fff", border: `2px solid ${region.color}`, transform: "rotate(45deg)" }} />
-                        <div style={{ position: "absolute", left: 7, top: 4, fontSize: 9.5, fontWeight: 700, color: "rgba(23,19,16,0.55)", whiteSpace: "nowrap" }}>
-                          {ev.label}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {/* 地域ラベル(固定) */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: 10,
-                      top: top + 8,
-                      zIndex: 1,
-                      background: region.color,
-                      color: "#fff",
-                      border: "2px solid var(--ink)",
-                      boxShadow: "2px 2px 0 var(--ink)",
-                      fontSize: 12,
-                      fontWeight: 900,
-                      padding: "2px 10px",
-                      pointerEvents: "none",
-                    }}
-                  >
+                  <div style={{ position: "absolute", left: 10, top: top + 8, zIndex: 1, background: region.color, color: "#fff", border: "2px solid var(--ink)", boxShadow: "2px 2px 0 var(--ink)", fontSize: 12, fontWeight: 900, padding: "2px 10px", pointerEvents: "none" }}>
                     {region.name}
                   </div>
-
-                  {/* 作品(書影 + 引き出し線) */}
-                  {entries.map(({ e, x }) => {
-                    if (x < -70 || x > cw + 70) return null;
-                    const wk = workById(e.workId);
-                    if (!wk) return null;
-                    const lane = lanes.get(e.workId) ?? 0;
-                    const { above, dist } = laneOffset(lane);
-                    const cover = s > 1.7 ? coverSrc(meta, wk.id) : coverThumb(meta, wk.id);
-                    const active = selected?.workId === e.workId && selected.region === e.region;
-                    const boxH = coverH + (showYears ? 16 : 0); // 年チップぶん
-                    const pinTop = above ? cy - dist - boxH : cy + dist;
-                    return (
-                      <div key={e.workId}>
-                        {/* 引き出し線 */}
-                        <div style={{ position: "absolute", left: x - 0.75, top: above ? pinTop + boxH - 2 : cy, width: 1.5, height: above ? cy - (pinTop + boxH) + 2 : pinTop - cy + 2, background: region.color, opacity: 0.8, pointerEvents: "none" }} />
-                        <div style={{ position: "absolute", left: x - 3.5, top: cy - 3.5, width: 7, height: 7, borderRadius: "50%", background: region.color, border: "1.5px solid var(--ink)", pointerEvents: "none" }} />
-                        <div
-                          className={`map-pin ${active ? "on" : ""}`}
-                          style={{ left: x, top: pinTop + boxH, zIndex: active ? 8 : 5 }}
-                          onClick={(ev) => {
-                            ev.stopPropagation();
-                            if (drag.current?.moved) return;
-                            setSelected(active ? null : e);
-                          }}
-                          title={`${wk.title} — ${e.label}`}
-                        >
-                          {showYears && (
-                            <div className="tl-year" style={{ borderColor: region.color, color: region.color }}>
-                              {yearChip(e)}
-                            </div>
-                          )}
-                          <div className="map-pin-card">
-                            {cover ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={cover} alt={wk.title} loading="lazy" style={{ width: coverW, height: coverH }} />
-                            ) : (
-                              <span className="ph" style={{ width: coverW, height: coverH, fontSize: 13 + s * 3 }}>📖</span>
-                            )}
-                          </div>
-                          <div className={`map-pin-label ${s > 1.6 ? "show" : ""}`} style={{ bottom: -18 }}>{wk.title}</div>
-                        </div>
-                      </div>
-                    );
-                  })}
                 </div>
               );
             })}
+
+            {/* 可動コンテンツ(時代帯・イベント・作品)。パン中はGPU変形のみで動く */}
+            <div style={{ position: "absolute", left: 0, top: 0, width: 0, height: 0, transform: `translate3d(${tx}px, ${ty}px, 0)`, willChange: "transform" }}>
+              {tlContent}
+            </div>
 
             {/* コメント吹き出し(該当作品の書影を指す) */}
             {bubbleEntry &&
@@ -506,24 +532,7 @@ export default function EraTimeline() {
               }}
             />
             {/* 作品の分布ドット */}
-            {TIMELINE.map((e) => {
-              const region = TL_REGIONS.find((r) => r.id === e.region);
-              return (
-                <span
-                  key={`${e.region}-${e.workId}`}
-                  style={{
-                    position: "absolute",
-                    left: `${(tlX(e.year) / TL_W) * 100}%`,
-                    top: `${18 + TL_REGIONS.findIndex((r) => r.id === e.region) * 11}%`,
-                    width: 5,
-                    height: 5,
-                    marginLeft: -2.5,
-                    borderRadius: "50%",
-                    background: region?.color,
-                  }}
-                />
-              );
-            })}
+            {mmDots}
             {/* 現在の表示範囲 */}
             <div
               style={{
