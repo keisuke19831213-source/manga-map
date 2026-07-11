@@ -52,12 +52,17 @@ export default function MangaMap() {
     return () => clearInterval(t);
   }, [voicePosts.length]);
 
-  // 初期表示: 横幅フィットでマップ上部(源流の時代)から
+  // 初期表示: PCは横幅フィット、モバイルは源流の列を読めるズームで
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const k = Math.min(el.clientWidth / MAP_W, 1);
-    setView({ tx: (el.clientWidth - MAP_W * k) / 2, ty: 12, k });
+    if (el.clientWidth < 700) {
+      const k = 0.52;
+      setView({ tx: el.clientWidth / 2 - 720 * k, ty: 12, k });
+    } else {
+      const k = Math.min(el.clientWidth / MAP_W, 1);
+      setView({ tx: (el.clientWidth - MAP_W * k) / 2, ty: 12, k });
+    }
   }, []);
 
   // ホイールズーム(カーソル位置基準)。preventDefaultのためpassive:falseで登録
@@ -84,18 +89,50 @@ export default function MangaMap() {
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinchDist = useRef<number | null>(null);
+
   const onPointerDown = (e: React.PointerEvent) => {
-    (e.target as Element).setPointerCapture?.(e.pointerId);
-    drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 1) {
+      drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
+    } else {
+      drag.current = null;
+      pinchDist.current = null;
+    }
   };
   const onPointerMove = (e: React.PointerEvent) => {
+    if (!pointers.current.has(e.pointerId)) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const pts = [...pointers.current.values()];
+    if (pts.length >= 2) {
+      // ピンチズーム(2本指の中点基準)
+      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      const rect = wrapRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const mx = (pts[0].x + pts[1].x) / 2 - rect.left;
+      const my = (pts[0].y + pts[1].y) / 2 - rect.top;
+      if (pinchDist.current) {
+        const factor = d / pinchDist.current;
+        setView((v) => {
+          const k = Math.min(3, Math.max(0.25, v.k * factor));
+          const s = k / v.k;
+          return { k, tx: mx - (mx - v.tx) * s, ty: my - (my - v.ty) * s };
+        });
+      }
+      pinchDist.current = d;
+      return;
+    }
     if (!drag.current) return;
     const dx = e.clientX - drag.current.x;
     const dy = e.clientY - drag.current.y;
     if (Math.abs(dx) + Math.abs(dy) > 3) drag.current.moved = true;
     setView((v) => ({ ...v, tx: drag.current!.tx + dx, ty: drag.current!.ty + dy }));
   };
-  const onPointerUp = () => {
+  const onPointerUp = (e: React.PointerEvent) => {
+    pointers.current.delete(e.pointerId);
+    pinchDist.current = null;
     drag.current = null;
   };
 
@@ -124,9 +161,9 @@ export default function MangaMap() {
   for (let y = 1900; y <= 2020; y += 10) decades.push(y);
 
   return (
-    <div style={{ position: "relative", height: "calc(100vh - 60px)", overflow: "hidden" }}>
+    <div className="gm-wrap">
       {/* カテゴリフィルタ */}
-      <div style={{ position: "absolute", top: 12, left: 12, zIndex: 10, display: "flex", flexWrap: "wrap", gap: 6, maxWidth: "calc(100% - 380px)" }}>
+      <div className="gm-filters">
         {CATEGORIES.filter((c) => c.id !== "roots").concat(CATEGORIES.filter((c) => c.id === "roots")).map((c) => {
           const active = activeCats.has(c.id);
           return (
@@ -190,6 +227,7 @@ export default function MangaMap() {
 
       {/* 凡例 */}
       <div
+        className="gm-legend"
         style={{
           position: "absolute",
           bottom: 18,
@@ -341,22 +379,16 @@ export default function MangaMap() {
         </svg>
       </div>
 
-      {/* 詳細パネル */}
+      {/* 詳細パネル(モバイルではボトムシート) */}
       {selectedGenre && (
         <aside
+          className="gm-panel"
           style={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            bottom: 18,
-            width: 340,
-            zIndex: 20,
             background: "#ffffff",
             border: "3px solid #171310",
             borderTop: `10px solid ${catOf(selectedGenre).color}`,
             boxShadow: "5px 5px 0 #171310",
             padding: "18px 20px",
-            overflowY: "auto",
           }}
         >
           <button
@@ -468,6 +500,7 @@ export default function MangaMap() {
       {/* イントロ(未選択時) */}
       {!selectedGenre && (
         <div
+          className="gm-intro"
           style={{
             position: "absolute",
             top: 12,
@@ -495,17 +528,7 @@ export default function MangaMap() {
         const w = p.workId ? allWorks.find((x) => x.id === p.workId) : undefined;
         if (!w) return null;
         return (
-          <Link
-            href={`/works/${w.id}`}
-            style={{
-              position: "absolute",
-              right: 12,
-              bottom: 18,
-              zIndex: 10,
-              width: 300,
-              display: "block",
-            }}
-          >
+          <Link href={`/works/${w.id}`} className="gm-voice">
             <div
               style={{
                 fontSize: 11,

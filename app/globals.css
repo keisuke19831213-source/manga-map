@@ -1,6 +1,7 @@
 /* ============ MANGA MAP — マンガ紙面テーマ ============ */
 
 :root {
+  --header-h: 60px;
   --paper: #f7f2e7;
   --ink: #171310;
   --ink-soft: #4a4238;
@@ -1210,6 +1211,7 @@ main {
 }
 
 .spot-popup {
+  position: relative;
   border: 3px solid var(--ink);
   background: var(--panel);
   box-shadow: var(--shadow);
@@ -1246,48 +1248,150 @@ main {
   line-height: 1.6;
 }
 
+/* ================= ジャンル系統図のレイヤ(レスポンシブ) ================= */
+.gm-wrap {
+  position: relative;
+  overflow: hidden;
+  height: calc(100dvh - var(--header-h));
+}
+
+.gm-filters {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100% - 380px);
+}
+
+.gm-voice {
+  position: absolute;
+  right: 12px;
+  bottom: 18px;
+  width: 300px;
+  z-index: 10;
+  display: block;
+}
+
+.gm-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 18px;
+  width: 340px;
+  z-index: 20;
+  overflow-y: auto;
+}
+
+/* 詳細パネルの閉じるボタン(共通) */
+.sheet-close {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  z-index: 5;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+}
+
 /* ================= モバイル調整 ================= */
-@media (max-width: 640px) {
+@media (max-width: 760px) {
+  :root {
+    --header-h: 92px;
+  }
+
+  /* ヘッダー: 2段構成(ロゴ+検索 / ナビ横スクロール) */
   .site-header {
-    height: 52px;
-    gap: 10px;
-    padding: 0 10px;
+    flex-wrap: wrap;
+    height: auto;
+    gap: 8px;
+    padding: 8px 10px 6px;
   }
 
   .site-logo {
-    font-size: 18px;
+    font-size: 19px;
+    order: 0;
+  }
+
+  .searchbox {
+    order: 1;
+    flex: 1 1 120px;
+    margin-left: auto;
+  }
+
+  .searchbox input {
+    padding: 5px 12px;
+    font-size: 12px;
+  }
+
+  .site-nav {
+    order: 2;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 3px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .site-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .site-nav a {
-    font-size: 11px;
-    padding: 3px 8px;
+    font-size: 11.5px;
+    padding: 4px 9px;
     box-shadow: 1px 1px 0 var(--ink);
   }
 
+  main {
+    min-height: calc(100dvh - var(--header-h));
+  }
+
   .page {
-    padding: 22px 12px 60px;
+    padding: 20px 12px 60px;
   }
 
   .page h1,
   .manga-title {
-    font-size: 25px;
+    font-size: 24px;
+    text-shadow: 2px 2px 0 var(--yellow);
   }
 
   .page-lead {
     font-size: 12.5px;
+    margin-bottom: 20px;
   }
 
-  .bx-content {
-    font-size: 13px;
-    line-height: 1.85;
+  .chip {
+    padding: 5px 11px;
+    font-size: 12px;
+  }
+
+  /* 長い縦書き吹き出しは横スクロールで読む */
+  .bubble-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 4px 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mb-text {
+    font-size: 13.5px;
   }
 
   .bx-narration {
-    font-size: 12.5px;
+    font-size: 13px;
   }
 
   .work-hero {
-    padding: 18px 16px;
+    padding: 18px 14px;
   }
 
   .works-grid {
@@ -1300,5 +1404,56 @@ main {
 
   .post-form .field.small {
     flex: 1 1 30%;
+  }
+
+  /* ジャンル系統図 */
+  .gm-filters {
+    max-width: calc(100% - 20px);
+    gap: 4px;
+  }
+
+  .gm-filters .chip {
+    padding: 3px 9px;
+    font-size: 10.5px;
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+
+  .gm-legend,
+  .gm-intro {
+    display: none;
+  }
+
+  .gm-voice {
+    display: none; /* 狭い画面ではマップの視界を優先 */
+  }
+
+  /* ジャンル詳細はボトムシートに */
+  .gm-panel {
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-height: 54dvh;
+    z-index: 70;
+    border-radius: 14px 14px 0 0;
+  }
+
+  /* 舞台マップ・時代マップの詳細パネルもボトムシートに */
+  .sheet-m {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 70;
+    max-height: 55dvh;
+    overflow-y: auto;
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -3px 0 var(--ink);
+  }
+
+  .map-pin-label {
+    font-size: 9px;
   }
 }

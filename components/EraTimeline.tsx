@@ -94,7 +94,7 @@ const TRACK_H = 152;
 const FANTASY_X = tlX(2125);
 
 function useWidth(ref: React.RefObject<HTMLDivElement | null>): number {
-  const [w, setW] = useState(1000);
+  const [w, setW] = useState(0); // 実測まで0(誤った幅で初期ズームしない)
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -130,13 +130,22 @@ export default function EraTimeline() {
   const [voiceIdx, setVoiceIdx] = useState(0);
   const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
 
-  const H = AXIS_H + TL_REGIONS.length * TRACK_H; // コンテンツ全体の高さ
-  const VH = Math.min(H, 660); // 表示枠(はみ出す分は縦ドラッグで移動)
+  const isMobile = cw < 700;
+  const TH = isMobile ? 118 : TRACK_H; // モバイルはトラックを圧縮
+  const H = AXIS_H + TL_REGIONS.length * TH; // コンテンツ全体の高さ
+  const VH = Math.min(H, isMobile ? 500 : 660); // 表示枠(はみ出す分は縦ドラッグで移動)
   const kFit = cw / TL_W;
 
-  // 初期表示: 全期間フィット
+  // 初期表示: PCは全期間フィット、モバイルは作品が密集する近現代へズーム
   useEffect(() => {
-    if (cw > 0 && !view) setView({ tx: 0, ty: 0, k: cw / TL_W });
+    if (cw > 0 && !view) {
+      if (cw < 700) {
+        const k0 = cw / (TL_W * 0.72);
+        setView({ tx: -tlX(1790) * k0, ty: 0, k: k0 });
+      } else {
+        setView({ tx: 0, ty: 0, k: cw / TL_W });
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cw]);
 
@@ -148,8 +157,8 @@ export default function EraTimeline() {
 
   // ズームに連動して書影も拡大
   const s = Math.min(2.7, Math.max(1, Math.pow(k / (kFit || 1e-6), 0.55)));
-  const coverW = Math.round(36 * s);
-  const coverH = Math.round(52 * s);
+  const coverW = Math.round((isMobile ? 46 : 36) * s);
+  const coverH = Math.round((isMobile ? 66 : 52) * s);
   const showYears = s > 1.3;
 
   // 物語内年代のコンパクト表示
@@ -329,13 +338,13 @@ export default function EraTimeline() {
 
             {/* トラック */}
             {trackData.map(({ region, ti, entries, lanes }) => {
-              const top = AXIS_H + ti * TRACK_H + ty;
-              const cy = top + TRACK_H / 2;
-              if (top > VH || top + TRACK_H < AXIS_H) return null;
+              const top = AXIS_H + ti * TH + ty;
+              const cy = top + TH / 2;
+              if (top > VH || top + TH < AXIS_H) return null;
               return (
                 <div key={region.id}>
                   {/* 帯の背景(地域色の薄いトーン)と境界 */}
-                  <div style={{ position: "absolute", left: 0, right: 0, top, height: TRACK_H, background: `${region.color}09`, borderTop: "1.5px solid rgba(23,19,16,0.16)", pointerEvents: "none" }} />
+                  <div style={{ position: "absolute", left: 0, right: 0, top, height: TH, background: `${region.color}09`, borderTop: "1.5px solid rgba(23,19,16,0.16)", pointerEvents: "none" }} />
                   {/* 日本トラックの時代帯 */}
                   {region.id === "japan" &&
                     JP_ERAS.map((era) => {
@@ -343,7 +352,7 @@ export default function EraTimeline() {
                       const x1 = X(era.to);
                       if (x1 < 0 || x0 > cw) return null;
                       return (
-                        <div key={era.name} style={{ position: "absolute", left: x0, top: top + 2, width: x1 - x0, height: TRACK_H - 4, background: "rgba(212,61,46,0.055)", borderLeft: "1px solid rgba(212,61,46,0.3)", pointerEvents: "none" }}>
+                        <div key={era.name} style={{ position: "absolute", left: x0, top: top + 2, width: x1 - x0, height: TH - 4, background: "rgba(212,61,46,0.055)", borderLeft: "1px solid rgba(212,61,46,0.3)", pointerEvents: "none" }}>
                           {x1 - x0 > 34 && (
                             <span style={{ position: "absolute", top: 2, left: 4, fontSize: 10, fontWeight: 900, color: "rgba(212,61,46,0.65)" }}>{era.name}</span>
                           )}
@@ -441,7 +450,7 @@ export default function EraTimeline() {
                 const post = voices[bubbleEntry.workId]?.latest;
                 if (!post) return null;
                 const ti = TL_REGIONS.findIndex((r) => r.id === bubbleEntry.region);
-                const cy = AXIS_H + ti * TRACK_H + TRACK_H / 2 + ty;
+                const cy = AXIS_H + ti * TH + TH / 2 + ty;
                 if (cy < AXIS_H || cy > VH) return null;
                 const flip = x > cw - 240;
                 return (
@@ -530,7 +539,8 @@ export default function EraTimeline() {
         {/* ===== サイドパネル ===== */}
         <aside style={{ flex: "0 1 320px", minWidth: 280 }}>
           {selected && selWork ? (
-            <div className="spot-popup">
+            <div className="spot-popup sheet-m">
+              <button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる">×</button>
               <h3>
                 🕰️ {selected.label}
                 <span style={{ display: "block", fontSize: 11, color: TL_REGIONS.find((r) => r.id === selected.region)?.color, marginTop: 2 }}>

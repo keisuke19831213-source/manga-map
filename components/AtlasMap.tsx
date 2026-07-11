@@ -334,7 +334,8 @@ export default function AtlasMap() {
         {/* ===== サイドパネル ===== */}
         <aside style={{ flex: "0 1 340px", minWidth: 280 }}>
           {selected ? (
-            <div className="spot-popup">
+            <div className="spot-popup sheet-m">
+              <button className="sheet-close" onClick={() => setSelectedId(null)} aria-label="閉じる">×</button>
               <h3>📍 {selected.place}</h3>
               {selected.works.map(({ workId, note }) => {
                 const wk = workById(workId);
