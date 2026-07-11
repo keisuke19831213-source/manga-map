@@ -6,7 +6,12 @@ const STORAGE_KEY = "mm_admin_key";
 
 export function getAdminKey(): string {
   if (typeof window === "undefined") return "";
-  return window.localStorage.getItem(STORAGE_KEY) ?? "";
+  try {
+    // Safariの「すべてのCookieをブロック」設定ではlocalStorageアクセス自体が例外を投げる
+    return window.localStorage.getItem(STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
 }
 
 // 書き込み系APIに付ける認証ヘッダ
@@ -24,8 +29,12 @@ export function useAdminKey(): [string, (k: string) => void] {
   const setKey = (k: string) => {
     setKeyState(k);
     if (typeof window !== "undefined") {
-      if (k) window.localStorage.setItem(STORAGE_KEY, k);
-      else window.localStorage.removeItem(STORAGE_KEY);
+      try {
+        if (k) window.localStorage.setItem(STORAGE_KEY, k);
+        else window.localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // 保存できない環境では状態のみ保持
+      }
     }
   };
   return [key, setKey];
