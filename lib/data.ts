@@ -1042,3 +1042,97 @@ export const STORY_ERAS: StoryEra[] = [
     ],
   },
 ];
+
+// ================= 世界史ズームタイムライン(地域×物語内年代) =================
+// 時代設定マップで使用。year は物語の舞台となる年(紀元前は負数)。
+// fantasy(架空・異世界)の year は時間軸の外に並べるための擬似値。
+
+export interface TimelineRegion {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export const TL_REGIONS: TimelineRegion[] = [
+  { id: "japan", name: "日本", color: "#d43d2e" },
+  { id: "asia", name: "中国・アジア", color: "#d97706" },
+  { id: "europe", name: "ヨーロッパ", color: "#2563eb" },
+  { id: "world", name: "アメリカ・世界", color: "#0891b2" },
+  { id: "future", name: "未来・宇宙", color: "#7c3aed" },
+  { id: "fantasy", name: "架空・異世界", color: "#db2777" },
+];
+
+export interface TimelineEntry {
+  workId: string;
+  region: string;
+  year: number; // 物語内の年(fantasyは擬似値)
+  label: string; // 表示用の時代ラベル
+  note: string;
+}
+
+export const TIMELINE: TimelineEntry[] = [
+  // ---- 日本 ----
+  { workId: "vagabond", region: "japan", year: 1600, label: "1600年頃(関ヶ原直後)", note: "無双を目指す宮本武蔵の求道" },
+  { workId: "kamui", region: "japan", year: 1645, label: "江戸初期", note: "忍者カムイと身分社会の大河劇画" },
+  { workId: "ooku", region: "japan", year: 1716, label: "江戸中期", note: "男女逆転の江戸城大奥" },
+  { workId: "rurouni", region: "japan", year: 1878, label: "明治11年", note: "人斬りの過去を背負う流浪人" },
+  { workId: "goldenkamuy", region: "japan", year: 1907, label: "明治末期", note: "北海道で金塊を追う。アイヌ文化と狩猟" },
+  { workId: "kimetsu", region: "japan", year: 1915, label: "大正時代", note: "鬼と剣士たちの物語" },
+  { workId: "norakuro", region: "japan", year: 1932, label: "昭和初期", note: "犬の軍隊で出世するのらくろ" },
+  { workId: "gegege", region: "japan", year: 1960, label: "昭和30年代", note: "里山と路地裏にまだ妖怪がいた頃" },
+  { workId: "kyojin", region: "japan", year: 1966, label: "昭和40年代", note: "高度成長期の球界と父子鷹" },
+  { workId: "ashita", region: "japan", year: 1968, label: "昭和40年代", note: "山谷のドヤ街と泪橋" },
+  { workId: "chibimaruko", region: "japan", year: 1974, label: "昭和49年", note: "静岡・清水の小学生の日常" },
+  { workId: "chie", region: "japan", year: 1978, label: "昭和50年代", note: "大阪下町のホルモン屋" },
+  { workId: "urusei", region: "japan", year: 1981, label: "昭和末期", note: "宇宙人がいても平常運転の友引町" },
+  { workId: "touch", region: "japan", year: 1984, label: "昭和末期", note: "甲子園と幼なじみの永遠の夏" },
+  { workId: "oishinbo", region: "japan", year: 1986, label: "バブル前夜", note: "究極vs至高。グルメブームの東京" },
+  { workId: "slam", region: "japan", year: 1992, label: "1990年代", note: "湘南の高校バスケ、最高の夏" },
+  { workId: "sailor", region: "japan", year: 1993, label: "1990年代", note: "麻布十番のセーラー戦士" },
+  { workId: "conan", region: "japan", year: 1996, label: "現代(平成)", note: "体感30年続く『現代』の米花町" },
+  { workId: "kaiji", region: "japan", year: 1997, label: "平成不況", note: "バブル崩壊後の借金地獄と地下労働" },
+  { workId: "chainsaw", region: "japan", year: 1998, label: "1997年", note: "悪魔と公安デビルハンター" },
+  { workId: "twentieth", region: "japan", year: 1999, label: "世紀末〜", note: "『ともだち』の陰謀と少年時代の記憶" },
+  { workId: "azumanga", region: "japan", year: 2001, label: "2000年代", note: "何も起きない女子高生の日常" },
+  { workId: "tetsuwan", region: "japan", year: 2003, label: "2003年", note: "アトム誕生は2003年4月7日。かつての未来" },
+  { workId: "deathnote", region: "japan", year: 2006, label: "2000年代", note: "ノートを拾った天才の6年間" },
+  { workId: "barakamon", region: "japan", year: 2013, label: "2010年代", note: "五島列島のスローライフと書道" },
+  { workId: "wani", region: "japan", year: 2019, label: "令和元年", note: "SNS時代の東京、何気ない100日間" },
+  { workId: "akira", region: "japan", year: 2020, label: "2019年(作中)", note: "『近未来』として描かれたネオ東京五輪前夜" },
+
+  // ---- 中国・アジア ----
+  { workId: "hoshin", region: "asia", year: -1046, label: "紀元前11世紀", note: "殷周革命。仙人たちの封神計画" },
+  { workId: "kingdom", region: "asia", year: -245, label: "紀元前3世紀", note: "秦王・嬴政の中華統一戦争" },
+  { workId: "kusuriya", region: "asia", year: 750, label: "中華風王朝(唐がモデル)", note: "後宮の謎を薬学で解く猫猫" },
+  { workId: "sololeveling", region: "asia", year: 2020, label: "現代", note: "ゲートが開いた現代ソウル" },
+
+  // ---- ヨーロッパ ----
+  { workId: "historie", region: "europe", year: -335, label: "紀元前4世紀", note: "アレクサンドロス大王の時代を生きる書記官" },
+  { workId: "vinland", region: "europe", year: 1013, label: "11世紀", note: "ヴァイキング全盛期の北欧と英国" },
+  { workId: "berubara", region: "europe", year: 1789, label: "フランス革命", note: "ヴェルサイユの薔薇、オスカルの運命" },
+  { workId: "poe", region: "europe", year: 1795, label: "18世紀末〜", note: "永遠を生きる一族の200年の旅" },
+  { workId: "kaze_ki", region: "europe", year: 1887, label: "19世紀末", note: "南仏アルルの寄宿学校" },
+  { workId: "monster", region: "europe", year: 1995, label: "冷戦後", note: "統一直後のドイツを覆う連続殺人" },
+
+  // ---- アメリカ・世界 ----
+  { workId: "golgo", region: "world", year: 1985, label: "冷戦〜現代", note: "世界各地が仕事場のスナイパー" },
+  { workId: "major", region: "world", year: 2005, label: "現代", note: "リトルリーグからメジャーリーグへ" },
+  { workId: "onepunch", region: "world", year: 2015, label: "現代(架空都市)", note: "怪人だらけの都市のヒーロー稼業" },
+
+  // ---- 未来・宇宙 ----
+  { workId: "ghost", region: "future", year: 2029, label: "2029年", note: "電脳化が進んだ近未来日本" },
+  { workId: "pluto", region: "future", year: 2050, label: "近未来", note: "ロボットと人間の戦争の傷跡" },
+  { workId: "planetes", region: "future", year: 2075, label: "2070年代", note: "宇宙デブリ回収船の日常" },
+  { workId: "ginga999", region: "future", year: 2221, label: "遠未来", note: "銀河鉄道で機械の体を求める旅" },
+  { workId: "cobra", region: "future", year: 2330, label: "遠未来", note: "宇宙海賊コブラとサイコガン" },
+
+  // ---- 架空・異世界(時間軸の外) ----
+  { workId: "hokuto", region: "fantasy", year: 2150, label: "199X年(世紀末世界)", note: "核の炎に包まれた荒野" },
+  { workId: "dragonball", region: "fantasy", year: 2185, label: "エイジ7XX年", note: "恐竜もカプセルもある地球" },
+  { workId: "onepiece", region: "fantasy", year: 2220, label: "大海賊時代", note: "偉大なる航路を東へ" },
+  { workId: "shingeki", region: "fantasy", year: 2255, label: "壁の中の世界", note: "三重の壁と巨人の支配" },
+  { workId: "fma", region: "fantasy", year: 2290, label: "アメストリス", note: "錬金術が発達したもう一つの世界" },
+  { workId: "berserk", region: "fantasy", year: 2325, label: "暗黒中世風世界", note: "剣と因果と使徒の物語" },
+  { workId: "frieren", region: "fantasy", year: 2360, label: "魔王討伐後", note: "長命のエルフが人を知る旅" },
+  { workId: "tensura", region: "fantasy", year: 2395, label: "転生先の異世界", note: "ジュラ大森林でスライムが国を作る" },
+];

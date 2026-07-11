@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { geoMercator, geoNaturalEarth1, geoPath, type GeoProjection } from "d3-geo";
 import { feature } from "topojson-client";
@@ -10,7 +10,8 @@ import { spotsOf, workById, type MapSpot } from "@/lib/data";
 import { amazonLink, coverSrc } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useVoicesByWork } from "@/lib/usePosts";
-import Cover, { AmazonButton } from "@/components/Cover";
+import type { Post } from "@/lib/posts";
+import { AmazonButton } from "@/components/Cover";
 import MiniBubble from "@/components/MiniBubble";
 
 const INK = "#171310";
@@ -28,7 +29,6 @@ function useGeo(kind: MapKind): FeatureCollection | null {
     world: null,
     japan: null,
   });
-
   useEffect(() => {
     if (geo[kind]) return;
     const file = kind === "world" ? "/geo/countries-110m.json" : "/geo/japan.topojson";
@@ -36,11 +36,7 @@ function useGeo(kind: MapKind): FeatureCollection | null {
     fetch(file)
       .then((r) => r.json())
       .then((topo: Topology) => {
-        const fc = feature(
-          topo,
-          topo.objects[objName] as GeometryCollection
-        ) as unknown as FeatureCollection;
-        // 南極大陸は表示しない
+        const fc = feature(topo, topo.objects[objName] as GeometryCollection) as unknown as FeatureCollection;
         const features =
           kind === "world"
             ? fc.features.filter((f) => (f.properties as { name?: string })?.name !== "Antarctica")
@@ -50,122 +46,254 @@ function useGeo(kind: MapKind): FeatureCollection | null {
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind]);
-
   return geo[kind];
+}
+
+// コンテナ幅の監視
+function useWidth(ref: React.RefObject<HTMLDivElement | null>): number {
+  const [w, setW] = useState(800);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setW(el.clientWidth));
+    ro.observe(el);
+    setW(el.clientWidth);
+    return () => ro.disconnect();
+  }, [ref]);
+  return w;
 }
 
 export default function AtlasMap() {
   const [mapKind, setMapKind] = useState<MapKind>("japan");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [view, setView] = useState({ tx: 0, ty: 0, k: 1 });
+  const [voiceIdx, setVoiceIdx] = useState(0);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
+
   const fc = useGeo(mapKind);
   const meta = useMeta();
   const voices = useVoicesByWork();
+  const cw = useWidth(wrapRef);
 
-  const spots = spotsOf(mapKind);
+  const spots = useMemo(() => spotsOf(mapKind), [mapKind]);
   const selected: MapSpot | undefined = spots.find((s) => s.id === selectedId);
   const { w, h } = VIEW[mapKind];
+  const f = cw / w; // svg単位 → 画面px
 
-  const { projection, paths } = useMemo(() => {
-    if (!fc) return { projection: null as GeoProjection | null, paths: [] as string[] };
-    const proj =
+  const { paths, project } = useMemo(() => {
+    if (!fc) return { paths: [] as string[], project: null as ((s: MapSpot) => [number, number]) | null };
+    const proj: GeoProjection =
       mapKind === "world"
-        ? geoNaturalEarth1().fitExtent(
-            [
-              [8, 8],
-              [w - 8, h - 8],
-            ],
-            fc
-          )
-        : geoMercator().fitExtent(
-            [
-              [16, 16],
-              [w - 16, h - 16],
-            ],
-            fc
-          );
+        ? geoNaturalEarth1().fitExtent([[8, 8], [w - 8, h - 8]], fc)
+        : geoMercator().fitExtent([[16, 16], [w - 16, h - 16]], fc);
     const gen = geoPath(proj);
-    return { projection: proj, paths: fc.features.map((f) => gen(f) || "") };
+    return {
+      paths: fc.features.map((ft) => gen(ft) || ""),
+      project: (s: MapSpot): [number, number] => {
+        const p = proj([s.lon, s.lat]) || [0, 0];
+        return [p[0] + (s.dx ?? 0) * 0.6, p[1] + (s.dy ?? 0) * 0.6];
+      },
+    };
   }, [fc, mapKind, w, h]);
 
-  const project = (s: MapSpot): [number, number] | null => {
-    if (!projection) return null;
-    const p = projection([s.lon, s.lat]);
-    if (!p) return null;
-    return [p[0] + (s.dx ?? 0), p[1] + (s.dy ?? 0)];
+  // マップ切替時にビューをリセット
+  useEffect(() => {
+    setView({ tx: 0, ty: 0, k: 1 });
+    setSelectedId(null);
+  }, [mapKind]);
+
+  // ホイールズーム(カーソル基準・svg単位系)
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const fx = el.clientWidth / VIEW[mapKind].w;
+      const mx = (e.clientX - rect.left) / fx;
+      const my = (e.clientY - rect.top) / fx;
+      setView((v) => {
+        const k = Math.min(12, Math.max(1, v.k * Math.exp(-e.deltaY * 0.0016)));
+        const s = k / v.k;
+        return { k, tx: mx - (mx - v.tx) * s, ty: my - (my - v.ty) * s };
+      });
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [mapKind]);
+
+  const zoomBy = (factor: number) => {
+    const mx = w / 2;
+    const my = (h / 2) * 0.9;
+    setView((v) => {
+      const k = Math.min(12, Math.max(1, v.k * factor));
+      const s = k / v.k;
+      return { k, tx: mx - (mx - v.tx) * s, ty: my - (my - v.ty) * s };
+    });
   };
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!drag.current) return;
+    const dx = (e.clientX - drag.current.x) / f;
+    const dy = (e.clientY - drag.current.y) / f;
+    if (Math.abs(dx) + Math.abs(dy) > 3) drag.current.moved = true;
+    setView((v) => ({ ...v, tx: drag.current!.tx + dx, ty: drag.current!.ty + dy }));
+  };
+  const onPointerUp = () => {
+    drag.current = null;
+  };
+
+  // スポット位置(画面px)
+  const screenPos = (s: MapSpot): [number, number] | null => {
+    if (!project) return null;
+    const [px, py] = project(s);
+    return [(px * view.k + view.tx) * f, (py * view.k + view.ty) * f];
+  };
+
+  // スポットごとの最新コメント
+  const spotVoice = useMemo(() => {
+    const map: Record<string, Post> = {};
+    for (const s of spots) {
+      for (const wk of s.works) {
+        const v = voices[wk.workId]?.latest;
+        if (v && (!map[s.id] || v.createdAt > map[s.id].createdAt)) map[s.id] = v;
+      }
+    }
+    return map;
+  }, [spots, voices]);
+
+  const voiceSpots = useMemo(() => spots.filter((s) => spotVoice[s.id]), [spots, spotVoice]);
+
+  // 地図上のコメント吹き出しをローテーション
+  useEffect(() => {
+    if (voiceSpots.length < 2) return;
+    const t = setInterval(() => setVoiceIdx((i) => (i + 1) % voiceSpots.length), 6500);
+    return () => clearInterval(t);
+  }, [voiceSpots.length]);
+
+  // 表示する吹き出し: 選択中スポット優先、なければローテーション
+  const bubbleSpot = selected && spotVoice[selected.id] ? selected : voiceSpots.length > 0 ? voiceSpots[voiceIdx % voiceSpots.length] : null;
+
+  const mapH = cw * (h / w);
 
   return (
     <>
-      <div className="filter-row">
-        <button
-          className={`chip ${mapKind === "japan" ? "active" : ""}`}
-          onClick={() => {
-            setMapKind("japan");
-            setSelectedId(null);
-          }}
-        >
+      <div className="filter-row" style={{ marginBottom: 14 }}>
+        <button className={`chip ${mapKind === "japan" ? "active" : ""}`} onClick={() => setMapKind("japan")}>
           🗾 日本地図
         </button>
-        <button
-          className={`chip ${mapKind === "world" ? "active" : ""}`}
-          onClick={() => {
-            setMapKind("world");
-            setSelectedId(null);
-          }}
-        >
+        <button className={`chip ${mapKind === "world" ? "active" : ""}`} onClick={() => setMapKind("world")}>
           🌏 世界地図
         </button>
+        <span style={{ fontSize: 11.5, color: "var(--ink-soft)", alignSelf: "center", fontWeight: 700 }}>
+          ドラッグで移動 / ホイール・ボタンで拡大縮小 / 書影クリックで詳細
+        </span>
       </div>
 
       <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
-        <div className="atlas-wrap" style={{ flex: "1 1 460px", minWidth: 320 }}>
-          <svg
-            viewBox={`0 0 ${w} ${h}`}
-            className="atlas-svg"
-            role="img"
-            aria-label={mapKind === "world" ? "世界地図" : "日本地図"}
+        {/* ===== 地図本体 ===== */}
+        <div style={{ flex: "1 1 480px", minWidth: 320, position: "relative" }}>
+          <div
+            ref={wrapRef}
+            className="atlas-wrap"
+            style={{ position: "relative", overflow: "hidden", height: mapH, cursor: drag.current ? "grabbing" : "grab", touchAction: "none" }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerLeave={onPointerUp}
+            onDoubleClick={() => zoomBy(1.7)}
           >
-            {!fc && (
-              <text x={w / 2} y={h / 2} textAnchor="middle" fontSize={16} fill="#8a93a3">
-                地図を読み込み中…
-              </text>
-            )}
-            <g fill="#ffffff" stroke={INK} strokeWidth={mapKind === "world" ? 0.6 : 0.9} strokeLinejoin="round">
-              {paths.map((d, i) => (
-                <path key={i} d={d} />
-              ))}
-            </g>
-            {projection &&
+            <svg viewBox={`0 0 ${w} ${h}`} className="atlas-svg" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} role="img" aria-label={mapKind === "world" ? "世界地図" : "日本地図"}>
+              {!fc && (
+                <text x={w / 2} y={h / 2} textAnchor="middle" fontSize={16} fill="#8a93a3">
+                  地図を読み込み中…
+                </text>
+              )}
+              <g transform={`translate(${view.tx},${view.ty}) scale(${view.k})`}>
+                <g fill="#ffffff" stroke={INK} strokeWidth={mapKind === "world" ? 0.6 : 0.9} strokeLinejoin="round" style={{ vectorEffect: "non-scaling-stroke" }}>
+                  {paths.map((d, i) => (
+                    <path key={i} d={d} style={{ vectorEffect: "non-scaling-stroke" }} />
+                  ))}
+                </g>
+              </g>
+            </svg>
+
+            {/* ===== 書影ピン(HTMLオーバーレイ・ズームしても大きさ一定) ===== */}
+            {project &&
               spots.map((s) => {
-                const p = project(s);
+                const p = screenPos(s);
                 if (!p) return null;
-                const [x, y] = p;
+                const [sx, sy] = p;
+                if (sx < -60 || sx > cw + 60 || sy < -80 || sy > mapH + 40) return null;
                 const active = s.id === selectedId;
-                const r = mapKind === "world" ? 9 : 8;
+                const first = workById(s.works[0].workId);
+                const cover = first ? coverSrc(meta, first.id) : null;
                 return (
-                  <g key={s.id} style={{ cursor: "pointer" }} onClick={() => setSelectedId(active ? null : s.id)}>
-                    <title>{s.place}</title>
-                    {active && (
-                      <circle cx={x} cy={y} r={r + 7} fill="none" stroke={ACCENT} strokeWidth={2.5} strokeDasharray="4 4" />
-                    )}
-                    <circle cx={x} cy={y} r={r} fill={active ? ACCENT : "#fff"} stroke={INK} strokeWidth={2.5} />
-                    <text
-                      x={x}
-                      y={y + 4.5}
-                      textAnchor="middle"
-                      fontSize={r + 2}
-                      fontWeight={900}
-                      fill={active ? "#fff" : INK}
-                      stroke="none"
-                    >
-                      {s.works.length}
-                    </text>
-                  </g>
+                  <div
+                    key={s.id}
+                    className={`map-pin ${active ? "on" : ""}`}
+                    style={{ left: sx, top: sy }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (drag.current?.moved) return;
+                      setSelectedId(active ? null : s.id);
+                    }}
+                    title={s.place}
+                  >
+                    <div className="map-pin-card">
+                      {cover ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={cover} alt={first?.title ?? s.place} loading="lazy" />
+                      ) : (
+                        <span className="ph">📖</span>
+                      )}
+                      {s.works.length > 1 && <span className="cnt">{s.works.length}</span>}
+                    </div>
+                    <div className="map-pin-tip" />
+                    <div className="map-pin-dot" />
+                    <div className="map-pin-label">{s.place}</div>
+                  </div>
                 );
               })}
-          </svg>
+
+            {/* ===== 地図上のコメント吹き出し(しっぽがピンを指す) ===== */}
+            {bubbleSpot &&
+              (() => {
+                const p = screenPos(bubbleSpot);
+                if (!p) return null;
+                const [sx, sy] = p;
+                if (sx < 0 || sx > cw || sy < 0 || sy > mapH) return null;
+                const post = spotVoice[bubbleSpot.id];
+                const flip = sx > cw - 240;
+                return (
+                  <div
+                    className="map-voice"
+                    style={{
+                      left: flip ? sx - 210 + 26 : sx - 26,
+                      top: sy - 62,
+                      transform: "translateY(-100%)" + (flip ? " scaleX(1)" : ""),
+                    }}
+                  >
+                    <MiniBubble post={post} style={{ marginTop: 0, width: 210 }} />
+                  </div>
+                );
+              })()}
+
+            {/* ズームコントロール */}
+            <div style={{ position: "absolute", right: 10, bottom: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+              <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 17 }} onClick={(e) => { e.stopPropagation(); zoomBy(1.5); }} onPointerDown={(e) => e.stopPropagation()}>＋</button>
+              <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 17 }} onClick={(e) => { e.stopPropagation(); zoomBy(1 / 1.5); }} onPointerDown={(e) => e.stopPropagation()}>－</button>
+              <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 10 }} onClick={(e) => { e.stopPropagation(); setView({ tx: 0, ty: 0, k: 1 }); }} onPointerDown={(e) => e.stopPropagation()}>全体</button>
+            </div>
+          </div>
         </div>
 
+        {/* ===== サイドパネル ===== */}
         <aside style={{ flex: "0 1 340px", minWidth: 280 }}>
           {selected ? (
             <div className="spot-popup">
@@ -174,9 +302,17 @@ export default function AtlasMap() {
                 const wk = workById(workId);
                 if (!wk) return null;
                 const az = amazonLink(meta, wk.id);
+                const cover = coverSrc(meta, wk.id);
                 return (
                   <div key={workId} className="sw" style={{ display: "flex", gap: 10 }}>
-                    <Cover src={coverSrc(meta, wk.id)} title={wk.title} width={46} />
+                    <div style={{ flex: "0 0 46px" }}>
+                      {cover ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={cover} alt={wk.title} style={{ width: 46, height: 66, objectFit: "cover", border: "2px solid #171310", boxShadow: "2px 2px 0 #171310" }} />
+                      ) : (
+                        <div style={{ width: 46, height: 66, border: "2px solid #171310", display: "flex", alignItems: "center", justifyContent: "center", background: "#f1e9d6" }}>📖</div>
+                      )}
+                    </div>
                     <div style={{ minWidth: 0 }}>
                       <Link href={`/works/${wk.id}`}>
                         <span className="t">
@@ -188,7 +324,7 @@ export default function AtlasMap() {
                       <span className="n">{note}</span>
                       {voices[wk.id]?.latest && <MiniBubble post={voices[wk.id].latest!} />}
                       {az && (
-                        <div style={{ marginTop: 5 }}>
+                        <div style={{ marginTop: 6 }}>
                           <AmazonButton href={az} small />
                         </div>
                       )}
@@ -199,10 +335,10 @@ export default function AtlasMap() {
             </div>
           ) : (
             <div className="spot-popup" style={{ background: "#fdf6d8" }}>
-              <h3>使い方</h3>
+              <h3>マンガの聖地を旅する</h3>
               <p style={{ fontSize: 13, lineHeight: 1.9, margin: 0 }}>
-                地図上の <strong>丸いピン</strong> がマンガの舞台。数字はその場所を舞台にした作品数です。
-                ピンをクリックすると作品と「聖地メモ」が出ます。
+                地図の上の<strong>書影</strong>がマンガの舞台。クリックすると作品と「聖地メモ」、読者の声が出ます。
+                ホイールやボタンで<strong>ズーム</strong>すると、東京周辺など密集地帯もくっきり見えます。
               </p>
             </div>
           )}

@@ -550,6 +550,85 @@ main {
   box-shadow: var(--shadow-sm);
 }
 
+/* ================= 新・マンガ吹き出し(SVG形状) ================= */
+.bx {
+  position: relative;
+  max-width: 620px;
+  filter: drop-shadow(3px 3px 0 rgba(23, 19, 16, 0.9));
+}
+
+.bx-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  z-index: 0;
+}
+
+.bx-content {
+  position: relative;
+  z-index: 1;
+  font-size: 15px;
+  line-height: 1.95;
+  white-space: pre-wrap;
+}
+
+.bx-speech .bx-content { padding: 6.5% 11% 9%; }
+.bx-shout .bx-content { padding: 12% 17% 12%; text-align: center; }
+.bx-think .bx-content { padding: 10.5% 14% 11%; }
+.bx-whisper .bx-content { padding: 7% 11% 9%; color: var(--ink-soft); }
+
+.bx-think { margin-bottom: 32px; } /* しっぽの泡ぶんの余白 */
+
+.bx-dot {
+  position: absolute;
+  background: #fff;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  z-index: 1;
+}
+.bx-dot1 { width: 14px; height: 14px; left: 38px; bottom: -13px; }
+.bx-dot2 { width: 8px; height: 8px; left: 26px; bottom: -26px; }
+
+.bx-narration {
+  background: #fffdf2;
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 18px 24px;
+  font-size: 14.5px;
+  line-height: 1.95;
+  white-space: pre-wrap;
+  max-width: 620px;
+}
+
+/* 地図・カード用ミニ吹き出し */
+.bxm {
+  position: relative;
+  filter: drop-shadow(2px 2px 0 rgba(23, 19, 16, 0.9));
+}
+
+.bxm .bx-content {
+  padding: 13px 26px 22px;
+  font-size: 11.5px;
+  line-height: 1.7;
+}
+
+.bxm .txt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bxm .who {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--ink-soft);
+  font-family: var(--font-tegaki);
+}
+
 /* 吹き出しフォント(マンガの組版慣習に対応) */
 .f-antique { font-family: var(--font-antique); } /* セリフ標準: アンチック体 */
 .f-mincho { font-family: var(--font-mincho); font-weight: 500; } /* モノローグ・回想: 明朝体 */
@@ -866,6 +945,123 @@ main {
   background-image: radial-gradient(rgba(23, 19, 16, 0.09) 1.2px, transparent 1.5px);
   background-size: 10px 10px;
   background-color: #eef3f6;
+}
+
+/* 地図の書影ピン */
+.map-pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+  z-index: 5;
+  text-align: center;
+  user-select: none;
+}
+
+.map-pin.on {
+  z-index: 8;
+}
+
+.map-pin-card {
+  position: relative;
+  display: inline-block;
+  background: #fff;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 2px;
+  transition: transform 0.12s;
+}
+
+.map-pin:hover .map-pin-card,
+.map-pin.on .map-pin-card {
+  transform: scale(1.12);
+}
+
+.map-pin.on .map-pin-card {
+  outline: 3px solid var(--accent);
+}
+
+.map-pin-card img {
+  display: block;
+  width: 34px;
+  height: 48px;
+  object-fit: cover;
+}
+
+.map-pin-card .ph {
+  display: flex;
+  width: 34px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(45deg, #f1e9d6, #f1e9d6 5px, #e7ddc4 5px, #e7ddc4 10px);
+  font-size: 16px;
+}
+
+.map-pin-card .cnt {
+  position: absolute;
+  top: -9px;
+  right: -10px;
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  min-width: 19px;
+  height: 19px;
+  line-height: 15px;
+  padding: 0 3px;
+}
+
+.map-pin-tip {
+  width: 0;
+  height: 0;
+  margin: -1px auto 0;
+  border: 6px solid transparent;
+  border-top: 9px solid var(--ink);
+}
+
+.map-pin-dot {
+  width: 7px;
+  height: 7px;
+  margin: -4px auto 0;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1.5px solid var(--ink);
+}
+
+.map-pin-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -20px;
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0 5px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.12s;
+  pointer-events: none;
+}
+
+.map-pin:hover .map-pin-label,
+.map-pin.on .map-pin-label {
+  opacity: 1;
+}
+
+.map-voice {
+  position: absolute;
+  z-index: 12;
+  pointer-events: none;
+  animation: voice-in 0.35s ease-out;
+}
+
+@keyframes voice-in {
+  from { opacity: 0; transform: translateY(calc(-100% + 8px)); }
+  to { opacity: 1; transform: translateY(-100%); }
 }
 
 .spot-popup {
