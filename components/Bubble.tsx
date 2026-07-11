@@ -85,10 +85,10 @@ function pt(cx: number, cy: number, rx: number, ry: number, deg: number): [numbe
 
 // セリフ: 楕円と一体のしっぽ(輪郭は一筆書きの単一パス)
 function speechGeom(tw: number, th: number): Geom {
-  const rx = Math.max(tw * 0.72 + 8, 44);
-  const ry = Math.max(th * 0.74 + 7, 26);
+  const rx = Math.max((tw + 6) * 0.72, 32);
+  const ry = Math.max((th + 6) * 0.73, 22);
   const pad = 3;
-  const tailH = 26;
+  const tailH = 20;
   const cx = rx + pad;
   const cy = ry + pad;
   const W = 2 * (rx + pad);
@@ -106,13 +106,13 @@ function speechGeom(tw: number, th: number): Geom {
 
 // ぼそっ: 破線の楕円 + 破線のしっぽ
 function whisperGeom(tw: number, th: number): Geom {
-  const rx = Math.max(tw * 0.72 + 8, 44);
-  const ry = Math.max(th * 0.74 + 7, 24);
+  const rx = Math.max((tw + 6) * 0.72, 32);
+  const ry = Math.max((th + 6) * 0.73, 22);
   const pad = 3;
   const cx = rx + pad;
   const cy = ry + pad;
   const W = 2 * (rx + pad);
-  const H = 2 * (ry + pad) + 18;
+  const H = 2 * (ry + pad) + 14;
   const [p0x, p0y] = pt(cx, cy, rx, ry, 0);
   const [p1x, p1y] = pt(cx, cy, rx, ry, 180);
   const d =
@@ -133,11 +133,11 @@ function whisperGeom(tw: number, th: number): Geom {
 
 // 叫び: 不揃いなトゲの爆発型
 function burstGeom(tw: number, th: number): Geom {
-  const rxI = Math.max(tw * 0.66 + 12, 48);
-  const ryI = Math.max(th * 0.72 + 10, 30);
+  const rxI = Math.max((tw + 8) * 0.68, 40);
+  const ryI = Math.max((th + 8) * 0.72, 26);
   const n = Math.max(11, Math.min(19, Math.round((rxI + ryI) / 22)));
   const vary = [1.35, 0.72, 1.1, 0.9, 1.5, 0.8, 1.2, 1.0, 1.55, 0.85, 1.25, 0.95, 1.4, 0.78, 1.15, 1.02, 1.3, 0.88, 1.45];
-  const ext = 17;
+  const ext = 14;
   const maxExt = ext * 1.55;
   const pad = 3;
   const cx = rxI + maxExt + pad;
@@ -156,15 +156,15 @@ function burstGeom(tw: number, th: number): Geom {
 
 // 心の声: もくもく雲形 + 泡のしっぽ
 function cloudGeom(tw: number, th: number): Geom {
-  const rx = Math.max(tw * 0.7 + 10, 46);
-  const ry = Math.max(th * 0.74 + 9, 28);
+  const rx = Math.max((tw + 8) * 0.7, 36);
+  const ry = Math.max((th + 8) * 0.73, 24);
   const n = Math.max(9, Math.min(16, Math.round((rx + ry) / 24)));
-  const bump = 1.15;
+  const bump = 1.11;
   const pad = 3;
   const cx = rx * bump + pad;
   const cy = ry * bump + pad;
   const W = 2 * cx;
-  const H = 2 * cy + 30;
+  const H = 2 * cy + 24;
   const p0 = pt(cx, cy, rx, ry, -90);
   let d = `M ${f1(p0[0])} ${f1(p0[1])}`;
   for (let i = 0; i < n; i++) {
@@ -174,8 +174,8 @@ function cloudGeom(tw: number, th: number): Geom {
   }
   d += " Z";
   const dots = [
-    { cx: cx - rx * 0.5, cy: cy + ry * bump + 8, r: 6 },
-    { cx: cx - rx * 0.64, cy: cy + ry * bump + 20, r: 3.8 },
+    { cx: cx - rx * 0.5, cy: cy + ry * bump + 7, r: 5 },
+    { cx: cx - rx * 0.65, cy: cy + ry * bump + 17, r: 3.2 },
   ];
   return { W, H, shapes: [{ d }], dots, tx: cx - tw / 2, ty: cy - th / 2 };
 }
@@ -266,8 +266,18 @@ interface BubbleProps {
 
 export default function Bubble({ text, bubble = "speech", font = "antique", user, meta }: BubbleProps) {
   const fc = fontClass(font);
-  // 文章量に応じて縦書きの列の長さを決め、吹き出しがほどよい縦横比になるようにする
-  const mh = Math.min(320, Math.max(110, Math.round(Math.sqrt(text.length) * 26)));
+  // 文章量と画面幅から縦書きの列長を決める。
+  // 列が増えすぎて吹き出しが画面からはみ出さないよう、幅の予算から逆算する
+  const len = Math.max(text.length, 4);
+  const fs = 14.5;
+  const colW = fs * 1.7;
+  const vw = typeof window !== "undefined" ? window.innerWidth : 480;
+  const textBudget = Math.min(300, Math.max(150, vw - 120));
+  let mhRaw = Math.sqrt(len) * 24;
+  if (Math.ceil((len * fs) / mhRaw) * colW > textBudget) {
+    mhRaw = (len * fs * colW) / textBudget;
+  }
+  const mh = Math.min(300, Math.max(90, Math.round(mhRaw)));
   return (
     <div className="bubble-wrap">
       <div className="bubble-meta">

@@ -245,6 +245,62 @@ main {
   font-family: var(--font-tegaki);
 }
 
+/* コンパクト引用吹き出し(カード・地図用/横書き) */
+.qb {
+  position: relative;
+  background: #fff;
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  padding: 7px 11px 6px;
+  margin-top: 10px;
+  max-width: 420px;
+}
+
+.qb::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 18px;
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  border-bottom: 9px solid var(--ink);
+  border-left-width: 2px;
+  border-right-width: 7px;
+}
+
+.qb::after {
+  content: "";
+  position: absolute;
+  top: -5.5px;
+  left: 19.5px;
+  width: 0;
+  height: 0;
+  border: 4px solid transparent;
+  border-bottom: 7px solid #fff;
+  border-left-width: 1.5px;
+  border-right-width: 5.5px;
+}
+
+.qb-txt {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-antique);
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+.qb-who {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
 /* コメント数バッジ */
 .cbadge {
   display: inline-block;
@@ -442,8 +498,7 @@ main {
 .bubble-meta .name {
   font-weight: 900;
   color: var(--ink);
-  font-family: var(--font-tegaki);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .bubble-meta .worklink {
@@ -621,7 +676,7 @@ main {
 /* ================= 実測ベースのマンガ吹き出し ================= */
 .mb {
   position: relative;
-  filter: drop-shadow(3px 3px 0 rgba(23, 19, 16, 0.9));
+  filter: drop-shadow(2px 2px 0 rgba(23, 19, 16, 0.3));
 }
 
 .mb-svg {
@@ -637,9 +692,9 @@ main {
   /* 日本のマンガのセリフは縦書き・右から左 */
   writing-mode: vertical-rl;
   height: max-content;
-  font-size: 15px;
-  line-height: 1.95; /* 縦書きでは行間=列の間隔 */
-  letter-spacing: 0.08em;
+  font-size: 14.5px;
+  line-height: 1.7; /* 縦書きでは行間=列の間隔(写植基準で締める) */
+  letter-spacing: 0.03em;
   white-space: pre-wrap;
 }
 
@@ -716,7 +771,7 @@ main {
   padding: 22px 26px;
   font-size: 14.5px;
   line-height: 1.95;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.03em;
   white-space: pre-wrap;
   writing-mode: vertical-rl; /* 地の文も縦組みが基本 */
   width: fit-content;
@@ -753,10 +808,10 @@ main {
 /* 吹き出しフォント(マンガの組版慣習に対応) */
 .f-antique { font-family: var(--font-antique); } /* セリフ標準: アンチック体 */
 .f-mincho { font-family: var(--font-mincho); font-weight: 500; } /* モノローグ・回想: 明朝体 */
-.f-sakebi { font-family: var(--font-base); font-weight: 900; font-size: 17px; letter-spacing: 0.06em; } /* 叫び: 極太角ゴシック */
+.f-sakebi { font-family: var(--font-base); font-weight: 900; letter-spacing: 0.05em; } /* 叫び: 極太角ゴシック */
 .f-tegaki { font-family: var(--font-tegaki); } /* 欄外の手書きツッコミ */
 .f-shojo { font-family: var(--font-shojo); font-weight: 600; } /* 少女マンガの手書きモノローグ */
-.f-fude { font-family: var(--font-fude); font-size: 17px; } /* 時代劇・ホラーの筆文字 */
+.f-fude { font-family: var(--font-fude); } /* 時代劇・ホラーの筆文字 */
 .f-pop { font-family: var(--font-pop); } /* ギャグのポップ体 */
 
 /* ---- フォーム ---- */
@@ -1178,6 +1233,11 @@ main {
   animation: voice-in 0.35s ease-out;
 }
 
+.map-voice .qb {
+  width: 216px;
+  box-shadow: 2px 2px 0 rgba(23, 19, 16, 0.35);
+}
+
 /* タイムラインのミニマップ */
 .tl-minimap {
   position: relative;
@@ -1374,14 +1434,6 @@ main {
   .chip {
     padding: 5px 11px;
     font-size: 12px;
-  }
-
-  /* 長い縦書き吹き出しは横スクロールで読む */
-  .bubble-wrap {
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 4px 4px 8px;
-    -webkit-overflow-scrolling: touch;
   }
 
   .mb-text {

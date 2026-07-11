@@ -1,25 +1,31 @@
 "use client";
 
-import { MangaBubble, fontClass, tcy } from "@/components/Bubble";
 import type { Post } from "@/lib/posts";
 
-// カードや地図に埋め込む小さなマンガ吹き出し(縦書き・実測ベースのSVG形状)
+const KIND_ICON: Record<string, string> = {
+  shout: "💥",
+  think: "💭",
+  whisper: "…",
+};
+
+// カード・地図用のコンパクト吹き出し(横書き・2行クランプ)。
+// フィードの中では読みやすさ優先で、本格的な縦書き吹き出しは投稿ページで使う
 export default function MiniBubble({ post, style }: { post: Post; style?: React.CSSProperties }) {
-  const kind = post.bubble === "narration" ? "speech" : (post.bubble ?? "speech");
-  const text = post.text.length > 56 ? post.text.slice(0, 55) + "…" : post.text;
+  const icon = KIND_ICON[post.bubble ?? ""] ?? "";
   const loc =
     post.volume || post.page || post.panel
-      ? `(${[post.volume && `${post.volume}巻`, post.page && `${post.page}p`, post.panel].filter(Boolean).join("/")})`
+      ? ` (${[post.volume && `${post.volume}巻`, post.page && `${post.page}p`, post.panel].filter(Boolean).join("/")})`
       : "";
   return (
-    <div style={{ marginTop: 12, ...style }}>
-      <MangaBubble kind={kind} className="mb-mini" textClassName={fontClass(post.font)} maxHeight={104}>
-        {tcy(text)}
-        <span className="who">
-          — {post.user}
-          {loc}
-        </span>
-      </MangaBubble>
+    <div className="qb" style={style}>
+      <span className="qb-txt">
+        {icon && <span style={{ marginRight: 2 }}>{icon}</span>}
+        {post.text}
+      </span>
+      <span className="qb-who">
+        — {post.user}
+        {loc}
+      </span>
     </div>
   );
 }
