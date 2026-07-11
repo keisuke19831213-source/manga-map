@@ -12,6 +12,9 @@ export function generateStaticParams() {
   return WORKS.map((w) => ({ id: w.id }));
 }
 
+// 書影・アフィリエイト設定(Blob)の更新を反映するため定期的に再生成
+export const revalidate = 60;
+
 export default async function WorkDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const work = await findWork(id);

@@ -7,6 +7,9 @@ import Cover from "@/components/Cover";
 
 export const metadata = { title: "時代設定マップ — MANGA MAP" };
 
+// 書影(Blob)の更新を反映するため定期的に再生成
+export const revalidate = 60;
+
 export default async function ErasPage() {
   const meta = await readMeta();
   const posts = await readPosts();

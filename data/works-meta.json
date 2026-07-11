@@ -1,4 +1,317 @@
 {
   "affiliateTag": "",
-  "works": {}
+  "works": {
+    "shintakarajima": {
+      "asin": "4063737462"
+    },
+    "ribon_kishi": {
+      "asin": "4063738213"
+    },
+    "gegege": {
+      "asin": "4041929318"
+    },
+    "ashita": {
+      "asin": "4063719049"
+    },
+    "neji": {
+      "asin": "4480425411"
+    },
+    "golgo": {
+      "asin": "4845812770"
+    },
+    "devilman": {
+      "asin": "4063766411"
+    },
+    "poe": {
+      "asin": "4091792707"
+    },
+    "berubara": {
+      "asin": "4088452518"
+    },
+    "blackjack": {
+      "asin": "4253240542"
+    },
+    "garasu": {
+      "asin": "4592111133"
+    },
+    "urusei": {
+      "asin": "409120757X"
+    },
+    "touch": {
+      "asin": "4091633277"
+    },
+    "akira": {
+      "asin": "1935429000"
+    },
+    "hokuto": {
+      "asin": "4867205400"
+    },
+    "shima": {
+      "asin": "4063732045"
+    },
+    "dragonball": {
+      "asin": "4088518314"
+    },
+    "tomie": {
+      "asin": "4022140577"
+    },
+    "slam": {
+      "asin": "4088716116"
+    },
+    "sailor": {
+      "asin": "4062501562"
+    },
+    "kaiji": {
+      "asin": "4063740498"
+    },
+    "azumanga": {
+      "asin": "4091216951"
+    },
+    "darling": {
+      "asin": "4824016770"
+    },
+    "deathnote": {
+      "asin": "8074491617"
+    },
+    "shingeki": {
+      "asin": "4063842762"
+    },
+    "onepunch": {
+      "asin": "408870701X"
+    },
+    "tensura": {
+      "asin": "4063765784"
+    },
+    "kimetsu": {
+      "asin": "4088807235"
+    },
+    "chainsaw": {
+      "asin": "408881780X"
+    },
+    "sololeveling": {
+      "asin": "4040640802"
+    },
+    "wani": {
+      "asin": "4098501252"
+    },
+    "chie": {
+      "asin": "4575998168"
+    },
+    "tondesaitama": {
+      "asin": "4800249392"
+    },
+    "cookingpapa": {
+      "asin": "4065324343"
+    },
+    "rurouni": {
+      "asin": "4087033260"
+    },
+    "barakamon": {
+      "asin": "4757526164"
+    },
+    "ginsaji": {
+      "asin": "4092306482"
+    },
+    "osomatsu": {
+      "asin": "4090016630"
+    },
+    "hinotori": {
+      "asin": "4063738663"
+    },
+    "doraemon": {
+      "asin": "4091400019"
+    },
+    "ginga999": {
+      "asin": "4778033388"
+    },
+    "drslump": {
+      "asin": "4088511980"
+    },
+    "kinnikuman": {
+      "asin": "4088707257"
+    },
+    "captsubasa": {
+      "asin": "4083214775"
+    },
+    "jojo": {
+      "asin": "4081110573"
+    },
+    "yugioh": {
+      "asin": "4086185741"
+    },
+    "hikaru": {
+      "asin": "4087032051"
+    },
+    "naruto": {
+      "asin": "4088728408"
+    },
+    "prince_tennis": {
+      "asin": "4086195232"
+    },
+    "eyeshield": {
+      "asin": "4088743164"
+    },
+    "gintama": {
+      "asin": "4087032434"
+    },
+    "kurobas": {
+      "asin": "4087034054"
+    },
+    "haikyu": {
+      "asin": "4088704533"
+    },
+    "hero_aca": {
+      "asin": "4088802640"
+    },
+    "promised": {
+      "asin": "408880872X"
+    },
+    "drstone": {
+      "asin": "4088811844"
+    },
+    "jujutsu": {
+      "asin": "4088815165"
+    },
+    "spyfamily": {
+      "asin": "4088820118"
+    },
+    "fma": {
+      "asin": "4757525559"
+    },
+    "ranma": {
+      "asin": "4091272703"
+    },
+    "inuyasha": {
+      "asin": "4091220509"
+    },
+    "maison": {
+      "asin": "4091812651"
+    },
+    "ushiotora": {
+      "asin": "4094511091"
+    },
+    "kindaichi": {
+      "asin": "4063777537"
+    },
+    "gto": {
+      "asin": "4065102960"
+    },
+    "ippo": {
+      "asin": "4065102952"
+    },
+    "fairytail": {
+      "asin": "4065184215"
+    },
+    "tokyorev": {
+      "asin": "4063959384"
+    },
+    "bluelock": {
+      "asin": "4065134005"
+    },
+    "frieren": {
+      "asin": "4098501805"
+    },
+    "berserk": {
+      "asin": "4592842014"
+    },
+    "monster": {
+      "asin": "287129366X"
+    },
+    "yawara": {
+      "asin": "4091857701"
+    },
+    "vagabond": {
+      "asin": "4063872610"
+    },
+    "kingdom": {
+      "asin": "408877213X"
+    },
+    "vinland": {
+      "asin": "406386149X"
+    },
+    "planetes": {
+      "asin": "4823507800"
+    },
+    "uchukyodai": {
+      "asin": "4063726746"
+    },
+    "goldenkamuy": {
+      "asin": "4081138966"
+    },
+    "tokyoghoul": {
+      "asin": "4088798090"
+    },
+    "sangatsu": {
+      "asin": "4592145119"
+    },
+    "ooku": {
+      "asin": "4592143035"
+    },
+    "kinou": {
+      "asin": "4063726487"
+    },
+    "uzumaki": {
+      "asin": "4091832423"
+    },
+    "dorohedoro": {
+      "asin": "4091882749"
+    },
+    "mob": {
+      "asin": "4091241026"
+    },
+    "hanadan": {
+      "asin": "4088463056"
+    },
+    "nana": {
+      "asin": "3770461703"
+    },
+    "fruits": {
+      "asin": "4592218116"
+    },
+    "ccs": {
+      "asin": "4063930998"
+    },
+    "kimitodoke": {
+      "asin": "4086014246"
+    },
+    "chihaya": {
+      "asin": "4063192393"
+    },
+    "nodame": {
+      "asin": "4065257468"
+    },
+    "hachikuro": {
+      "asin": "4081095353"
+    },
+    "crayon": {
+      "asin": "4575962155"
+    },
+    "yotsuba": {
+      "asin": "4048690663"
+    },
+    "keion": {
+      "asin": "483227693X"
+    },
+    "yurucamp": {
+      "asin": "4832246356"
+    },
+    "uw-1783194623967-059g": {
+      "asin": "4063856119"
+    },
+    "tetsuwan": {
+      "asin": "4760947892"
+    },
+    "oishinbo": {
+      "asin": "4091193226"
+    },
+    "onepiece": {
+      "asin": "4081150435"
+    },
+    "conan": {
+      "asin": "4091181988"
+    },
+    "tetsujin28": {
+      "asin": "4091633129"
+    }
+  }
 }
