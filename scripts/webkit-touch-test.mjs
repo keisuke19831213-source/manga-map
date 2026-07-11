@@ -1,7 +1,8 @@
 // タッチ操作込みのSafari(WebKit)クラッシュ検査
 import { webkit, devices } from "playwright";
 const browser = await webkit.launch();
-const ctx = await browser.newContext({ ...devices["iPhone 13"] });
+// ズーム地図はPC専用になったため、デスクトップ幅+タッチ有効で検査
+const ctx = await browser.newContext({ viewport: { width: 1100, height: 800 }, hasTouch: true });
 const targets = [
   { path: "/", sel: ".gm-wrap" },
   { path: "/atlas", sel: ".atlas-wrap" },
