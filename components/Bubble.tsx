@@ -164,13 +164,13 @@ function computeGeom(kind: string, tw: number, th: number): Geom {
 
 export function MangaBubble({
   kind = "speech",
-  maxWidth = 380,
+  maxHeight = 240,
   className = "",
   textClassName = "",
   children,
 }: {
   kind?: string;
-  maxWidth?: number;
+  maxHeight?: number; // 縦書きの1列の最大長(これを超えると次の列へ折り返す)
   className?: string;
   textClassName?: string;
   children: React.ReactNode;
@@ -223,7 +223,7 @@ export function MangaBubble({
       <div
         ref={ref}
         className={`mb-text ${textClassName}`}
-        style={{ maxWidth, left: g?.tx ?? 0, top: g?.ty ?? 0, visibility: g ? "visible" : "hidden" }}
+        style={{ maxHeight, left: g?.tx ?? 0, top: g?.ty ?? 0, visibility: g ? "visible" : "hidden" }}
       >
         {children}
       </div>
@@ -241,6 +241,8 @@ interface BubbleProps {
 
 export default function Bubble({ text, bubble = "speech", font = "antique", user, meta }: BubbleProps) {
   const fc = fontClass(font);
+  // 文章量に応じて縦書きの列の長さを決め、吹き出しがほどよい縦横比になるようにする
+  const mh = Math.min(320, Math.max(110, Math.round(Math.sqrt(text.length) * 26)));
   return (
     <div className="bubble-wrap">
       <div className="bubble-meta">
@@ -248,9 +250,11 @@ export default function Bubble({ text, bubble = "speech", font = "antique", user
         {meta}
       </div>
       {bubble === "narration" ? (
-        <div className={`bx-narration ${fc}`}>{text}</div>
+        <div className={`bx-narration ${fc}`} style={{ maxHeight: mh + 60 }}>
+          {text}
+        </div>
       ) : (
-        <MangaBubble kind={bubble} className="mb-post" textClassName={fc} maxWidth={400}>
+        <MangaBubble kind={bubble} className="mb-post" textClassName={fc} maxHeight={mh}>
           {text}
         </MangaBubble>
       )}

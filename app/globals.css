@@ -566,14 +566,13 @@ main {
 .mb-text {
   position: absolute;
   z-index: 1;
-  width: max-content;
-  font-size: 14.5px;
-  line-height: 2.0;
+  /* 日本のマンガのセリフは縦書き・右から左 */
+  writing-mode: vertical-rl;
+  height: max-content;
+  font-size: 15px;
+  line-height: 1.95; /* 縦書きでは行間=列の間隔 */
+  letter-spacing: 0.08em;
   white-space: pre-wrap;
-}
-
-.mb-shout .mb-text {
-  text-align: center;
 }
 
 .mb-whisper .mb-text {
@@ -586,22 +585,14 @@ main {
 
 .mb-mini .mb-text {
   font-size: 12px;
-  line-height: 1.75;
-}
-
-.mb-mini .txt {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  line-height: 1.8;
 }
 
 .mb-mini .who {
-  display: block;
-  margin-top: 2px;
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--ink-soft);
   font-family: var(--font-tegaki);
+  padding-top: 8px;
 }
 
 /* ================= 新・マンガ吹き出し(SVG形状) ================= */
@@ -649,10 +640,13 @@ main {
   background: #fffdf2;
   border: 2.5px solid var(--ink);
   box-shadow: 4px 4px 0 var(--ink);
-  padding: 18px 24px;
+  padding: 22px 26px;
   font-size: 14.5px;
   line-height: 1.95;
+  letter-spacing: 0.08em;
   white-space: pre-wrap;
+  writing-mode: vertical-rl; /* 地の文も縦組みが基本 */
+  width: fit-content;
   max-width: 620px;
 }
 

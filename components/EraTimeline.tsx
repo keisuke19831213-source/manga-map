@@ -125,22 +125,25 @@ export default function EraTimeline() {
   const cw = useWidth(wrapRef);
   const meta = useMeta();
   const voices = useVoicesByWork();
-  const [view, setView] = useState<{ tx: number; k: number } | null>(null);
+  const [view, setView] = useState<{ tx: number; ty: number; k: number } | null>(null);
   const [selected, setSelected] = useState<TimelineEntry | null>(null);
   const [voiceIdx, setVoiceIdx] = useState(0);
-  const drag = useRef<{ x: number; tx: number; moved: boolean } | null>(null);
+  const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
 
-  const H = AXIS_H + TL_REGIONS.length * TRACK_H;
+  const H = AXIS_H + TL_REGIONS.length * TRACK_H; // コンテンツ全体の高さ
+  const VH = Math.min(H, 660); // 表示枠(はみ出す分は縦ドラッグで移動)
   const kFit = cw / TL_W;
 
   // 初期表示: 全期間フィット
   useEffect(() => {
-    if (cw > 0 && !view) setView({ tx: 0, k: cw / TL_W });
+    if (cw > 0 && !view) setView({ tx: 0, ty: 0, k: cw / TL_W });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cw]);
 
   const k = view?.k ?? kFit;
   const tx = view?.tx ?? 0;
+  const ty = view?.ty ?? 0;
+  const minTy = Math.min(0, VH - H);
   const X = (year: number) => tlX(year) * k + tx;
 
   // ズームに連動して書影も拡大
@@ -164,10 +167,10 @@ export default function EraTimeline() {
       const rect = el.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       setView((v) => {
-        const cur = v ?? { tx: 0, k: el.clientWidth / TL_W };
+        const cur = v ?? { tx: 0, ty: 0, k: el.clientWidth / TL_W };
         const kMin = (el.clientWidth / TL_W) * 0.9;
         const nk = Math.min(kMin * 60, Math.max(kMin, cur.k * Math.exp(-e.deltaY * 0.0016)));
-        return { k: nk, tx: mx - ((mx - cur.tx) * nk) / cur.k };
+        return { k: nk, ty: cur.ty, tx: mx - ((mx - cur.tx) * nk) / cur.k };
       });
     };
     el.addEventListener("wheel", onWheel, { passive: false });
@@ -177,10 +180,10 @@ export default function EraTimeline() {
   const zoomBy = (factor: number) => {
     const mx = cw / 2;
     setView((v) => {
-      const cur = v ?? { tx: 0, k: kFit };
+      const cur = v ?? { tx: 0, ty: 0, k: kFit };
       const kMin = kFit * 0.9;
       const nk = Math.min(kMin * 60, Math.max(kMin, cur.k * factor));
-      return { k: nk, tx: mx - ((mx - cur.tx) * nk) / cur.k };
+      return { k: nk, ty: cur.ty, tx: mx - ((mx - cur.tx) * nk) / cur.k };
     });
   };
 
@@ -191,7 +194,7 @@ export default function EraTimeline() {
     (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
-      drag.current = { x: e.clientX, tx, moved: false };
+      drag.current = { x: e.clientX, y: e.clientY, tx, ty, moved: false };
     } else {
       drag.current = null;
       pinchDist.current = null;
@@ -210,10 +213,10 @@ export default function EraTimeline() {
       if (pinchDist.current) {
         const factor = d / pinchDist.current;
         setView((v) => {
-          const cur = v ?? { tx: 0, k: kFit };
+          const cur = v ?? { tx: 0, ty: 0, k: kFit };
           const kMin = kFit * 0.9;
           const nk = Math.min(kMin * 60, Math.max(kMin, cur.k * factor));
-          return { k: nk, tx: mx - ((mx - cur.tx) * nk) / cur.k };
+          return { k: nk, ty: cur.ty, tx: mx - ((mx - cur.tx) * nk) / cur.k };
         });
       }
       pinchDist.current = d;
@@ -221,9 +224,11 @@ export default function EraTimeline() {
     }
     if (!drag.current) return;
     const dx = e.clientX - drag.current.x;
-    if (Math.abs(dx) > 3) drag.current.moved = true;
+    const dy = e.clientY - drag.current.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) drag.current.moved = true;
     const ntx = drag.current.tx + dx;
-    setView((v) => ({ k: v?.k ?? kFit, tx: ntx }));
+    const nty = Math.max(minTy, Math.min(0, drag.current.ty + dy));
+    setView((v) => ({ k: v?.k ?? kFit, tx: ntx, ty: nty }));
   };
   const onPointerUp = (e: React.PointerEvent) => {
     pointers.current.delete(e.pointerId);
@@ -265,7 +270,7 @@ export default function EraTimeline() {
     <>
       <div className="filter-row" style={{ marginBottom: 14 }}>
         <span style={{ fontSize: 11.5, color: "var(--ink-soft)", alignSelf: "center", fontWeight: 700 }}>
-          横にドラッグで移動 / ホイール・ボタンで時間軸をズーム / 書影クリックで詳細
+          ドラッグで縦横に移動 / ホイール・ボタンで時間軸をズーム / 書影クリックで詳細
         </span>
       </div>
 
@@ -278,7 +283,7 @@ export default function EraTimeline() {
             style={{
               position: "relative",
               overflow: "hidden",
-              height: H,
+              height: VH,
               cursor: drag.current ? "grabbing" : "grab",
               touchAction: "none",
               backgroundColor: "#f6f1e4",
@@ -298,7 +303,7 @@ export default function EraTimeline() {
                 left: FANTASY_X * k + tx,
                 top: 0,
                 width: Math.max(0, (TL_W - FANTASY_X) * k),
-                height: H,
+                height: VH,
                 background: "repeating-linear-gradient(-45deg, rgba(219,39,119,0.05), rgba(219,39,119,0.05) 8px, transparent 8px, transparent 16px)",
                 borderLeft: "2px dashed #db277788",
               }}
@@ -310,8 +315,8 @@ export default function EraTimeline() {
               const x = X(t.year);
               if (x < -40 || x > cw + 40) return null;
               return (
-                <div key={t.year} style={{ position: "absolute", left: x, top: 0, height: H, pointerEvents: "none" }}>
-                  <div style={{ position: "absolute", top: AXIS_H, width: 1.5, height: H - AXIS_H, background: "rgba(23,19,16,0.09)" }} />
+                <div key={t.year} style={{ position: "absolute", left: x, top: 0, height: VH, pointerEvents: "none" }}>
+                  <div style={{ position: "absolute", top: AXIS_H, width: 1.5, height: VH - AXIS_H, background: "rgba(23,19,16,0.09)" }} />
                   <div style={{ position: "absolute", top: AXIS_H - 12, width: 2, height: 12, background: "var(--ink)", zIndex: 3 }} />
                   <div style={{ position: "absolute", top: 8, left: 5, fontSize: 11.5, fontWeight: 900, color: "var(--ink)", zIndex: 3, fontFamily: "var(--font-base)" }}>{t.label}</div>
                 </div>
@@ -324,8 +329,9 @@ export default function EraTimeline() {
 
             {/* トラック */}
             {trackData.map(({ region, ti, entries, lanes }) => {
-              const top = AXIS_H + ti * TRACK_H;
+              const top = AXIS_H + ti * TRACK_H + ty;
               const cy = top + TRACK_H / 2;
+              if (top > VH || top + TRACK_H < AXIS_H) return null;
               return (
                 <div key={region.id}>
                   {/* 帯の背景(地域色の薄いトーン)と境界 */}
@@ -365,7 +371,7 @@ export default function EraTimeline() {
                       position: "absolute",
                       left: 10,
                       top: top + 8,
-                      zIndex: 6,
+                      zIndex: 1,
                       background: region.color,
                       color: "#fff",
                       border: "2px solid var(--ink)",
@@ -435,7 +441,8 @@ export default function EraTimeline() {
                 const post = voices[bubbleEntry.workId]?.latest;
                 if (!post) return null;
                 const ti = TL_REGIONS.findIndex((r) => r.id === bubbleEntry.region);
-                const cy = AXIS_H + ti * TRACK_H + TRACK_H / 2;
+                const cy = AXIS_H + ti * TRACK_H + TRACK_H / 2 + ty;
+                if (cy < AXIS_H || cy > VH) return null;
                 const flip = x > cw - 240;
                 return (
                   <div className="map-voice" style={{ left: flip ? x - 190 : x - 24, top: cy - 78 }}>
@@ -448,7 +455,7 @@ export default function EraTimeline() {
             <div style={{ position: "absolute", right: 10, bottom: 10, display: "flex", flexDirection: "column", gap: 6, zIndex: 10 }}>
               <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 17 }} onClick={(e) => { e.stopPropagation(); zoomBy(1.5); }} onPointerDown={(e) => e.stopPropagation()}>＋</button>
               <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 17 }} onClick={(e) => { e.stopPropagation(); zoomBy(1 / 1.5); }} onPointerDown={(e) => e.stopPropagation()}>－</button>
-              <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 10 }} onClick={(e) => { e.stopPropagation(); setView({ tx: 0, k: kFit }); }} onPointerDown={(e) => e.stopPropagation()}>全体</button>
+              <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 10 }} onClick={(e) => { e.stopPropagation(); setView({ tx: 0, ty: 0, k: kFit }); }} onPointerDown={(e) => e.stopPropagation()}>全体</button>
             </div>
           </div>
         </div>
