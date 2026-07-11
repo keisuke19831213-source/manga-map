@@ -29,7 +29,8 @@ export function fontClass(font?: string): string {
 }
 
 // 縦中横: 縦書きの中の半角数字(1〜3桁)や「!!」「!?」を横組みにする(マンガ写植の慣習)
-const TCY_RE = /(?<!\d)(\d{1,3})(?!\d)|!!|!\?|\?!/g;
+// ※正規表現の後読みは旧iOS Safariで構文エラーになるため使わない
+const TCY_RE = /\d+|!!|!\?|\?!/g;
 
 export function tcy(text: string): React.ReactNode {
   const parts: React.ReactNode[] = [];
@@ -37,13 +38,16 @@ export function tcy(text: string): React.ReactNode {
   let i = 0;
   for (const m of text.matchAll(TCY_RE)) {
     const idx = m.index ?? 0;
+    const token = m[0];
+    // 4桁以上の数字(西暦など)は縦組みのまま
+    if (/^\d+$/.test(token) && token.length > 3) continue;
     if (idx > last) parts.push(text.slice(last, idx));
     parts.push(
       <span key={i++} className="tcy">
-        {m[0]}
+        {token}
       </span>
     );
-    last = idx + m[0].length;
+    last = idx + token.length;
   }
   if (last < text.length) parts.push(text.slice(last));
   return parts.length > 0 ? parts : text;

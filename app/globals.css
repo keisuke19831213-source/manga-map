@@ -1252,6 +1252,7 @@ main {
 .gm-wrap {
   position: relative;
   overflow: hidden;
+  height: calc(100vh - var(--header-h)); /* dvh未対応ブラウザ用 */
   height: calc(100dvh - var(--header-h));
 }
 
@@ -1351,6 +1352,7 @@ main {
   }
 
   main {
+    min-height: calc(100vh - var(--header-h)); /* dvh未対応ブラウザ用 */
     min-height: calc(100dvh - var(--header-h));
   }
 
@@ -1435,6 +1437,7 @@ main {
     right: 0;
     bottom: 0;
     width: auto;
+    max-height: 54vh; /* dvh未対応ブラウザ用 */
     max-height: 54dvh;
     z-index: 70;
     border-radius: 14px 14px 0 0;
@@ -1447,6 +1450,7 @@ main {
     right: 0;
     bottom: 0;
     z-index: 70;
+    max-height: 55vh; /* dvh未対応ブラウザ用 */
     max-height: 55dvh;
     overflow-y: auto;
     border-radius: 14px 14px 0 0;
