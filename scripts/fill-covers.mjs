@@ -41,8 +41,7 @@ const OVERRIDE = {
   dragonball: "4088518314", // ドラゴンボール 1
   doraemon: "4091400019", // ドラえもん 1
   naruto: "4088728408", // NARUTO 1
-  bleach: "4088732278", // BLEACH 1
-  slam: "4088716116", // SLAM DUNK 新装再編版1 (検証で差し替え可)
+  slam: "4088716116", // SLAM DUNK 新装再編版1
 };
 
 async function findAsin(title, author) {
