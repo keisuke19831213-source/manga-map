@@ -32,6 +32,7 @@ const EVENTS: { year: number; label: string; region: string }[] = [
 const SECTIONS: { name: string; span: string; test: (e: { year: number; region?: string }) => boolean }[] = [
   { name: "紀元前", span: "〜BC", test: (e) => e.year < 0 },
   { name: "古代〜中世", span: "0 — 1599", test: (e) => e.year >= 0 && e.year < 1600 },
+  // ※1150年の鳥獣戯画は「古代〜中世」に入る
   { name: "江戸時代", span: "1600 — 1867", test: (e) => e.year >= 1600 && e.year < 1868 },
   { name: "幕末・明治", span: "1868 — 1911", test: (e) => e.year >= 1868 && e.year < 1912 },
   { name: "大正", span: "1912 — 1925", test: (e) => e.year >= 1912 && e.year < 1926 },

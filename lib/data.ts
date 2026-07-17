@@ -99,7 +99,26 @@ export const CATEGORIES: Category[] = [
 ];
 
 export const GENRES: GenreNode[] = [
-  // ===== 源流 =====
+  // ===== 源流(前史: 近代マンガ以前) =====
+  // ly は1900年始まりのマップ上端に「前史」として並べるためのレイアウト用の年
+  {
+    id: "emaki",
+    name: "絵巻物・戯画",
+    en: "Emaki & Caricature",
+    year: 1150,
+    ly: 1893,
+    cat: "roots",
+    desc: "『鳥獣人物戯画』に代表される、墨線のみで動きと笑いを描いた戯画の伝統。コマもフキダシも無く近代マンガとの直接の血縁は薄いが、「絵で語る」表現の最古の到達点として、しばしばマンガの祖先と呼ばれる。",
+  },
+  {
+    id: "edo_giga",
+    name: "江戸の戯画・絵手本",
+    en: "Edo Caricature",
+    year: 1814,
+    ly: 1896.5,
+    cat: "roots",
+    desc: "葛飾北斎『北斎漫画』や鳥羽絵、草双紙など、江戸の庶民が親しんだ戯画。ここでの「漫画」は気の向くままに描いた素描の意で現在とは別物だが、この語と、庶民が絵を読む文化が近代へ受け継がれた。",
+  },
   {
     id: "ponchi",
     name: "ポンチ絵・風刺漫画",
@@ -497,6 +516,9 @@ export const GENRES: GenreNode[] = [
 
 export const EDGES: GenreEdge[] = [
   // 源流の中の流れ
+  // 前史からの流れ(直系の進化ではなく、あくまで影響)
+  { from: "emaki", to: "edo_giga", kind: "influence" },
+  { from: "edo_giga", to: "ponchi", kind: "influence" },
   { from: "ponchi", to: "newspaper", kind: "evolution" },
   { from: "newspaper", to: "kodomo", kind: "evolution" },
   { from: "kodomo", to: "akahon", kind: "evolution" },
@@ -567,6 +589,10 @@ export const EDGES: GenreEdge[] = [
 ];
 
 export const WORKS: Work[] = [
+  // ===== 前史(近代マンガ以前のルーツ) =====
+  { id: "chojugiga", title: "鳥獣人物戯画", author: "伝 鳥羽僧正覚猷ほか", year: 1150, magazine: "高山寺蔵(国宝)", genres: ["emaki"], desc: "兎や蛙が相撲をとり水遊びに興じる、墨線だけで描かれた全4巻の絵巻。躍動する線と誇張された動物の演技は「日本最古のマンガ」とも称される。実際には複数の絵師による作で、コマもセリフも持たないが、絵だけで物語と笑いを生む到達点。" },
+  { id: "hokusai", title: "北斎漫画", author: "葛飾北斎", year: 1814, magazine: "版本(全15編)", genres: ["edo_giga"], desc: "北斎が門人の絵手本として刊行した約4000点の素描集。人物・動植物・妖怪から市井の人々の何気ない仕草までを活写し、「漫画」という語を世に広めた。物語やコマは無く現在のマンガとは別物だが、庶民が絵を楽しむ文化の象徴。" },
+
   { id: "norakuro", title: "のらくろ", author: "田河水泡", year: 1931, magazine: "少年倶楽部", genres: ["kodomo"], desc: "野良犬の黒吉が軍隊で出世していく物語。戦前最大のヒット作で、キャラクターグッズ展開の元祖でもある。" },
   { id: "shintakarajima", title: "新宝島", author: "手塚治虫・酒井七馬", year: 1947, magazine: "育英出版(赤本)", genres: ["story", "akahon"], desc: "映画のようなスピード感あるコマ運びで戦後の少年たちに衝撃を与え、ストーリーマンガ時代の幕を開けた記念碑的作品。" },
   { id: "tetsuwan", title: "鉄腕アトム", author: "手塚治虫", year: 1952, magazine: "少年", genres: ["gekkan"], desc: "ロボットと人間の共存を描いたSFの金字塔。1963年には国産初の連続TVアニメとなり、メディアミックスの原点に。" },
@@ -872,6 +898,10 @@ export const SPOTS: MapSpot[] = [
 
   // ---- 日本 ----
   {
+    id: "j-kozanji", map: "japan", lon: 135.678, lat: 35.061, dx: -12, dy: -8, place: "京都・高山寺",
+    works: [{ workId: "chojugiga", note: "『鳥獣人物戯画』が伝わる寺。日本最古のマンガに会える聖地" }],
+  },
+  {
     id: "j-otaru", map: "japan", lon: 141.0, lat: 43.19, dx: -10, place: "北海道・小樽/札幌",
     works: [{ workId: "goldenkamuy", note: "明治末期の北海道。金塊と、アイヌ文化と、狩りと食" }],
   },
@@ -1095,6 +1125,8 @@ export interface TimelineEntry {
 
 export const TIMELINE: TimelineEntry[] = [
   // ---- 日本 ----
+  { workId: "chojugiga", region: "japan", year: 1150, label: "平安時代末期", note: "兎と蛙が相撲をとる、墨線だけの戯画絵巻" },
+  { workId: "hokusai", region: "japan", year: 1814, label: "江戸後期(文化年間)", note: "北斎が描いた約4000点の素描。「漫画」の語を広めた絵手本" },
   { workId: "vagabond", region: "japan", year: 1600, label: "1600年頃(関ヶ原直後)", note: "無双を目指す宮本武蔵の求道" },
   { workId: "kamui", region: "japan", year: 1645, label: "江戸初期", note: "忍者カムイと身分社会の大河劇画" },
   { workId: "ooku", region: "japan", year: 1716, label: "江戸中期", note: "男女逆転の江戸城大奥" },
