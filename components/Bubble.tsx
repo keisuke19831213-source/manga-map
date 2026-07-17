@@ -84,23 +84,24 @@ function pt(cx: number, cy: number, rx: number, ry: number, deg: number): [numbe
 }
 
 // セリフ: 楕円と一体のしっぽ(輪郭は一筆書きの単一パス)
+// しっぽは口元へ向かう短くシャープな三角。付け根を狭く、先を細くして
+// マンガらしい鋭い"つの"にする(以前は長く湾曲してフック状に見えていた)
 function speechGeom(tw: number, th: number): Geom {
   const rx = Math.max((tw + 6) * 0.72, 32);
   const ry = Math.max((th + 6) * 0.73, 22);
   const pad = 3;
-  const tailH = 20;
+  const tailLen = Math.min(18, Math.max(11, ry * 0.5)); // 短めの鋭いしっぽ
   const cx = rx + pad;
   const cy = ry + pad;
   const W = 2 * (rx + pad);
-  const H = 2 * ry + pad * 2 + tailH;
-  const [ax, ay] = pt(cx, cy, rx, ry, 97); // しっぽ右付け根
-  const [bx, by] = pt(cx, cy, rx, ry, 128); // しっぽ左付け根
-  const tipX = cx - rx * 0.68;
-  const tipY = H - 2;
+  const H = 2 * ry + pad * 2 + tailLen;
+  const [ax, ay] = pt(cx, cy, rx, ry, 99); // しっぽ右付け根(狭い base)
+  const [bx, by] = pt(cx, cy, rx, ry, 117); // しっぽ左付け根
+  const tipX = cx - rx * 0.28;
+  const tipY = cy + ry + tailLen;
   const d =
     `M ${f1(bx)} ${f1(by)} A ${f1(rx)} ${f1(ry)} 0 1 1 ${f1(ax)} ${f1(ay)}` +
-    ` Q ${f1(ax - rx * 0.05)} ${f1(ay + tailH * 0.66)} ${f1(tipX)} ${f1(tipY)}` +
-    ` Q ${f1(bx - rx * 0.01)} ${f1(by + tailH * 0.3)} ${f1(bx)} ${f1(by)} Z`;
+    ` L ${f1(tipX)} ${f1(tipY)} Z`;
   return { W, H, shapes: [{ d }], tx: cx - tw / 2, ty: cy - th / 2 };
 }
 
@@ -155,27 +156,42 @@ function burstGeom(tw: number, th: number): Geom {
 }
 
 // 心の声: もくもく雲形 + 泡のしっぽ
+// 各コブを「弦の半径ぴったりの円弧」で描くことで、大きさの揃った丸いモクモクにする
+// (Q曲線で制御点をずらす旧方式はコブが不揃いになりアメーバ状に見えていた)
 function cloudGeom(tw: number, th: number): Geom {
-  const rx = Math.max((tw + 8) * 0.7, 36);
+  const rx = Math.max((tw + 8) * 0.7, 34);
   const ry = Math.max((th + 8) * 0.73, 24);
-  const n = Math.max(9, Math.min(16, Math.round((rx + ry) / 24)));
-  const bump = 1.11;
-  const pad = 3;
-  const cx = rx * bump + pad;
-  const cy = ry * bump + pad;
-  const W = 2 * cx;
-  const H = 2 * cy + 24;
-  const p0 = pt(cx, cy, rx, ry, -90);
-  let d = `M ${f1(p0[0])} ${f1(p0[1])}`;
+  const n = Math.max(10, Math.min(22, Math.round((rx + ry) / 18)));
+  const pad = 4;
+  // 中心を原点にコブの頂点までの実寸を測ってから、はみ出さない枠を作る
+  const base: [number, number][] = [];
+  for (let i = 0; i < n; i++) base.push(pt(0, 0, rx, ry, (i / n) * 360 - 90));
+  const seg: { x: number; y: number; r: number }[] = [];
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
   for (let i = 0; i < n; i++) {
-    const c = pt(cx, cy, rx * bump * 1.09, ry * bump * 1.12, ((i + 0.5) / n) * 360 - 90);
-    const p = pt(cx, cy, rx, ry, ((i + 1) / n) * 360 - 90);
-    d += ` Q ${f1(c[0])} ${f1(c[1])} ${f1(p[0])} ${f1(p[1])}`;
+    const [x0, y0] = base[i];
+    const [x1, y1] = base[(i + 1) % n];
+    const chord = Math.hypot(x1 - x0, y1 - y0);
+    const r = (chord / 2) * 1.08; // 弦の半径=ほぼ半円のコブ(1.08で少しふっくら)
+    const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+    const nl = Math.hypot(mx, my) || 1;
+    const ax = mx + (mx / nl) * r, ay = my + (my / nl) * r; // コブ頂点(枠計算用)
+    minX = Math.min(minX, x0, ax); maxX = Math.max(maxX, x0, ax);
+    minY = Math.min(minY, y0, ay); maxY = Math.max(maxY, y0, ay);
+    seg.push({ x: x1, y: y1, r });
   }
+  const dotSpace = 24;
+  const ox = -minX + pad, oy = -minY + pad;
+  const W = maxX - minX + pad * 2;
+  const H = maxY - minY + pad * 2 + dotSpace;
+  const cx = ox, cy = oy; // テキストを中央に置くための中心
+  let d = `M ${f1(base[0][0] + ox)} ${f1(base[0][1] + oy)}`;
+  for (const s of seg) d += ` A ${f1(s.r)} ${f1(s.r)} 0 0 1 ${f1(s.x + ox)} ${f1(s.y + oy)}`;
   d += " Z";
+  const bottom = maxY + oy;
   const dots = [
-    { cx: cx - rx * 0.5, cy: cy + ry * bump + 7, r: 5 },
-    { cx: cx - rx * 0.65, cy: cy + ry * bump + 17, r: 3.2 },
+    { cx: cx - rx * 0.5, cy: bottom + 6, r: 5 },
+    { cx: cx - rx * 0.66, cy: bottom + 16, r: 3.2 },
   ];
   return { W, H, shapes: [{ d }], dots, tx: cx - tw / 2, ty: cy - th / 2 };
 }

@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 };
 
 // マンガの組版慣習に沿ったフォントセット
+// ・タイトル/見出し: 立体コミック調 = Rampart One
 // ・セリフ: アンチック体(かなアンチック+漢字ゴシック) = Shippori Antique B1
 // ・モノローグ/回想: 明朝体 = Shippori Mincho
 // ・叫び: 極太角ゴシック = Zen Kaku Gothic New 900
@@ -32,7 +33,7 @@ const GOOGLE_FONTS =
   "https://fonts.googleapis.com/css2?" +
   [
     "family=Zen+Kaku+Gothic+New:wght@500;700;900",
-    "family=Reggae+One",
+    "family=Rampart+One",
     "family=Mochiy+Pop+One",
     "family=Shippori+Antique+B1",
     "family=Shippori+Mincho:wght@500;700",

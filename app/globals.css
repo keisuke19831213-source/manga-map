@@ -11,7 +11,7 @@
   --shadow: 5px 5px 0 var(--ink);
   --shadow-sm: 3px 3px 0 var(--ink);
   --font-base: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
-  --font-title: "Reggae One", "Hiragino Sans", sans-serif;
+  --font-title: "Rampart One", "Hiragino Sans", sans-serif;
   --font-pop: "Mochiy Pop One", sans-serif;
   --font-antique: "Shippori Antique B1", serif;
   --font-mincho: "Shippori Mincho", "Hiragino Mincho ProN", serif;
@@ -61,11 +61,10 @@ a {
 
 .site-logo {
   font-family: var(--font-title);
-  font-size: 24px;
-  letter-spacing: 0.04em;
+  font-size: 22px;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   color: var(--ink);
-  text-shadow: 2px 2px 0 var(--yellow);
 }
 
 .site-logo span {
@@ -188,10 +187,9 @@ main {
 .page h1,
 .manga-title {
   font-family: var(--font-title);
-  font-size: 34px;
+  font-size: 32px;
   margin: 0 0 8px;
-  letter-spacing: 0.03em;
-  text-shadow: 3px 3px 0 var(--yellow);
+  letter-spacing: 0.02em;
 }
 
 /* ---- ミニ吹き出し(カードや地図に出す最新コメント) ---- */
@@ -1123,9 +1121,8 @@ main {
 
 .era-block h2 {
   font-family: var(--font-title);
-  font-size: 24px;
+  font-size: 22px;
   margin: 0 0 8px;
-  text-shadow: 2px 2px 0 var(--yellow);
 }
 
 .era-block .era-desc {
@@ -1702,7 +1699,6 @@ main {
   .page h1,
   .manga-title {
     font-size: 24px;
-    text-shadow: 2px 2px 0 var(--yellow);
   }
 
   .page-lead {
@@ -1926,8 +1922,7 @@ main {
 
 .era-v-head .n {
   font-family: var(--font-title);
-  font-size: 20px;
-  text-shadow: 2px 2px 0 var(--yellow);
+  font-size: 18px;
 }
 
 .era-v-head .s {
