@@ -290,8 +290,10 @@ export default function EraTimeline() {
     if (pointers.current.size === 0) captured.current = false;
   };
 
-  // 書影1枚分の高さ(年チップ込み)とレーン位置。トラック高さの算出に使う
-  const boxH = coverH + (showYears ? 16 : 0);
+  // 書影1枚分の実際の描画高さ。書影 + カードの枠線と余白(8px) + 年チップ(16px)。
+  // ここが実寸とずれると、吹き出しと引き出し線が書影を指さなくなる
+  const CARD_CHROME = 8;
+  const boxH = coverH + CARD_CHROME + (showYears ? 16 : 0);
   const labelPad = s > 1.6 ? 20 : 0; // 下レーンは作品名ラベルのぶんだけ余分に要る
   const laneOffset = (lane: number): { above: boolean; dist: number } => {
     // 0:上近 1:下近 2:上遠 3:下遠 (書影サイズに追従)
@@ -343,6 +345,31 @@ export default function EraTimeline() {
   }, [voiceEntries.length]);
   const bubbleEntry =
     selected && voices[selected.workId]?.latest ? selected : voiceEntries.length > 0 ? voiceEntries[voiceIdx % voiceEntries.length] : null;
+
+  // 吹き出しの位置。「その年の中心線上」ではなく、実際に描かれている書影
+  // (重なり回避で横にずらしたdispX + レーンの上下)にぴったり合わせる
+  const BUBBLE_W = 216;
+  const bubbleLayout = (() => {
+    if (!bubbleEntry) return null;
+    const post = voices[bubbleEntry.workId]?.latest;
+    if (!post) return null;
+    const tr = tracks.find((t) => t.region.id === bubbleEntry.region);
+    const la = tr?.lanes.get(bubbleEntry.workId);
+    if (!tr || !la) return null;
+    const { above, dist } = laneOffset(la.lane);
+    const cx = la.dispX + tx; // 書影の中心X(画面座標)
+    const cy = tr.cy + ty;
+    const coverTop = above ? cy - dist - boxH : cy + dist;
+    const coverBottom = coverTop + boxH;
+    if (cx < -30 || cx > cw + 30 || coverBottom < 0 || coverTop > VH) return null;
+    // 書影のあるレーン側に出す。枠外にはみ出すなら反対側へ
+    let placeAbove = above;
+    if (placeAbove && coverTop - 12 < AXIS_H + 44) placeAbove = false;
+    if (!placeAbove && coverBottom + 64 > VH) placeAbove = true;
+    const top = placeAbove ? coverTop - 9 : coverBottom + 9;
+    const left = Math.max(4, Math.min(cw - BUBBLE_W - 4, cx - 26));
+    return { post, top, left, tailX: Math.max(12, Math.min(BUBBLE_W - 14, cx - left)), placeAbove };
+  })();
 
   // 可動コンテンツをメモ化: パン(tx/ty)では再構築せず、ズーム(k)時のみ再計算。
   // パン中はコンテナのtransform(GPU)だけが動くので、モバイルでも滑らか
@@ -524,24 +551,15 @@ export default function EraTimeline() {
               {tlContent}
             </div>
 
-            {/* コメント吹き出し(該当作品の書影を指す) */}
-            {bubbleEntry &&
-              (() => {
-                const x = X(bubbleEntry.year);
-                if (x < 0 || x > cw) return null;
-                const post = voices[bubbleEntry.workId]?.latest;
-                if (!post) return null;
-                const tr = tracks.find((t) => t.region.id === bubbleEntry.region);
-                if (!tr) return null;
-                const cy = tr.cy + ty;
-                if (cy < AXIS_H || cy > VH) return null;
-                const flip = x > cw - 240;
-                return (
-                  <div className="map-voice" style={{ left: flip ? x - 190 : x - 24, top: cy - 78 }}>
-                    <MiniBubble post={post} style={{ marginTop: 0, width: 212 }} />
-                  </div>
-                );
-              })()}
+            {/* コメント吹き出し(しっぽが該当作品の書影を指す) */}
+            {bubbleLayout && (
+              <div
+                className={`map-voice ${bubbleLayout.placeAbove ? "above" : "below"}`}
+                style={{ left: bubbleLayout.left, top: bubbleLayout.top, ["--tail-x" as string]: `${bubbleLayout.tailX}px` }}
+              >
+                <MiniBubble post={bubbleLayout.post} />
+              </div>
+            )}
 
             {/* ズームコントロール */}
             <div style={{ position: "absolute", right: 10, bottom: 10, display: "flex", flexDirection: "column", gap: 6, zIndex: 10 }}>

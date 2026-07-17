@@ -261,6 +261,7 @@ export default function AtlasMap() {
 
   // 表示する吹き出し: 選択中スポット優先、なければローテーション
   const bubbleSpot = selected && spotVoice[selected.id] ? selected : voiceSpots.length > 0 ? voiceSpots[voiceIdx % voiceSpots.length] : null;
+  const BUBBLE_W = 216;
 
   const mapH = cw * (h / w);
   // ズームに連動して書影も拡大(見上げるほど大きく、上限あり)
@@ -330,6 +331,29 @@ export default function AtlasMap() {
     }
     return out;
   }, [spots, project, view, f, cw, mapH, pinW, pinH]);
+
+  // 吹き出しの位置。スポットの緯度経度ではなく、束や展開表示で実際に
+  // 描かれているピンの位置に合わせる(でないと吹き出しだけ別の場所を指す)
+  const bubbleLayout = (() => {
+    if (!bubbleSpot) return null;
+    const post = spotVoice[bubbleSpot.id];
+    if (!post) return null;
+    const pin = clusters.find((c) =>
+      c.kind === "single" ? c.spot.id === bubbleSpot.id : c.members.some((m) => m.id === bubbleSpot.id)
+    );
+    if (!pin) return null; // 画面外
+    const { x: cx, y: cy } = pin; // ピンは下端(cy)が地点、書影はその上に立つ
+    // 実際の描画高さ: カード(書影+枠線余白8) or 束のスタック、その下に三角のしっぽとドット
+    const TIP_H = 17;
+    const cardH =
+      pin.kind === "cluster" ? pinH + 5 * (Math.min(pin.members.length, 3) - 1) + 4 : pinH + 8;
+    const cardTop = cy - TIP_H - cardH;
+    // 上に出すと枠外なら下へ
+    const placeAbove = cardTop - 70 > 0;
+    const top = placeAbove ? cardTop - 6 : cy + 12;
+    const left = Math.max(4, Math.min(cw - BUBBLE_W - 4, cx - 26));
+    return { post, top, left, tailX: Math.max(12, Math.min(BUBBLE_W - 14, cx - left)), placeAbove };
+  })();
 
   // 束をクリック → その中心へスマートズーム(ほどけるまで繰り返せる)
   const zoomInto = (members: MapSpot[]) => {
@@ -499,27 +523,14 @@ export default function AtlasMap() {
             })}
 
             {/* ===== 地図上のコメント吹き出し(しっぽがピンを指す) ===== */}
-            {bubbleSpot &&
-              (() => {
-                const p = screenPos(bubbleSpot);
-                if (!p) return null;
-                const [sx, sy] = p;
-                if (sx < 0 || sx > cw || sy < 0 || sy > mapH) return null;
-                const post = spotVoice[bubbleSpot.id];
-                const flip = sx > cw - 280;
-                return (
-                  <div
-                    className="map-voice"
-                    style={{
-                      left: flip ? sx - 250 : sx - 42,
-                      top: sy - pinH - 26,
-                      transform: "translateY(-100%)",
-                    }}
-                  >
-                    <MiniBubble post={post} style={{ marginTop: 0 }} />
-                  </div>
-                );
-              })()}
+            {bubbleLayout && (
+              <div
+                className={`map-voice ${bubbleLayout.placeAbove ? "above" : "below"}`}
+                style={{ left: bubbleLayout.left, top: bubbleLayout.top, ["--tail-x" as string]: `${bubbleLayout.tailX}px` }}
+              >
+                <MiniBubble post={bubbleLayout.post} />
+              </div>
+            )}
 
             {/* ズームコントロール */}
             <div style={{ position: "absolute", right: 10, bottom: 10, display: "flex", flexDirection: "column", gap: 6 }}>

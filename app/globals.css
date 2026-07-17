@@ -1151,7 +1151,11 @@ main {
 
 .map-pin-card {
   position: relative;
-  display: inline-block;
+  /* block+fit-content にしないと inline-block のベースライン分(約5px)だけ
+     実際の描画高さが計算とずれ、吹き出しや引き出し線の位置が合わなくなる */
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
   background: #fff;
   border: 2px solid var(--ink);
   box-shadow: 2px 2px 0 var(--ink);
@@ -1241,7 +1245,9 @@ main {
 /* ===== 束ピン(重なったスポットの書影スタック) ===== */
 .map-stack {
   position: relative;
-  display: inline-block;
+  /* .map-pin-card と同じ理由: inline-block のベースライン分だけ高さがずれる */
+  display: block;
+  margin: 0 auto;
 }
 
 .map-stack img,
@@ -1389,12 +1395,48 @@ main {
   position: absolute;
   z-index: 12;
   pointer-events: none;
-  animation: voice-in 0.35s ease-out;
+}
+
+.map-voice.below {
+  animation: voice-in-below 0.35s ease-out;
 }
 
 .map-voice .qb {
   width: 216px;
+  margin-top: 0;
   box-shadow: 2px 2px 0 rgba(23, 19, 16, 0.35);
+}
+
+/* 地図・年表の吹き出しは、しっぽが書影を指すように向きと位置を可変にする。
+   --tail-x = 吹き出し左端から書影中心までの距離 */
+.map-voice .qb::before {
+  left: var(--tail-x, 18px);
+  margin-left: -4px;
+}
+
+.map-voice .qb::after {
+  left: var(--tail-x, 18px);
+  margin-left: -2.5px;
+}
+
+/* 吹き出しが書影の上にある時: しっぽを下向きに */
+.map-voice.above {
+  transform: translateY(-100%);
+  animation: voice-in-above 0.35s ease-out;
+}
+
+.map-voice.above .qb::before {
+  top: auto;
+  bottom: -9px;
+  border-bottom: 5px solid transparent;
+  border-top: 9px solid var(--ink);
+}
+
+.map-voice.above .qb::after {
+  top: auto;
+  bottom: -5.5px;
+  border-bottom: 4px solid transparent;
+  border-top: 7px solid #fff;
 }
 
 /* タイムラインのミニマップ */
@@ -1424,7 +1466,14 @@ main {
   font-family: var(--font-base);
 }
 
-@keyframes voice-in {
+/* 吹き出しの出現。終端は各向きの基準transformと一致させる
+   (ずれると、アニメーション終了時に位置が飛ぶ) */
+@keyframes voice-in-below {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes voice-in-above {
   from { opacity: 0; transform: translateY(calc(-100% + 8px)); }
   to { opacity: 1; transform: translateY(-100%); }
 }
