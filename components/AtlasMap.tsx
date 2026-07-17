@@ -167,17 +167,23 @@ export default function AtlasMap() {
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinchDist = useRef<number | null>(null);
 
-  const onPointerDown = (e: React.PointerEvent) => {
+  const captured = useRef(false);
+  const captureNow = (e: React.PointerEvent) => {
+    // キャプチャはドラッグ開始後にだけ取得(pointerdownで取得するとclickがピンに届かない)
+    if (captured.current) return;
     try {
-      // iOS Safariはタッチ由来のpointerIdでNotFoundErrorを投げることがある
       (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+      captured.current = true;
     } catch {}
+  };
+
+  const onPointerDown = (e: React.PointerEvent) => {
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
       const vc = pendingView.current ?? viewRef.current;
       drag.current = { x: e.clientX, y: e.clientY, tx: vc.tx, ty: vc.ty, moved: false };
     } else {
-      // 2本目の指: ドラッグをやめてピンチへ
+      captureNow(e); // ピンチは即キャプチャ
       drag.current = null;
       pinchDist.current = null;
     }
@@ -208,7 +214,10 @@ export default function AtlasMap() {
     if (!d0) return;
     const dx = (e.clientX - d0.x) / f;
     const dy = (e.clientY - d0.y) / f;
-    if (Math.abs(dx) + Math.abs(dy) > 3) d0.moved = true;
+    if (Math.abs(dx) + Math.abs(dy) > 3) {
+      d0.moved = true;
+      captureNow(e);
+    }
     // 更新関数の実行が遅延した後に指が離れてdrag.currentがnullになっても
     // 落ちないよう、値はここでキャプチャしておく
     const ntx = d0.tx + dx;
@@ -219,6 +228,7 @@ export default function AtlasMap() {
     pointers.current.delete(e.pointerId);
     pinchDist.current = null;
     drag.current = null;
+    if (pointers.current.size === 0) captured.current = false;
   };
 
   // スポット位置(画面px)

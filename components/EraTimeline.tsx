@@ -106,16 +106,28 @@ function useWidth(ref: React.RefObject<HTMLDivElement | null>): number {
   return w;
 }
 
-// トラック内のレーン割り当て(近い作品を上下・二段に散らして重なり回避)
-function assignLanes(entries: { e: TimelineEntry; x: number }[], minGap: number): Map<string, number> {
-  const lanes: number[] = [-Infinity, -Infinity, -Infinity, -Infinity]; // 上0,下0,上1,下1 の最後のx
-  const result = new Map<string, number>();
+// トラック内のレーン割り当て + 横ずらし(dodge)。
+// 密集地帯でも書影が重ならないよう、レーンに空きが無ければ最小間隔まで右へずらす。
+// dispX が書影の表示位置、true位置(x)へは引き出し線でつなぐ。
+function assignLanes(
+  entries: { e: TimelineEntry; x: number }[],
+  minGap: number
+): Map<string, { lane: number; dispX: number }> {
+  const N = 4; // 上近/下近/上遠/下遠
+  const lastX: number[] = new Array(N).fill(-Infinity);
+  const result = new Map<string, { lane: number; dispX: number }>();
   const sorted = [...entries].sort((a, b) => a.x - b.x);
   for (const item of sorted) {
-    let lane = lanes.findIndex((last) => item.x - last >= minGap);
-    if (lane === -1) lane = 0;
-    lanes[lane] = item.x;
-    result.set(item.e.workId, lane);
+    // そのまま置けるレーン(重ならない)を優先
+    let lane = lastX.findIndex((lx) => item.x - lx >= minGap);
+    let dispX = item.x;
+    if (lane === -1) {
+      // どのレーンも詰まっている → 最も空いているレーンへ右ずらしで配置
+      lane = lastX.indexOf(Math.min(...lastX));
+      dispX = lastX[lane] + minGap;
+    }
+    lastX[lane] = dispX;
+    result.set(item.e.workId, { lane, dispX });
   }
   return result;
 }
@@ -219,16 +231,23 @@ export default function EraTimeline() {
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinchDist = useRef<number | null>(null);
 
-  const onPointerDown = (e: React.PointerEvent) => {
+  const captured = useRef(false);
+  const captureNow = (e: React.PointerEvent) => {
+    // キャプチャはドラッグ開始後にだけ取得(pointerdownで取得するとclickが書影に届かない)
+    if (captured.current) return;
     try {
-      // iOS Safariはタッチ由来のpointerIdでNotFoundErrorを投げることがある
       (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+      captured.current = true;
     } catch {}
+  };
+
+  const onPointerDown = (e: React.PointerEvent) => {
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
       const vc = pendingView.current ?? viewRef.current ?? { tx: 0, ty: 0, k: kFit };
       drag.current = { x: e.clientX, y: e.clientY, tx: vc.tx, ty: vc.ty, moved: false };
     } else {
+      captureNow(e); // ピンチは即キャプチャ
       drag.current = null;
       pinchDist.current = null;
     }
@@ -258,7 +277,10 @@ export default function EraTimeline() {
     if (!d0) return;
     const dx = e.clientX - d0.x;
     const dy = e.clientY - d0.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) d0.moved = true;
+    if (Math.abs(dx) + Math.abs(dy) > 3) {
+      d0.moved = true;
+      captureNow(e);
+    }
     const ntx = d0.tx + dx;
     const nty = Math.max(minTy, Math.min(0, d0.ty + dy));
     pushView((cur) => ({ k: cur.k, tx: ntx, ty: nty }));
@@ -267,6 +289,7 @@ export default function EraTimeline() {
     pointers.current.delete(e.pointerId);
     pinchDist.current = null;
     drag.current = null;
+    if (pointers.current.size === 0) captured.current = false;
   };
 
   // 地域ごとのエントリ + レーン
@@ -274,7 +297,7 @@ export default function EraTimeline() {
   const trackData = useMemo(() => {
     return TL_REGIONS.map((region, ti) => {
       const entries = TIMELINE.filter((e) => e.region === region.id).map((e) => ({ e, x: tlX(e.year) * k }));
-      const lanes = assignLanes(entries, coverW + 26);
+      const lanes = assignLanes(entries, coverW + 6);
       return { region, ti, entries, lanes };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -334,23 +357,31 @@ export default function EraTimeline() {
                   </div>
                 );
               })}
-              {/* 作品(書影 + 引き出し線) */}
+              {/* 作品(書影 + 引き出し線)。dispX=表示位置, x=本来の年 */}
               {entries.map(({ e, x }) => {
                 const wk = workById(e.workId);
                 if (!wk) return null;
-                const lane = lanes.get(e.workId) ?? 0;
-                const { above, dist } = laneOffset(lane);
+                const la = lanes.get(e.workId) ?? { lane: 0, dispX: x };
+                const dispX = la.dispX;
+                const { above, dist } = laneOffset(la.lane);
                 const cover = s > 1.7 ? coverSrc(meta, wk.id) : coverThumb(meta, wk.id);
                 const active = selected?.workId === e.workId && selected.region === e.region;
                 const boxH = coverH + (showYears ? 16 : 0);
                 const pinTop = above ? cy - dist - boxH : cy + dist;
+                const edgeY = above ? cy - dist : cy + dist; // 書影の内側エッジのY
+                const lx = Math.min(x, dispX);
+                const lw = Math.abs(dispX - x);
                 return (
                   <div key={e.workId}>
-                    <div style={{ position: "absolute", left: x - 0.75, top: above ? pinTop + boxH - 2 : cy, width: 1.5, height: above ? cy - (pinTop + boxH) + 2 : pinTop - cy + 2, background: region.color, opacity: 0.8, pointerEvents: "none" }} />
+                    {/* 引き出し線: 本来の年から縦、書影エッジで横に折れてL字に */}
+                    <div style={{ position: "absolute", left: x - 0.75, top: Math.min(cy, edgeY), width: 1.5, height: dist, background: region.color, opacity: 0.75, pointerEvents: "none" }} />
+                    {lw > 1 && (
+                      <div style={{ position: "absolute", left: lx, top: edgeY - 0.75, width: lw, height: 1.5, background: region.color, opacity: 0.75, pointerEvents: "none" }} />
+                    )}
                     <div style={{ position: "absolute", left: x - 3.5, top: cy - 3.5, width: 7, height: 7, borderRadius: "50%", background: region.color, border: "1.5px solid var(--ink)", pointerEvents: "none" }} />
                     <div
                       className={`map-pin ${active ? "on" : ""}`}
-                      style={{ left: x, top: pinTop + boxH, zIndex: active ? 8 : 5 }}
+                      style={{ left: dispX, top: pinTop + boxH, zIndex: active ? 8 : 5 }}
                       onClick={(ev) => {
                         ev.stopPropagation();
                         if (drag.current?.moved) return;
