@@ -281,9 +281,10 @@ interface BubbleProps {
   font?: string;
   user: string;
   meta?: React.ReactNode;
+  hideMeta?: boolean; // メタ行(名前+meta)を出さず、吹き出しだけ描く(コマ語りカードで使用)
 }
 
-export default function Bubble({ text, bubble = "speech", font = "antique", user, meta }: BubbleProps) {
+export default function Bubble({ text, bubble = "speech", font = "antique", user, meta, hideMeta = false }: BubbleProps) {
   const fc = fontClass(font);
   // 文章量と画面幅から縦書きの列長を決める。
   // 列が増えすぎて吹き出しが画面からはみ出さないよう、幅の予算から逆算する
@@ -299,10 +300,12 @@ export default function Bubble({ text, bubble = "speech", font = "antique", user
   const mh = Math.min(300, Math.max(90, Math.round(mhRaw)));
   return (
     <div className="bubble-wrap">
-      <div className="bubble-meta">
-        <span className="name">{user}</span>
-        {meta}
-      </div>
+      {!hideMeta && (
+        <div className="bubble-meta">
+          <span className="name">{user}</span>
+          {meta}
+        </div>
+      )}
       {bubble === "narration" ? (
         <div className={`bx-narration ${fc}`} style={{ maxHeight: mh + 60 }}>
           {tcy(text)}

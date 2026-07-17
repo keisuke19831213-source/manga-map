@@ -12,16 +12,30 @@ function fmtDate(iso: string) {
   return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
 }
 
+// ページ/位置/コマの表示(巻は含めない)
+function pageLabel(p: Post): string {
+  if (!p.page) return "";
+  if (p.page.includes("%")) return `位置${p.page}`;
+  if (/^\d+$/.test(p.page.trim())) return `p.${p.page.trim()}`;
+  return p.page;
+}
+
+// 巻を含む位置ラベル(地図・年表など、作品ページ外で使う)
 export function locLabel(p: Post) {
   const parts: string[] = [];
   if (p.volume) parts.push(`${p.volume}巻`);
-  if (p.page) {
-    // "37%"=Kindle位置 / 数値=紙のページ / それ以外(「終盤」など)はそのまま
-    if (p.page.includes("%")) parts.push(`位置${p.page}`);
-    else if (/^\d+$/.test(p.page.trim())) parts.push(`p.${p.page.trim()}`);
-    else parts.push(p.page);
-  }
+  const pl = pageLabel(p);
+  if (pl) parts.push(pl);
   if (p.panel) parts.push(`${p.panel}`);
+  return parts.join(" · ");
+}
+
+// 巻グループ内で使う位置ラベル(巻は見出しにあるので省く)
+function inVolLabel(p: Post): string {
+  const parts: string[] = [];
+  const pl = pageLabel(p);
+  if (pl) parts.push(pl);
+  if (p.panel) parts.push(p.panel);
   return parts.join(" · ");
 }
 
@@ -426,20 +440,27 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
               )}
             </div>
           </div>
-          {list.map((p) => (
-            <div key={p.id} id={`post-${p.id}`} className={flash === p.id ? "post-flash" : ""}>
-              {p.scene && <div className="scene-tag">🎬 {p.scene}</div>}
-              <SpoilerGuard post={p}>
-                <Bubble
-                  text={p.text}
-                  bubble={p.bubble}
-                  font={p.font}
-                  user={p.user}
-                  meta={<PostMeta type="comment" loc={locLabel(p)} date={fmtDate(p.createdAt)} />}
-                />
-              </SpoilerGuard>
-            </div>
-          ))}
+          {list.map((p) => {
+            const loc = inVolLabel(p);
+            return (
+              <div key={p.id} id={`post-${p.id}`} className={`talk-card ${flash === p.id ? "post-flash" : ""}`}>
+                <div className="talk-head">
+                  {p.scene ? (
+                    <span className="talk-scene">🎬 {p.scene}</span>
+                  ) : (
+                    <span className="talk-scene talk-scene-plain">コマ語り</span>
+                  )}
+                  {loc && <span className="talk-pos">📖 {loc}</span>}
+                </div>
+                <SpoilerGuard post={p}>
+                  <Bubble text={p.text} bubble={p.bubble} font={p.font} user={p.user} hideMeta />
+                </SpoilerGuard>
+                <div className="talk-by">
+                  — {p.user} <span className="talk-date">· {fmtDate(p.createdAt)}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       ))}
 
