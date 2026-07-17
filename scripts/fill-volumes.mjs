@@ -15,7 +15,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const norm = (s) =>
   (s || "")
     .toLowerCase()
-    .replace(/[\s・:：!！?？×☆△.,\/\-—’'"「」『』()（）=＝&+~〜・]/g, "");
+    .replace(/[\s・:：!！?？×☆△.,\/\-—’'"「」『』()（）【】=＝&+~〜・]/g, "");
 
 function isbn13to10(i) {
   i = (i || "").replace(/[^0-9Xx]/g, "");
@@ -43,6 +43,9 @@ async function amazonOK(asin) {
 async function collectVolumes(title, author) {
   const a0 = (author || "").split(/[・&,／\/]/)[0].trim();
   const nt = norm(title);
+  // サイト側タイトルが「銀の匙 Silver Spoon」のように副題込みの場合、
+  // NDL側が主題「銀の匙」だけのことがある → 主題部分でも比較する
+  const ntMain = norm(title.split(/\s+/)[0]);
   const byVol = new Map();
   for (const useCreator of [true, false]) {
     const url =
@@ -61,7 +64,13 @@ async function collectVolumes(title, author) {
       const vol = (it.match(/<dcndl:volume>([^<]*)<\/dcndl:volume>/) || [])[1] || "";
       const isbn = (it.match(/dcndl:ISBN[^>]*>([0-9Xx-]+)</) || [])[1] || "";
       if (!isbn) continue;
-      if (norm(dct) !== nt) continue; // 作品名 完全一致のみ(スピンオフ排除)
+      // 作品名の完全一致、または「作品名 : 副題」の主題部分の完全一致
+      // (るろうに剣心 : 明治剣客浪漫譚 のようなNDL正式題に対応。
+      //  主題の完全一致なのでスピンオフ「◯◯外伝」等は引き続き弾かれる)
+      const main = dct.split(/\s*[:：]\s*/)[0];
+      const nd = norm(dct);
+      const nm = norm(main);
+      if (nd !== nt && nm !== nt && (!ntMain || (nd !== ntMain && nm !== ntMain))) continue;
       const vn = parseInt((vol || "").replace(/[^0-9]/g, ""), 10);
       if (!Number.isFinite(vn) || vn <= 0 || vn > 300) continue;
       const a = isbn13to10(isbn.replace(/-/g, ""));
@@ -103,7 +112,7 @@ async function main() {
     }
     for (const vn of vols) {
       const cands = [...byVol.get(vn)];
-      for (let i = 0; i < Math.min(2, cands.length); i++) {
+      for (let i = 0; i < Math.min(4, cands.length); i++) {
         if (await amazonOK(cands[i])) {
           volumes.push({ v: vn, asin: cands[i] });
           break;
