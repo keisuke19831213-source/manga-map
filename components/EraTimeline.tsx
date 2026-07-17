@@ -90,7 +90,9 @@ const JP_ERAS: { from: number; to: number; name: string }[] = [
 ];
 
 const AXIS_H = 46;
-const TRACK_H = 152;
+const TRACK_PAD = 22; // トラック内の上下の余白
+const MIN_ABOVE = 32; // 中心線の上に最低限あける(地域ラベル用)
+const MIN_TH = 96; // トラックの最小高さ
 const FANTASY_X = tlX(2125);
 
 function useWidth(ref: React.RefObject<HTMLDivElement | null>): number {
@@ -143,9 +145,6 @@ export default function EraTimeline() {
   const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
 
   const isMobile = cw < 700;
-  const TH = isMobile ? 118 : TRACK_H; // モバイルはトラックを圧縮
-  const H = AXIS_H + TL_REGIONS.length * TH; // コンテンツ全体の高さ
-  const VH = Math.min(H, isMobile ? 500 : 660); // 表示枠(はみ出す分は縦ドラッグで移動)
   const kFit = cw / TL_W;
 
   // 初期表示: PCは全期間フィット、モバイルは作品が密集する近現代へズーム
@@ -164,7 +163,6 @@ export default function EraTimeline() {
   const k = view?.k ?? kFit;
   const tx = view?.tx ?? 0;
   const ty = view?.ty ?? 0;
-  const minTy = Math.min(0, VH - H);
 
   // ドラッグ/ピンチ中の更新をフレーム毎1回に間引く(モバイルの描画詰まり対策)
   const viewRef = useRef(view);
@@ -292,16 +290,49 @@ export default function EraTimeline() {
     if (pointers.current.size === 0) captured.current = false;
   };
 
-  // 地域ごとのエントリ + レーン
-  // レーンはtxに依存しない座標(tlX*k)で計算 → パン中は再計算不要
-  const trackData = useMemo(() => {
-    return TL_REGIONS.map((region, ti) => {
+  // 書影1枚分の高さ(年チップ込み)とレーン位置。トラック高さの算出に使う
+  const boxH = coverH + (showYears ? 16 : 0);
+  const labelPad = s > 1.6 ? 20 : 0; // 下レーンは作品名ラベルのぶんだけ余分に要る
+  const laneOffset = (lane: number): { above: boolean; dist: number } => {
+    // 0:上近 1:下近 2:上遠 3:下遠 (書影サイズに追従)
+    const above = lane % 2 === 0;
+    const dist = lane < 2 ? 13 : 13 + coverH * 0.72 + 14;
+    return { above, dist };
+  };
+
+  // 地域ごとのエントリ + レーン + トラックの実寸
+  // レーンはtxに依存しない座標(tlX*k)で計算 → パン中は再計算不要。
+  // トラック高さは固定値ではなく「実際に使われたレーンの張り出し」から逆算する。
+  // 固定152pxだと2段レーンの書影(上に最大116px、ズーム時は280px超)がはみ出し、
+  // 先頭の日本トラックが軸バーに切られていた
+  const tracks = useMemo(() => {
+    let y = AXIS_H;
+    return TL_REGIONS.map((region) => {
       const entries = TIMELINE.filter((e) => e.region === region.id).map((e) => ({ e, x: tlX(e.year) * k }));
       const lanes = assignLanes(entries, coverW + 6);
-      return { region, ti, entries, lanes };
+      // このトラックが中心線の上下それぞれに必要とする高さ
+      let aboveExt = MIN_ABOVE; // 地域ラベルのぶんは最低限あける
+      let belowExt = 0;
+      for (const { e } of entries) {
+        const la = lanes.get(e.workId);
+        if (!la) continue;
+        const { above, dist } = laneOffset(la.lane);
+        const ext = dist + boxH + (above ? 0 : labelPad);
+        if (above) aboveExt = Math.max(aboveExt, ext);
+        else belowExt = Math.max(belowExt, ext);
+      }
+      const th = Math.max(MIN_TH, aboveExt + belowExt + TRACK_PAD);
+      const top = y;
+      const cy = top + TRACK_PAD / 2 + aboveExt;
+      y += th;
+      return { region, entries, lanes, th, top, cy };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [k, coverW]);
+  }, [k, coverW, coverH, showYears, s]);
+
+  const H = tracks[tracks.length - 1].top + tracks[tracks.length - 1].th; // コンテンツ全体の高さ
+  const VH = Math.min(H, isMobile ? 500 : 660); // 表示枠(はみ出す分は縦ドラッグで移動)
+  const minTy = Math.min(0, VH - H);
 
   // コメントのある作品(吹き出しローテーション)
   const voiceEntries = useMemo(() => TIMELINE.filter((e) => voices[e.workId]?.latest), [voices]);
@@ -313,13 +344,6 @@ export default function EraTimeline() {
   const bubbleEntry =
     selected && voices[selected.workId]?.latest ? selected : voiceEntries.length > 0 ? voiceEntries[voiceIdx % voiceEntries.length] : null;
 
-  const laneOffset = (lane: number): { above: boolean; dist: number } => {
-    // 0:上近 1:下近 2:上遠 3:下遠 (書影サイズに追従)
-    const above = lane % 2 === 0;
-    const dist = lane < 2 ? 13 : 13 + coverH * 0.72 + 14;
-    return { above, dist };
-  };
-
   // 可動コンテンツをメモ化: パン(tx/ty)では再構築せず、ズーム(k)時のみ再計算。
   // パン中はコンテナのtransform(GPU)だけが動くので、モバイルでも滑らか
   const tlContent = useMemo(() => {
@@ -327,9 +351,7 @@ export default function EraTimeline() {
       <>
         {/* 架空ゾーンの背景 */}
         <div style={{ position: "absolute", left: FANTASY_X * k, top: 0, width: Math.max(0, (TL_W - FANTASY_X) * k), height: H, background: "repeating-linear-gradient(-45deg, rgba(219,39,119,0.05), rgba(219,39,119,0.05) 8px, transparent 8px, transparent 16px)", borderLeft: "2px dashed #db277788", pointerEvents: "none" }} />
-        {trackData.map(({ region, ti, entries, lanes }) => {
-          const top = AXIS_H + ti * TH;
-          const cy = top + TH / 2;
+        {tracks.map(({ region, entries, lanes, th, top, cy }) => {
           return (
             <div key={region.id}>
               {/* 日本トラックの時代帯 */}
@@ -338,7 +360,7 @@ export default function EraTimeline() {
                   const x0 = tlX(era.from) * k;
                   const x1 = tlX(era.to) * k;
                   return (
-                    <div key={era.name} style={{ position: "absolute", left: x0, top: top + 2, width: x1 - x0, height: TH - 4, background: "rgba(212,61,46,0.055)", borderLeft: "1px solid rgba(212,61,46,0.3)", pointerEvents: "none" }}>
+                    <div key={era.name} style={{ position: "absolute", left: x0, top: top + 2, width: x1 - x0, height: th - 4, background: "rgba(212,61,46,0.055)", borderLeft: "1px solid rgba(212,61,46,0.3)", pointerEvents: "none" }}>
                       {x1 - x0 > 34 && (
                         <span style={{ position: "absolute", top: 2, left: 4, fontSize: 10, fontWeight: 900, color: "rgba(212,61,46,0.65)" }}>{era.name}</span>
                       )}
@@ -366,7 +388,6 @@ export default function EraTimeline() {
                 const { above, dist } = laneOffset(la.lane);
                 const cover = s > 1.7 ? coverSrc(meta, wk.id) : coverThumb(meta, wk.id);
                 const active = selected?.workId === e.workId && selected.region === e.region;
-                const boxH = coverH + (showYears ? 16 : 0);
                 const pinTop = above ? cy - dist - boxH : cy + dist;
                 const edgeY = above ? cy - dist : cy + dist; // 書影の内側エッジのY
                 const lx = Math.min(x, dispX);
@@ -413,7 +434,7 @@ export default function EraTimeline() {
       </>
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trackData, k, TH, H, coverW, coverH, s, showYears, meta, selected]);
+  }, [tracks, k, H, coverW, coverH, boxH, s, showYears, meta, selected]);
 
   // ミニマップの分布ドット(完全に静的)
   const mmDots = useMemo(
@@ -483,13 +504,13 @@ export default function EraTimeline() {
             </div>
 
             {/* トラックの帯・中心線・地域ラベル(横幅いっぱい・縦のみ追従) */}
-            {TL_REGIONS.map((region, ti) => {
-              const top = AXIS_H + ti * TH + ty;
-              const cy = top + TH / 2;
-              if (top > VH || top + TH < 0) return null;
+            {tracks.map(({ region, th, top: t0, cy: c0 }) => {
+              const top = t0 + ty;
+              const cy = c0 + ty;
+              if (top > VH || top + th < 0) return null;
               return (
                 <div key={region.id}>
-                  <div style={{ position: "absolute", left: 0, right: 0, top, height: TH, background: `${region.color}09`, borderTop: "1.5px solid rgba(23,19,16,0.16)", pointerEvents: "none" }} />
+                  <div style={{ position: "absolute", left: 0, right: 0, top, height: th, background: `${region.color}09`, borderTop: "1.5px solid rgba(23,19,16,0.16)", pointerEvents: "none" }} />
                   <div style={{ position: "absolute", left: 0, right: 0, top: cy - 1, height: 2, background: region.color, opacity: 0.5, pointerEvents: "none" }} />
                   <div style={{ position: "absolute", left: 10, top: top + 8, zIndex: 1, background: region.color, color: "#fff", border: "2px solid var(--ink)", boxShadow: "2px 2px 0 var(--ink)", fontSize: 12, fontWeight: 900, padding: "2px 10px", pointerEvents: "none" }}>
                     {region.name}
@@ -510,8 +531,9 @@ export default function EraTimeline() {
                 if (x < 0 || x > cw) return null;
                 const post = voices[bubbleEntry.workId]?.latest;
                 if (!post) return null;
-                const ti = TL_REGIONS.findIndex((r) => r.id === bubbleEntry.region);
-                const cy = AXIS_H + ti * TH + TH / 2 + ty;
+                const tr = tracks.find((t) => t.region.id === bubbleEntry.region);
+                if (!tr) return null;
+                const cy = tr.cy + ty;
                 if (cy < AXIS_H || cy > VH) return null;
                 const flip = x > cw - 240;
                 return (

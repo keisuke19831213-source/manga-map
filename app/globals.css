@@ -1121,6 +1121,9 @@ main {
   border: 3px solid var(--ink);
   box-shadow: var(--shadow);
   overflow: hidden;
+  /* ドラッグで地図を動かすとき、地名やラベルが選択されてしまわないように */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .atlas-svg {
