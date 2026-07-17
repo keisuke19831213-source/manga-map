@@ -11,8 +11,10 @@ export interface Post {
   workId?: string; // 図鑑内の作品への投稿の場合
   freeTitle?: string; // 図鑑にない作品のおすすめの場合
   volume?: string; // 巻
-  page?: string; // ページ
+  page?: string; // ページ番号 または Kindle位置(%付き文字列 例:"37%")
   panel?: string; // コマ
+  scene?: string; // シーン名(例: 山王戦ラスト)
+  spoiler?: boolean; // ネタバレ(ぼかして表示し、タップで開示)
   text: string;
   bubble?: BubbleStyle; // 吹き出しの形
   font?: BubbleFont; // 吹き出しのフォント

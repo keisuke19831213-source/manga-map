@@ -46,8 +46,14 @@ export default function MiniBubble({
       <span className="qb-body">
         {title && <span className="qb-title">{title}</span>}
         <span className="qb-txt">
-          {icon && <span style={{ marginRight: 2 }}>{icon}</span>}
-          {post.text}
+          {post.spoiler ? (
+            <span style={{ color: "var(--ink-soft)" }}>⚠️ ネタバレを含む語り(作品ページで開示)</span>
+          ) : (
+            <>
+              {icon && <span style={{ marginRight: 2 }}>{icon}</span>}
+              {post.text}
+            </>
+          )}
         </span>
         <span className="qb-who">
           — {post.user}

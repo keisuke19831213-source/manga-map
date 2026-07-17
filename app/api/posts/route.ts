@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "invalid body" }, { status: 400 });
   }
-  const { type, user, workId, freeTitle, volume, page, panel, text, bubble, font } = body;
+  const { type, user, workId, freeTitle, volume, page, panel, scene, spoiler, text, bubble, font } = body;
   if (type !== "recommend" && type !== "comment") {
     return NextResponse.json({ error: "invalid type" }, { status: 400 });
   }
@@ -44,6 +44,8 @@ export async function POST(req: NextRequest) {
     volume: typeof volume === "string" && volume.trim() ? volume.trim() : undefined,
     page: typeof page === "string" && page.trim() ? page.trim() : undefined,
     panel: typeof panel === "string" && panel.trim() ? panel.trim() : undefined,
+    scene: typeof scene === "string" && scene.trim() ? scene.trim().slice(0, 50) : undefined,
+    spoiler: spoiler === true ? true : undefined,
     text: text.trim().slice(0, 2000),
     bubble: BUBBLES.includes(bubble) ? bubble : "speech",
     font: FONTS.includes(font) ? font : "antique",
