@@ -454,7 +454,7 @@ export default function MangaMap() {
           <div style={{ fontSize: 11.5, fontWeight: 800, color: catOf(selectedGenre).color, letterSpacing: 1 }}>
             {catOf(selectedGenre).name} · {selectedGenre.year}年頃〜
           </div>
-          <h2 style={{ margin: "4px 0 2px", fontSize: 22, fontFamily: "var(--font-title)" }}>{selectedGenre.name}</h2>
+          <h2 style={{ margin: "4px 0 2px", fontSize: 22, fontFamily: "var(--font-base)", fontWeight: 900 }}>{selectedGenre.name}</h2>
           <div style={{ fontSize: 12, color: "#6b6257", fontWeight: 700, marginBottom: 12 }}>{selectedGenre.en}</div>
           <p style={{ fontSize: 13, lineHeight: 1.9, color: "#4a4238" }}>{selectedGenre.desc}</p>
 

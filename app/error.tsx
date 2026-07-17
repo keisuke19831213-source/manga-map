@@ -5,7 +5,7 @@ export default function ErrorPage({ error, reset }: { error: Error; reset: () =>
   return (
     <div className="page" style={{ textAlign: "center", paddingTop: 70 }}>
       <div style={{ fontSize: 44, marginBottom: 10 }}>📖💦</div>
-      <h1 style={{ fontFamily: "var(--font-title)", fontSize: 26, textShadow: "2px 2px 0 var(--yellow)" }}>
+      <h1 style={{ fontFamily: "var(--font-title)", fontSize: 26 }}>
         ページの表示に失敗しました
       </h1>
       <p style={{ color: "var(--ink-soft)", fontSize: 13.5, lineHeight: 2, margin: "14px 0 24px" }}>

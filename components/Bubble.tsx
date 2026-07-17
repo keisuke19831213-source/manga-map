@@ -84,24 +84,27 @@ function pt(cx: number, cy: number, rx: number, ry: number, deg: number): [numbe
 }
 
 // セリフ: 楕円と一体のしっぽ(輪郭は一筆書きの単一パス)
-// しっぽは口元へ向かう短くシャープな三角。付け根を狭く、先を細くして
-// マンガらしい鋭い"つの"にする(以前は長く湾曲してフック状に見えていた)
+// しっぽは口元へ向かう自然な手描き風。右辺は直線、左辺はゆるく反った曲線にして
+// インクで描いたような有機的な形にする(付け根はしっかり太く、先はすっと細く)
 function speechGeom(tw: number, th: number): Geom {
   const rx = Math.max((tw + 6) * 0.72, 32);
   const ry = Math.max((th + 6) * 0.73, 22);
   const pad = 3;
-  const tailLen = Math.min(18, Math.max(11, ry * 0.5)); // 短めの鋭いしっぽ
+  const tailLen = Math.min(20, Math.max(13, ry * 0.52));
   const cx = rx + pad;
   const cy = ry + pad;
   const W = 2 * (rx + pad);
   const H = 2 * ry + pad * 2 + tailLen;
-  const [ax, ay] = pt(cx, cy, rx, ry, 99); // しっぽ右付け根(狭い base)
-  const [bx, by] = pt(cx, cy, rx, ry, 117); // しっぽ左付け根
-  const tipX = cx - rx * 0.28;
+  const [ax, ay] = pt(cx, cy, rx, ry, 96); // しっぽ右付け根
+  const [bx, by] = pt(cx, cy, rx, ry, 120); // しっぽ左付け根(こちら側が曲線)
+  const tipX = cx - rx * 0.22;
   const tipY = cy + ry + tailLen;
+  const cxCtrl = cx - rx * 0.32; // 左辺を反らせる制御点
+  const cyCtrl = cy + ry + tailLen * 0.22;
   const d =
     `M ${f1(bx)} ${f1(by)} A ${f1(rx)} ${f1(ry)} 0 1 1 ${f1(ax)} ${f1(ay)}` +
-    ` L ${f1(tipX)} ${f1(tipY)} Z`;
+    ` L ${f1(tipX)} ${f1(tipY)}` +
+    ` Q ${f1(cxCtrl)} ${f1(cyCtrl)} ${f1(bx)} ${f1(by)} Z`;
   return { W, H, shapes: [{ d }], tx: cx - tw / 2, ty: cy - th / 2 };
 }
 

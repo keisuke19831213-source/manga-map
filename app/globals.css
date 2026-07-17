@@ -439,7 +439,8 @@ main {
 .work-card h3 {
   margin: 0 0 2px;
   font-size: 17px;
-  font-family: var(--font-pop);
+  font-family: var(--font-base);
+  font-weight: 900;
 }
 
 .work-card .meta {
@@ -1072,7 +1073,8 @@ main {
 .tl-item h3 {
   margin: 4px 0 10px;
   font-size: 21px;
-  font-family: var(--font-title);
+  font-family: var(--font-base);
+  font-weight: 900;
 }
 
 .tl-item p {
@@ -1120,7 +1122,8 @@ main {
 }
 
 .era-block h2 {
-  font-family: var(--font-title);
+  font-family: var(--font-base);
+  font-weight: 900;
   font-size: 22px;
   margin: 0 0 8px;
 }
@@ -1921,7 +1924,8 @@ main {
 }
 
 .era-v-head .n {
-  font-family: var(--font-title);
+  font-family: var(--font-base);
+  font-weight: 900;
   font-size: 18px;
 }
 
