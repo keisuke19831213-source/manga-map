@@ -269,6 +269,86 @@ export default function AtlasMap() {
   const pinH = Math.round(48 * cs);
   const showLabels = view.k > 2.1;
 
+  // ===== 重なり検知クラスタリング =====
+  // 画面上でピン同士が重なる場合は1つの「束」にまとめ、クリックでズームしてほどく。
+  // 最大ズーム付近でもほどけない超近接スポット(京都と大津など)は、
+  // 扇状に展開して引き出し線で本来の位置につなぐ(spiderfy)。
+  // スポット数は高々数十なので毎レンダーの全ペア判定で十分軽い
+  type RenderPin =
+    | { kind: "single"; spot: MapSpot; x: number; y: number; tx: number; ty: number }
+    | { kind: "cluster"; x: number; y: number; members: MapSpot[] };
+  const clusters = useMemo<RenderPin[]>(() => {
+    if (!project) return [];
+    type Cluster = { x: number; y: number; members: { s: MapSpot; sx: number; sy: number }[] };
+    const list: Cluster[] = [];
+    for (const s of spots) {
+      const [px, py] = project(s);
+      const sx = (px * view.k + view.tx) * f;
+      const sy = (py * view.k + view.ty) * f;
+      if (sx < -80 || sx > cw + 80 || sy < -100 || sy > mapH + 60) continue;
+      // ピンは下端アンカーなので、横は幅・縦は高さでつぶれ具合を判定(楕円距離)
+      const hit = list.find((c) => {
+        const dx = (sx - c.x) / (pinW * 0.95);
+        const dy = (sy - c.y) / (pinH * 0.8);
+        return dx * dx + dy * dy < 1;
+      });
+      if (hit) {
+        // 位置は平均に寄せて、束の見た目が安定するように
+        hit.x = (hit.x * hit.members.length + sx) / (hit.members.length + 1);
+        hit.y = (hit.y * hit.members.length + sy) / (hit.members.length + 1);
+        hit.members.push({ s, sx, sy });
+      } else {
+        list.push({ x: sx, y: sy, members: [{ s, sx, sy }] });
+      }
+    }
+    const out: RenderPin[] = [];
+    const spiderfy = view.k >= 9.5; // これ以上ズームしてもほどけない密度 → 展開表示
+    for (const c of list) {
+      if (c.members.length === 1) {
+        const m = c.members[0];
+        out.push({ kind: "single", spot: m.s, x: m.sx, y: m.sy, tx: m.sx, ty: m.sy });
+      } else if (spiderfy) {
+        // 横一列(多い時は格子)に展開し、引き出し線で本来の位置を指す
+        const n = c.members.length;
+        const cols = Math.min(n, 4);
+        c.members.forEach((m, i) => {
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          const rows = Math.ceil(n / cols);
+          out.push({
+            kind: "single",
+            spot: m.s,
+            x: c.x + (col - (cols - 1) / 2) * (pinW + 14),
+            y: c.y + (row - (rows - 1) / 2) * (pinH + 22),
+            tx: m.sx,
+            ty: m.sy,
+          });
+        });
+      } else {
+        out.push({ kind: "cluster", x: c.x, y: c.y, members: c.members.map((m) => m.s) });
+      }
+    }
+    return out;
+  }, [spots, project, view, f, cw, mapH, pinW, pinH]);
+
+  // 束をクリック → その中心へスマートズーム(ほどけるまで繰り返せる)
+  const zoomInto = (members: MapSpot[]) => {
+    if (!project) return;
+    let cx = 0;
+    let cy = 0;
+    for (const s of members) {
+      const [px, py] = project(s);
+      cx += px;
+      cy += py;
+    }
+    cx /= members.length;
+    cy /= members.length;
+    setView((v) => {
+      const k = Math.min(12, v.k * 2.4);
+      return { k, tx: w / 2 - cx * k, ty: h / 2 - cy * k };
+    });
+  };
+
   return (
     <>
       <div className="filter-row" style={{ marginBottom: 14 }}>
@@ -306,20 +386,29 @@ export default function AtlasMap() {
               <g transform={`translate(${view.tx},${view.ty}) scale(${view.k})`}>{baseLayer}</g>
             </svg>
 
-            {/* ===== 書影ピン(HTMLオーバーレイ・ズームしても大きさ一定) ===== */}
-            {project &&
-              spots.map((s) => {
-                const p = screenPos(s);
-                if (!p) return null;
-                const [sx, sy] = p;
-                if (sx < -60 || sx > cw + 60 || sy < -80 || sy > mapH + 40) return null;
+            {/* ===== 書影ピン(HTMLオーバーレイ・ズームしても大きさ一定) =====
+                 重なるピンは束(クラスタ)にまとめ、ホバーで情報カードを表示 */}
+            {clusters.map((c) => {
+              const [sx, sy] = [c.x, c.y];
+              const popBelow = sy < 170; // 画面上端に近い時はカードを下に出す(はみ出し防止)
+
+              if (c.kind === "single") {
+                const s = c.spot;
                 const active = s.id === selectedId;
+                // 展開表示でずらされたピンは、本来の位置へ引き出し線を伸ばす
+                const lead = Math.hypot(sx - c.tx, sy - c.ty) > 4 ? { len: Math.hypot(sx - c.tx, sy - c.ty), ang: (Math.atan2(sy - c.ty, sx - c.tx) * 180) / Math.PI } : null;
                 const first = workById(s.works[0].workId);
                 // 通常は軽量サムネ、ズームで大きく表示される時だけ大判に切替
                 const cover = first ? (cs > 2 ? coverSrc(meta, first.id) : coverThumb(meta, first.id)) : null;
                 return (
+                  <div key={s.id} style={{ display: "contents" }}>
+                    {lead && (
+                      <>
+                        <div className="map-pin-lead" style={{ left: c.tx, top: c.ty, width: lead.len, transform: `rotate(${lead.ang}deg)` }} />
+                        <div className="map-pin-truedot" style={{ left: c.tx, top: c.ty }} />
+                      </>
+                    )}
                   <div
-                    key={s.id}
                     className={`map-pin ${active ? "on" : ""}`}
                     style={{ left: sx, top: sy }}
                     onClick={(e) => {
@@ -327,7 +416,6 @@ export default function AtlasMap() {
                       if (drag.current?.moved) return;
                       setSelectedId(active ? null : s.id);
                     }}
-                    title={s.place}
                   >
                     <div className="map-pin-card">
                       {cover ? (
@@ -341,9 +429,74 @@ export default function AtlasMap() {
                     <div className="map-pin-tip" />
                     <div className="map-pin-dot" />
                     <div className={`map-pin-label ${showLabels ? "show" : ""}`}>{s.place}</div>
+                    {/* ホバー情報カード */}
+                    <div className={`map-pin-pop ${popBelow ? "below" : ""}`}>
+                      <b>📍 {s.place}</b>
+                      <ul>
+                        {s.works.slice(0, 3).map(({ workId }) => (
+                          <li key={workId}>{workById(workId)?.title}</li>
+                        ))}
+                      </ul>
+                      {s.works.length > 3 && <span className="more">ほか{s.works.length - 3}作品</span>}
+                      <span className="hint">クリックで詳細</span>
+                    </div>
+                  </div>
                   </div>
                 );
-              })}
+              }
+
+              // ===== 束ピン(重なった複数スポット) =====
+              const totalWorks = c.members.reduce((n, s) => n + s.works.length, 0);
+              const stack = c.members.slice(0, 3).map((s) => {
+                const first = workById(s.works[0].workId);
+                return { id: s.id, cover: first ? coverThumb(meta, first.id) : null, title: first?.title ?? s.place };
+              });
+              const hasSelected = c.members.some((s) => s.id === selectedId);
+              return (
+                <div
+                  key={`cl-${c.members.map((s) => s.id).join("-")}`}
+                  className={`map-pin cluster ${hasSelected ? "on" : ""}`}
+                  style={{ left: sx, top: sy }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (drag.current?.moved) return;
+                    zoomInto(c.members);
+                  }}
+                >
+                  <div className="map-stack" style={{ width: pinW + 8 * (stack.length - 1) + 4, height: pinH + 5 * (stack.length - 1) + 4 }}>
+                    {stack.map((it, i) =>
+                      it.cover ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={it.id}
+                          src={it.cover}
+                          alt={it.title}
+                          loading="lazy"
+                          style={{ width: pinW, height: pinH, left: i * 8, top: (stack.length - 1 - i) * 5, transform: `rotate(${(i - 1) * 3}deg)`, zIndex: i + 1 }}
+                        />
+                      ) : (
+                        <span key={it.id} className="ph" style={{ width: pinW, height: pinH, left: i * 8, top: (stack.length - 1 - i) * 5, zIndex: i + 1 }}>📖</span>
+                      )
+                    )}
+                    <span className="cnt">{totalWorks}</span>
+                  </div>
+                  <div className="map-pin-tip" />
+                  <div className="map-pin-dot" />
+                  <div className={`map-pin-label ${showLabels ? "show" : ""}`}>{c.members[0].place.split("・")[0]} ほか</div>
+                  {/* ホバー情報カード */}
+                  <div className={`map-pin-pop ${popBelow ? "below" : ""}`}>
+                    <b>🔍 {c.members.length}つの舞台が重なっています</b>
+                    <ul>
+                      {c.members.slice(0, 4).map((s) => (
+                        <li key={s.id}>{s.place} ({s.works.length})</li>
+                      ))}
+                    </ul>
+                    {c.members.length > 4 && <span className="more">ほか{c.members.length - 4}か所</span>}
+                    <span className="hint">クリックでズームしてほどく</span>
+                  </div>
+                </div>
+              );
+            })}
 
             {/* ===== 地図上のコメント吹き出し(しっぽがピンを指す) ===== */}
             {bubbleSpot &&
@@ -422,8 +575,8 @@ export default function AtlasMap() {
             <div className="spot-popup" style={{ background: "#fdf6d8" }}>
               <h3>マンガの聖地を旅する</h3>
               <p style={{ fontSize: 13, lineHeight: 1.9, margin: 0 }}>
-                地図の上の<strong>書影</strong>がマンガの舞台。クリックすると作品と「聖地メモ」、読者の声が出ます。
-                ホイールやボタンで<strong>ズーム</strong>すると、東京周辺など密集地帯もくっきり見えます。
+                地図の上の<strong>書影</strong>がマンガの舞台。カーソルを乗せると作品名がひと目でわかり、クリックで「聖地メモ」と読者の声が出ます。
+                重なった書影は<strong>束</strong>になっています — クリックすると、そこへズームしてほどけます。
               </p>
             </div>
           )}

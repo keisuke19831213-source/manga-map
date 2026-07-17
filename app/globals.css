@@ -1235,6 +1235,153 @@ main {
   opacity: 1;
 }
 
+/* ===== 束ピン(重なったスポットの書影スタック) ===== */
+.map-stack {
+  position: relative;
+  display: inline-block;
+}
+
+.map-stack img,
+.map-stack .ph {
+  position: absolute;
+  border: 2px solid var(--ink);
+  background: #fff;
+  box-shadow: 2px 2px 0 var(--ink);
+  object-fit: cover;
+  transition: transform 0.12s;
+}
+
+.map-stack .ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(45deg, #f1e9d6, #f1e9d6 5px, #e7ddc4 5px, #e7ddc4 10px);
+}
+
+.map-stack .cnt {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  z-index: 6;
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 900;
+  min-width: 19px;
+  height: 19px;
+  line-height: 15px;
+  padding: 0 3px;
+}
+
+.map-pin.cluster:hover .map-stack img:last-of-type {
+  transform: rotate(3deg) scale(1.08);
+}
+
+/* ===== ホバー情報カード(ピンの上にポップアップ) ===== */
+.map-pin-pop {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  min-width: 150px;
+  max-width: 230px;
+  background: #fff;
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 8px 11px 7px;
+  text-align: left;
+  font-size: 11.5px;
+  line-height: 1.55;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.13s;
+  z-index: 50;
+}
+
+.map-pin-pop.below {
+  bottom: auto;
+  top: calc(100% + 10px);
+}
+
+.map-pin-pop b {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.map-pin-pop ul {
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-pin-pop li {
+  padding-left: 12px;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-pin-pop li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+.map-pin-pop .more {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 10.5px;
+}
+
+.map-pin-pop .hint {
+  display: block;
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1.5px dashed rgba(23, 19, 16, 0.25);
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--accent);
+}
+
+/* ホバーで最前面に浮かせて情報カードを出す(タッチ端末では出さない) */
+@media (hover: hover) {
+  .map-pin:hover {
+    z-index: 30;
+  }
+  .map-pin:hover .map-pin-pop {
+    opacity: 1;
+  }
+}
+
+/* ===== 展開表示の引き出し線(本来の位置 → ずらしたピン) ===== */
+.map-pin-lead {
+  position: absolute;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.65;
+  transform-origin: 0 50%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.map-pin-truedot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--ink);
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  pointer-events: none;
+}
+
 .map-voice {
   position: absolute;
   z-index: 12;
