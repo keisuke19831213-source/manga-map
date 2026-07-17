@@ -348,7 +348,7 @@ export default function EraTimeline() {
 
   // 吹き出しの位置。「その年の中心線上」ではなく、実際に描かれている書影
   // (重なり回避で横にずらしたdispX + レーンの上下)にぴったり合わせる
-  const BUBBLE_W = 216;
+  const BUBBLE_W = 244;
   const bubbleLayout = (() => {
     if (!bubbleEntry) return null;
     const post = voices[bubbleEntry.workId]?.latest;
@@ -364,11 +364,21 @@ export default function EraTimeline() {
     if (cx < -30 || cx > cw + 30 || coverBottom < 0 || coverTop > VH) return null;
     // 書影のあるレーン側に出す。枠外にはみ出すなら反対側へ
     let placeAbove = above;
-    if (placeAbove && coverTop - 12 < AXIS_H + 44) placeAbove = false;
-    if (!placeAbove && coverBottom + 64 > VH) placeAbove = true;
+    if (placeAbove && coverTop - 12 < AXIS_H + 84) placeAbove = false;
+    if (!placeAbove && coverBottom + 96 > VH) placeAbove = true;
     const top = placeAbove ? coverTop - 9 : coverBottom + 9;
     const left = Math.max(4, Math.min(cw - BUBBLE_W - 4, cx - 26));
-    return { post, top, left, tailX: Math.max(12, Math.min(BUBBLE_W - 14, cx - left)), placeAbove };
+    const wk = workById(bubbleEntry.workId);
+    return {
+      post,
+      top,
+      left,
+      tailX: Math.max(12, Math.min(BUBBLE_W - 14, cx - left)),
+      placeAbove,
+      cover: coverThumb(meta, bubbleEntry.workId),
+      title: wk?.title,
+      workId: bubbleEntry.workId,
+    };
   })();
 
   // 可動コンテンツをメモ化: パン(tx/ty)では再構築せず、ズーム(k)時のみ再計算。
@@ -557,7 +567,12 @@ export default function EraTimeline() {
                 className={`map-voice ${bubbleLayout.placeAbove ? "above" : "below"}`}
                 style={{ left: bubbleLayout.left, top: bubbleLayout.top, ["--tail-x" as string]: `${bubbleLayout.tailX}px` }}
               >
-                <MiniBubble post={bubbleLayout.post} />
+                <MiniBubble
+                  post={bubbleLayout.post}
+                  cover={bubbleLayout.cover}
+                  title={bubbleLayout.title}
+                  href={`/works/${bubbleLayout.workId}`}
+                />
               </div>
             )}
 

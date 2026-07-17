@@ -261,7 +261,7 @@ export default function AtlasMap() {
 
   // 表示する吹き出し: 選択中スポット優先、なければローテーション
   const bubbleSpot = selected && spotVoice[selected.id] ? selected : voiceSpots.length > 0 ? voiceSpots[voiceIdx % voiceSpots.length] : null;
-  const BUBBLE_W = 216;
+  const BUBBLE_W = 244;
 
   const mapH = cw * (h / w);
   // ズームに連動して書影も拡大(見上げるほど大きく、上限あり)
@@ -337,7 +337,7 @@ export default function AtlasMap() {
   const bubbleLayout = (() => {
     if (!bubbleSpot) return null;
     const post = spotVoice[bubbleSpot.id];
-    if (!post) return null;
+    if (!post || !post.workId) return null;
     const pin = clusters.find((c) =>
       c.kind === "single" ? c.spot.id === bubbleSpot.id : c.members.some((m) => m.id === bubbleSpot.id)
     );
@@ -349,10 +349,21 @@ export default function AtlasMap() {
       pin.kind === "cluster" ? pinH + 5 * (Math.min(pin.members.length, 3) - 1) + 4 : pinH + 8;
     const cardTop = cy - TIP_H - cardH;
     // 上に出すと枠外なら下へ
-    const placeAbove = cardTop - 70 > 0;
+    const placeAbove = cardTop - 84 > 0;
     const top = placeAbove ? cardTop - 6 : cy + 12;
     const left = Math.max(4, Math.min(cw - BUBBLE_W - 4, cx - 26));
-    return { post, top, left, tailX: Math.max(12, Math.min(BUBBLE_W - 14, cx - left)), placeAbove };
+    const workId = post.workId;
+    const wk = workById(workId);
+    return {
+      post,
+      top,
+      left,
+      tailX: Math.max(12, Math.min(BUBBLE_W - 14, cx - left)),
+      placeAbove,
+      cover: coverThumb(meta, workId),
+      title: wk?.title,
+      workId,
+    };
   })();
 
   // 束をクリック → その中心へスマートズーム(ほどけるまで繰り返せる)
@@ -528,7 +539,12 @@ export default function AtlasMap() {
                 className={`map-voice ${bubbleLayout.placeAbove ? "above" : "below"}`}
                 style={{ left: bubbleLayout.left, top: bubbleLayout.top, ["--tail-x" as string]: `${bubbleLayout.tailX}px` }}
               >
-                <MiniBubble post={bubbleLayout.post} />
+                <MiniBubble
+                  post={bubbleLayout.post}
+                  cover={bubbleLayout.cover}
+                  title={bubbleLayout.title}
+                  href={`/works/${bubbleLayout.workId}`}
+                />
               </div>
             )}
 
