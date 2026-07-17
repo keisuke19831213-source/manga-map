@@ -90,10 +90,12 @@ a {
   transition: transform 0.08s, box-shadow 0.08s;
 }
 
-.site-nav a:hover {
-  background: var(--yellow);
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 var(--ink);
+@media (hover: hover) {
+  .site-nav a:hover {
+    background: var(--yellow);
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--ink);
+  }
 }
 
 /* ---- ヘッダー検索 ---- */
@@ -363,9 +365,11 @@ main {
   transition: transform 0.1s, box-shadow 0.1s;
 }
 
-.work-card:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 7px 7px 0 var(--ink);
+@media (hover: hover) {
+  .work-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0 var(--ink);
+  }
 }
 
 .work-card h3 {
@@ -427,8 +431,11 @@ main {
   box-shadow: 2px 2px 0 var(--ink);
 }
 
-.chip:hover {
-  background: #fff3bf;
+/* hoverはマウス環境のみ。タッチ端末でタップ後に黄色が固着するのを防ぐ */
+@media (hover: hover) {
+  .chip:hover {
+    background: #fff3bf;
+  }
 }
 
 .chip.active {
@@ -1078,9 +1085,11 @@ main {
   transition: transform 0.08s;
 }
 
-.era-work:hover {
-  background: #fff3bf;
-  transform: translate(-1px, -1px);
+@media (hover: hover) {
+  .era-work:hover {
+    background: #fff3bf;
+    transform: translate(-1px, -1px);
+  }
 }
 
 .era-work .t {
@@ -1613,6 +1622,31 @@ main {
 }
 
 /* 縦年表(時代設定・スマホ) */
+/* 地域フィルター(横スクロールのチップ列・上部に貼り付き) */
+.era-filter {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 30;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 0;
+  margin: 0 0 8px;
+  background: var(--paper);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.era-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.era-filter .chip {
+  flex: 0 0 auto;
+  padding: 6px 13px;
+  font-size: 12.5px;
+}
+
 .era-v-head {
   display: flex;
   align-items: baseline;
