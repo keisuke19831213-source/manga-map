@@ -82,6 +82,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           MANGA MAP — マンガの歴史とジャンルの進化を可視化するプロジェクト
           <br />
           Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
+          <br />
+          <Link href="/about" style={{ color: "#4a4238" }}>
+            このサイトについて
+          </Link>
         </footer>
       </body>
     </html>
