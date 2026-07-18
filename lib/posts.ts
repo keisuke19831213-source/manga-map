@@ -15,6 +15,7 @@ export interface Post {
   panel?: string; // コマ
   scene?: string; // シーン名(例: 山王戦ラスト)
   spoiler?: boolean; // ネタバレ(ぼかして表示し、タップで開示)
+  emotion?: string; // 感情タグ(EmotionId)。この作品/コマが起こした感情の軸
   text: string;
   bubble?: BubbleStyle; // 吹き出しの形
   font?: BubbleFont; // 吹き出しのフォント

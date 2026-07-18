@@ -326,6 +326,7 @@ export function PostMeta({
   workTitle,
   workId,
   freeTitle,
+  emotion,
 }: {
   type: "recommend" | "comment";
   loc?: string;
@@ -333,6 +334,7 @@ export function PostMeta({
   workTitle?: string;
   workId?: string;
   freeTitle?: string;
+  emotion?: React.ReactNode;
 }) {
   return (
     <>
@@ -346,6 +348,7 @@ export function PostMeta({
       )}
       {freeTitle && <span className="worklink">『{freeTitle}』</span>}
       {loc && <span className="loc">📍 {loc}</span>}
+      {emotion}
       <span>{date}</span>
     </>
   );

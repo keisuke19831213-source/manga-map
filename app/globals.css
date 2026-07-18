@@ -389,6 +389,104 @@ main {
 }
 
 /* ---- シーン名タグ ---- */
+/* ---- 感情タグ ---- */
+.emotion-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.emotion-opt {
+  font-size: 12.5px;
+  font-weight: 800;
+  padding: 5px 12px;
+  border: 2px solid;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.08s;
+  font-family: var(--font-base);
+}
+
+.emotion-opt:hover {
+  transform: translateY(-1px);
+}
+
+.emotion-opt.on {
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+/* 語り・おすすめに付く感情チップ */
+.emotion-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 2px 9px;
+  border: 1.8px solid;
+  border-radius: 999px;
+  background: #fff;
+  white-space: nowrap;
+}
+
+/* ---- この作品が起こした感情(集計バー) ---- */
+.emotion-map {
+  border: 2.5px solid var(--ink);
+  background: #fffdf4;
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 14px 16px;
+  margin: 8px 0 26px;
+}
+
+.emotion-map-title {
+  font-size: 14px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.emotion-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.emotion-bar-row {
+  display: grid;
+  grid-template-columns: 92px 1fr 24px;
+  align-items: center;
+  gap: 8px;
+}
+
+.eb-label {
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.eb-track {
+  height: 12px;
+  background: rgba(23, 19, 16, 0.07);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.eb-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  min-width: 6px;
+  transition: width 0.4s ease-out;
+}
+
+.eb-n {
+  font-size: 12px;
+  font-weight: 900;
+  text-align: right;
+  color: var(--ink-soft);
+}
+
 /* ---- コマ語りカード(巻グループ内の1件の語り) ---- */
 .talk-card {
   margin: 0 0 22px;

@@ -5,6 +5,7 @@ import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/com
 import { adminHeaders, useAdminKey } from "@/lib/useAdminKey";
 import { asinCover, asinLink, coverThumb, type SiteMeta } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
+import { EMOTIONS, emotionOf, type EmotionId } from "@/lib/emotions";
 import type { BubbleFont, BubbleStyle, Post } from "@/lib/posts";
 
 function fmtDate(iso: string) {
@@ -130,6 +131,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
   const [panel, setPanel] = useState("");
   const [scene, setScene] = useState("");
   const [spoiler, setSpoiler] = useState(false);
+  const [emotion, setEmotion] = useState<EmotionId | "">("");
   const [text, setText] = useState("");
   const [bubble, setBubble] = useState<BubbleStyle>("speech");
   const [font, setFont] = useState<BubbleFont>("antique");
@@ -165,6 +167,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
           panel: mode === "comment" ? panel : undefined,
           scene: mode === "comment" ? scene : undefined,
           spoiler: mode === "comment" ? spoiler : undefined,
+          emotion: emotion || undefined,
           text,
           bubble,
           font,
@@ -183,6 +186,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       setPanel("");
       setScene("");
       setSpoiler(false);
+      setEmotion("");
       setMsg({ ok: true, text: "投稿しました!" });
     } catch (err) {
       setMsg({ ok: false, text: err instanceof Error ? err.message : "投稿に失敗しました" });
@@ -221,6 +225,14 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
     return c;
   }, [comments]);
 
+  // 感情の集計(この作品が起こした感情の地図の種)。多い順
+  const emotionTally = useMemo(() => {
+    const c: Record<string, number> = {};
+    for (const p of posts) if (p.emotion) c[p.emotion] = (c[p.emotion] ?? 0) + 1;
+    return EMOTIONS.map((e) => ({ e, n: c[e.id] ?? 0 })).filter((x) => x.n > 0).sort((a, b) => b.n - a.n);
+  }, [posts]);
+  const emotionTotal = emotionTally.reduce((s, x) => s + x.n, 0);
+
   const jumpToVolume = (v: number) => {
     groupRefs.current[v]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -240,6 +252,25 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
   return (
     <>
       <VolumeShelf workId={workId} workTitle={workTitle} meta={meta} commentCounts={commentCounts} onJump={jumpToVolume} />
+
+      {emotionTotal > 0 && (
+        <div className="emotion-map">
+          <div className="emotion-map-title">💗 この作品が起こした感情</div>
+          <div className="emotion-bars">
+            {emotionTally.map(({ e, n }) => (
+              <div key={e.id} className="emotion-bar-row">
+                <span className="eb-label" style={{ color: e.color }}>
+                  {e.emoji} {e.label}
+                </span>
+                <span className="eb-track">
+                  <span className="eb-fill" style={{ width: `${(n / emotionTally[0].n) * 100}%`, background: e.color }} />
+                </span>
+                <span className="eb-n">{n}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {adminKey ? (
       <>
@@ -353,6 +384,24 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         </div>
         <div className="row">
           <div className="field">
+            <label>この{mode === "recommend" ? "作品" : "コマ"}で、あなたは? (任意)</label>
+            <div className="emotion-picker">
+              {EMOTIONS.map((e) => (
+                <button
+                  key={e.id}
+                  type="button"
+                  className={`emotion-opt ${emotion === e.id ? "on" : ""}`}
+                  style={emotion === e.id ? { borderColor: e.color, background: e.color, color: "#fff" } : { borderColor: e.color }}
+                  onClick={() => setEmotion(emotion === e.id ? "" : e.id)}
+                >
+                  {e.emoji} {e.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="field">
             <label>{mode === "recommend" ? "おすすめコメント" : "そのシーン・コマのどこが凄い?"}</label>
             <textarea
               className={fontClass(font)}
@@ -442,6 +491,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
           </div>
           {list.map((p) => {
             const loc = inVolLabel(p);
+            const emo = emotionOf(p.emotion);
             return (
               <div key={p.id} id={`post-${p.id}`} className={`talk-card ${flash === p.id ? "post-flash" : ""}`}>
                 <div className="talk-head">
@@ -449,6 +499,11 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
                     <span className="talk-scene">🎬 {p.scene}</span>
                   ) : (
                     <span className="talk-scene talk-scene-plain">コマ語り</span>
+                  )}
+                  {emo && (
+                    <span className="emotion-chip" style={{ borderColor: emo.color, color: emo.color }}>
+                      {emo.emoji} {emo.label}
+                    </span>
                   )}
                   {loc && <span className="talk-pos">📖 {loc}</span>}
                 </div>
@@ -469,16 +524,31 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       {recommends.length === 0 && (
         <p style={{ color: "var(--ink-soft)", fontSize: 13 }}>まだ投稿がありません。最初のおすすめを書いてみませんか?</p>
       )}
-      {recommends.map((p) => (
-        <Bubble
-          key={p.id}
-          text={p.text}
-          bubble={p.bubble}
-          font={p.font}
-          user={p.user}
-          meta={<PostMeta type="recommend" date={fmtDate(p.createdAt)} />}
-        />
-      ))}
+      {recommends.map((p) => {
+        const emo = emotionOf(p.emotion);
+        return (
+          <Bubble
+            key={p.id}
+            text={p.text}
+            bubble={p.bubble}
+            font={p.font}
+            user={p.user}
+            meta={
+              <PostMeta
+                type="recommend"
+                date={fmtDate(p.createdAt)}
+                emotion={
+                  emo && (
+                    <span className="emotion-chip" style={{ borderColor: emo.color, color: emo.color }}>
+                      {emo.emoji} {emo.label}
+                    </span>
+                  )
+                }
+              />
+            }
+          />
+        );
+      })}
     </>
   );
 }
