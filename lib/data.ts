@@ -612,6 +612,7 @@ export const WORKS: Work[] = [
   { id: "urusei", title: "うる星やつら", author: "高橋留美子", year: 1978, magazine: "週刊少年サンデー", genres: ["lovecome"], desc: "宇宙人ラムと浮気者あたるのドタバタラブコメ。SF・ギャグ・恋愛を混ぜる高橋留美子の手法は後続に絶大な影響。" },
   { id: "touch", title: "タッチ", author: "あだち充", year: 1981, magazine: "週刊少年サンデー", genres: ["lovecome", "spokon"], desc: "双子の兄弟と幼なじみ・南。スポ根の熱をモノローグと余白の演出に置き換えた、80年代サンデーの象徴。" },
   { id: "akira", title: "AKIRA", author: "大友克洋", year: 1982, magazine: "ヤングマガジン", genres: ["seinen_sf", "newwave"], desc: "超能力と崩壊後の東京を圧倒的な画力で描き、「MANGA」を世界語にしたサイバーパンクの金字塔。" },
+  { id: "nausicaa", title: "風の谷のナウシカ", author: "宮崎駿", year: 1982, magazine: "アニメージュ", genres: ["seinen_sf"], desc: "巨大産業文明の崩壊から1000年、腐海と蟲に脅かされる遠未来。アニメ版のさらに先を描く全7巻は、善悪では割り切れない生命と文明への問いに満ちた叙事詩。" },
   { id: "hokuto", title: "北斗の拳", author: "武論尊・原哲夫", year: 1983, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "世紀末の荒野で一子相伝の暗殺拳を継ぐケンシロウ。劇画的肉体表現とジャンプバトルの融合。" },
   { id: "oishinbo", title: "美味しんぼ", author: "雁屋哲・花咲アキラ", year: 1983, magazine: "ビッグコミックスピリッツ", genres: ["gourmet"], desc: "究極vs至高のメニュー対決。食に蘊蓄とドラマを持ち込み、グルメマンガというジャンルを確立した。" },
   { id: "shima", title: "課長島耕作", author: "弘兼憲史", year: 1983, magazine: "モーニング", genres: ["business"], desc: "大手電機メーカーを舞台に出世街道を描くサラリーマンマンガの代名詞。社長・会長を経て今も現役。" },
@@ -1180,6 +1181,7 @@ export const TIMELINE: TimelineEntry[] = [
   { workId: "planetes", region: "future", year: 2075, label: "2070年代", note: "宇宙デブリ回収船の日常" },
   { workId: "ginga999", region: "future", year: 2221, label: "遠未来", note: "銀河鉄道で機械の体を求める旅" },
   { workId: "cobra", region: "future", year: 2330, label: "遠未来", note: "宇宙海賊コブラとサイコガン" },
+  { workId: "nausicaa", region: "future", year: 2400, label: "遠未来(火の7日間の後)", note: "産業文明の崩壊から1000年、腐海に覆われた地球" },
 
   // ---- 架空・異世界(時間軸の外) ----
   { workId: "hokuto", region: "fantasy", year: 2150, label: "199X年(世紀末世界)", note: "核の炎に包まれた荒野" },
