@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     locale: "ja_JP",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "MANGA MAP — マンガの歴史とジャンルの進化マップ",
     description: "マンガの歴史・ジャンル・舞台・時代を1つのサイトで可視化",
   },

@@ -12,6 +12,21 @@ export function generateStaticParams() {
   return WORKS.map((w) => ({ id: w.id }));
 }
 
+// シェア時のタイトル・説明文(静的カタログのみ。登録作品はサイト共通のまま)
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const w = WORKS.find((x) => x.id === id);
+  if (!w) return {};
+  const title = `${w.title} — MANGA MAP`;
+  const description = w.desc.length > 120 ? w.desc.slice(0, 119) + "…" : w.desc;
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    twitter: { card: "summary_large_image" as const, title, description },
+  };
+}
+
 // 書影・アフィリエイト設定(Blob)の更新を反映するため定期的に再生成
 export const revalidate = 60;
 
