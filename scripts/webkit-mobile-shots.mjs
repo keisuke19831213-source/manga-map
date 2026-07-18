@@ -5,7 +5,7 @@ const page = await ctx.newPage();
 const errs = [];
 page.on("pageerror", (e) => errs.push(e.message));
 for (const [path, name] of [["/", "genre"], ["/atlas", "atlas"], ["/eras", "eras"]]) {
-  await page.goto("https://manga-map.vercel.app" + path, { waitUntil: "load", timeout: 30000 });
+  await page.goto("https://manga-map.jp" + path, { waitUntil: "load", timeout: 30000 });
   await page.waitForTimeout(2800);
   await page.screenshot({ path: `/tmp/mobile-${name}.png` });
   // ネイティブスクロールできるか(縦スクロールUIの証)

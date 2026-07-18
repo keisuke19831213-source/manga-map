@@ -12,7 +12,7 @@ for (const t of targets) {
   const page = await ctx.newPage();
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
-  await page.goto("https://manga-map.vercel.app" + t.path, { waitUntil: "load", timeout: 30000 });
+  await page.goto("https://manga-map.jp" + t.path, { waitUntil: "load", timeout: 30000 });
   await page.waitForTimeout(2500);
   const box = await page.locator(t.sel).first().boundingBox();
   if (box) {

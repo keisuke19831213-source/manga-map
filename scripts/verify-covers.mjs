@@ -2,7 +2,7 @@
 // 使い方: set -a && . ./.env.local && set +a && node scripts/verify-covers.mjs
 import { writeFile } from "node:fs/promises";
 import { put } from "@vercel/blob";
-const API = "https://manga-map.vercel.app";
+const API = "https://manga-map.jp";
 const norm = (s) => (s || "").toLowerCase().replace(/[\s・:：!！?？×☆△.,\/\-—’'"「」『』()（）=＝&+~〜【】]/g, "");
 function isbn10to13(i) { i = i.replace(/[^0-9Xx]/g, ""); const c = "978" + i.slice(0, 9); let s = 0; for (let k = 0; k < 12; k++) s += (k % 2 ? 3 : 1) * +c[k]; return c + ((10 - (s % 10)) % 10); }
 async function openbdTitle(a) { try { const d = await (await fetch("https://api.openbd.jp/v1/get?isbn=" + isbn10to13(a))).json(); return d[0]?.summary?.title || null; } catch { return null; } }

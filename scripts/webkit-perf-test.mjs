@@ -7,7 +7,7 @@ const errs = [];
 page.on("pageerror", (e) => errs.push(e.message));
 
 for (const path of ["/", "/eras", "/atlas"]) {
-  await page.goto("https://manga-map.vercel.app" + path, { waitUntil: "load", timeout: 30000 });
+  await page.goto("https://manga-map.jp" + path, { waitUntil: "load", timeout: 30000 });
   await page.waitForTimeout(2500);
   const sel = path === "/" ? ".gm-wrap" : ".atlas-wrap";
   const box = await page.locator(sel).first().boundingBox();

@@ -3,7 +3,7 @@
 //       巻ごとに ISBN-10(=ASIN) に変換 → Amazon画像の実在を検証 → volumes[] へ。
 // 巻抜けがあってもある分だけ保存する(シェルフはある巻だけ並べる)。
 // 使い方: set -a && . ./.env.local && set +a && node scripts/fill-volumes.mjs [workId...]
-const API = process.env.API || "https://manga-map.vercel.app";
+const API = process.env.API || "https://manga-map.jp";
 const ADMIN_KEY = process.env.ADMIN_KEY;
 if (!ADMIN_KEY) {
   console.error("ADMIN_KEY がありません (.env.local を読み込んでください)");

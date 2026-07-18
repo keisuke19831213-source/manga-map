@@ -7,7 +7,7 @@
 import { writeFile } from "node:fs/promises";
 import { put } from "@vercel/blob";
 
-const API = "https://manga-map.vercel.app";
+const API = "https://manga-map.jp";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const norm = (s) =>

@@ -7,7 +7,7 @@ for (const path of pages) {
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
   try {
-    await page.goto("https://manga-map.vercel.app" + path, { waitUntil: "load", timeout: 30000 });
+    await page.goto("https://manga-map.jp" + path, { waitUntil: "load", timeout: 30000 });
     await page.waitForTimeout(3500);
     const body = (await page.textContent("body")) || "";
     const crashed = body.includes("Application error");
