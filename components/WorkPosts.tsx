@@ -251,8 +251,18 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
 
   return (
     <>
+      {/* セクションジャンプ(長いページの回遊用) */}
+      <nav className="wk-jump" aria-label="ページ内セクション">
+        {volumes.length > 0 && <a href="#shelf">📚 巻をそろえる</a>}
+        {emotionTotal > 0 && <a href="#emotions">💗 感情</a>}
+        <a href="#talks">💬 コマ語り{comments.length > 0 ? ` (${comments.length})` : ""}</a>
+        <a href="#recommends">👍 おすすめ{recommends.length > 0 ? ` (${recommends.length})` : ""}</a>
+      </nav>
+
+      <div id="shelf" className="wk-anchor" />
       <VolumeShelf workId={workId} workTitle={workTitle} meta={meta} commentCounts={commentCounts} onJump={jumpToVolume} />
 
+      <div id="emotions" className="wk-anchor" />
       {emotionTotal > 0 && (
         <div className="emotion-map">
           <div className="emotion-map-title">💗 この作品が起こした感情</div>
@@ -433,6 +443,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       </>
       ) : null}
 
+      <div id="talks" className="wk-anchor" />
       <h2 className="section-title">コマ語りマップ ({comments.length})</h2>
       <p className="section-sub">
         名場面・名ゴマをピンポイントで語る。バーは1冊の読書位置 — ●をタップするとその語りへ飛びます
@@ -520,6 +531,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         </div>
       ))}
 
+      <div id="recommends" className="wk-anchor" />
       <h2 className="section-title">みんなのおすすめ ({recommends.length})</h2>
       <p className="section-sub">この作品を推す声</p>
       {recommends.length === 0 && (

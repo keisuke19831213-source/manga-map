@@ -79,8 +79,11 @@ export default function MangaMap() {
       const k = 0.52;
       setView({ tx: el.clientWidth / 2 - 720 * k, ty: 12, k });
     } else {
+      // 初期ビューはマップ最上部(1900-40年代)ではなく、ノードが密集する
+      // 戦後(1946〜)を上端に。ファーストビューに手塚・劇画・少女…の
+      // 創世記が飛び込んでくるようにする
       const k = Math.min(el.clientWidth / MAP_W, 1);
-      setView({ tx: (el.clientWidth - MAP_W * k) / 2, ty: 12, k });
+      setView({ tx: (el.clientWidth - MAP_W * k) / 2, ty: -yearToY(1946) * k + 16, k });
     }
   }, []);
 
@@ -384,8 +387,9 @@ export default function MangaMap() {
           onClick={() => {
             const el = wrapRef.current;
             if (!el) return;
-            const k = Math.min(el.clientWidth / MAP_W, 1);
-            setView({ tx: (el.clientWidth - MAP_W * k) / 2, ty: 12, k });
+            // 「全体」= 高さも含めた真の全体俯瞰(130年の樹形をひと目で)
+            const k = Math.max(0.24, Math.min(el.clientWidth / MAP_W, el.clientHeight / MAP_H));
+            setView({ tx: (el.clientWidth - MAP_W * k) / 2, ty: Math.max(0, (el.clientHeight - MAP_H * k) / 2), k });
           }}
         >
           全体

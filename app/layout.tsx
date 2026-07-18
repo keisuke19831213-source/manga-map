@@ -72,20 +72,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           style={{
             borderTop: "4px solid #171310",
             background: "#ffffff",
-            padding: "18px 20px",
+            padding: "20px 20px 22px",
             fontSize: 11.5,
             color: "#4a4238",
             textAlign: "center",
             lineHeight: 1.9,
           }}
         >
+          <nav className="footer-nav" aria-label="フッターナビ">
+            <Link href="/">ジャンル系統図</Link>
+            <Link href="/atlas">舞台マップ</Link>
+            <Link href="/eras">時代設定マップ</Link>
+            <Link href="/works">作品図鑑</Link>
+            <Link href="/feels">感情でさがす</Link>
+            <Link href="/history">マンガ史年表</Link>
+            <Link href="/community">みんなの投稿</Link>
+            <Link href="/about">このサイトについて</Link>
+          </nav>
           MANGA MAP — マンガの歴史とジャンルの進化を可視化するプロジェクト
           <br />
           Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。
-          <br />
-          <Link href="/about" style={{ color: "#4a4238" }}>
-            このサイトについて
-          </Link>
         </footer>
       </body>
     </html>

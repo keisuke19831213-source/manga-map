@@ -10,16 +10,23 @@ import { useWorks } from "@/lib/useWorks";
 import Cover from "@/components/Cover";
 import MiniBubble from "@/components/MiniBubble";
 
+type SortKey = "year" | "kana" | "voices";
+
 export default function WorksExplorer() {
   const [cat, setCat] = useState<CategoryId | "all">("all");
+  const [sort, setSort] = useState<SortKey>("year");
   const meta = useMeta();
   const voices = useVoicesByWork();
   const { works: allWorks } = useWorks();
 
   const works = useMemo(() => {
     const list = cat === "all" ? allWorks : allWorks.filter((w) => w.genres.some((g) => genreById(g)?.cat === cat));
-    return [...list].sort((a, b) => a.year - b.year);
-  }, [cat, allWorks]);
+    const sorted = [...list];
+    if (sort === "kana") sorted.sort((a, b) => a.title.localeCompare(b.title, "ja"));
+    else if (sort === "voices") sorted.sort((a, b) => (voices[b.id]?.count ?? 0) - (voices[a.id]?.count ?? 0) || a.year - b.year);
+    else sorted.sort((a, b) => a.year - b.year);
+    return sorted;
+  }, [cat, sort, allWorks, voices]);
 
   return (
     <>
@@ -39,6 +46,20 @@ export default function WorksExplorer() {
             onClick={() => setCat(c.id)}
           >
             {c.name}
+          </button>
+        ))}
+      </div>
+      <div className="sort-row">
+        <span className="sort-label">並び順</span>
+        {(
+          [
+            ["year", "発表年"],
+            ["kana", "五十音"],
+            ["voices", "語りの多い順"],
+          ] as [SortKey, string][]
+        ).map(([k, label]) => (
+          <button key={k} className={`sort-opt ${sort === k ? "on" : ""}`} onClick={() => setSort(k)}>
+            {label}
           </button>
         ))}
       </div>

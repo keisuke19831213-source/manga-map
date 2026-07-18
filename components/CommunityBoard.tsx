@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/components/Bubble";
+import { SpoilerGuard, locLabel } from "@/components/WorkPosts";
+import { emotionOf } from "@/lib/emotions";
 import { useWorks } from "@/lib/useWorks";
 import { adminHeaders, useAdminKey } from "@/lib/useAdminKey";
 import type { BubbleFont, BubbleStyle, Post } from "@/lib/posts";
@@ -9,14 +11,6 @@ import type { BubbleFont, BubbleStyle, Post } from "@/lib/posts";
 function fmtDate(iso: string) {
   const d = new Date(iso);
   return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
-}
-
-function locLabel(p: Post) {
-  const parts: string[] = [];
-  if (p.volume) parts.push(`${p.volume}巻`);
-  if (p.page) parts.push(`${p.page}ページ`);
-  if (p.panel) parts.push(`${p.panel}`);
-  return parts.join(" / ");
 }
 
 export default function CommunityBoard() {
@@ -156,24 +150,33 @@ export default function CommunityBoard() {
       {posts.length === 0 && <p style={{ color: "var(--ink-soft)" }}>まだ投稿がありません。</p>}
       {posts.map((p) => {
         const work = p.workId ? works.find((w) => w.id === p.workId) : undefined;
+        const emo = emotionOf(p.emotion);
         return (
-          <Bubble
-            key={p.id}
-            text={p.text}
-            bubble={p.bubble}
-            font={p.font}
-            user={p.user}
-            meta={
-              <PostMeta
-                type={p.type}
-                loc={locLabel(p)}
-                date={fmtDate(p.createdAt)}
-                workTitle={work?.title}
-                workId={work?.id}
-                freeTitle={p.freeTitle}
-              />
-            }
-          />
+          <SpoilerGuard key={p.id} post={p}>
+            <Bubble
+              text={p.text}
+              bubble={p.bubble}
+              font={p.font}
+              user={p.user}
+              meta={
+                <PostMeta
+                  type={p.type}
+                  loc={locLabel(p)}
+                  date={fmtDate(p.createdAt)}
+                  workTitle={work?.title}
+                  workId={work?.id}
+                  freeTitle={p.freeTitle}
+                  emotion={
+                    emo && (
+                      <span className="emotion-chip" style={{ borderColor: emo.color, color: emo.color }}>
+                        {emo.emoji} {emo.label}
+                      </span>
+                    )
+                  }
+                />
+              }
+            />
+          </SpoilerGuard>
         );
       })}
     </>
