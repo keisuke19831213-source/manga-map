@@ -105,7 +105,7 @@ function VolumeShelf({
 }
 
 /* ================= ネタバレぼかし ================= */
-function SpoilerGuard({ post, children }: { post: Post; children: React.ReactNode }) {
+export function SpoilerGuard({ post, children }: { post: Post; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   if (!post.spoiler || open) return <>{children}</>;
   return (
@@ -258,7 +258,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
           <div className="emotion-map-title">💗 この作品が起こした感情</div>
           <div className="emotion-bars">
             {emotionTally.map(({ e, n }) => (
-              <div key={e.id} className="emotion-bar-row">
+              <a key={e.id} href={`/feels/${e.id}`} className="emotion-bar-row" title={`「${e.label}」で作品を逆引きする`}>
                 <span className="eb-label" style={{ color: e.color }}>
                   {e.emoji} {e.label}
                 </span>
@@ -266,9 +266,10 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
                   <span className="eb-fill" style={{ width: `${(n / emotionTally[0].n) * 100}%`, background: e.color }} />
                 </span>
                 <span className="eb-n">{n}</span>
-              </div>
+              </a>
             ))}
           </div>
+          <div className="emotion-map-more">感情をタップすると、同じ感情のコマを全作品から逆引きできます</div>
         </div>
       )}
 

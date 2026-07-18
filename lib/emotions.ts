@@ -10,15 +10,17 @@ export interface Emotion {
   label: string; // 短い動詞(泣いた)
   emoji: string;
   color: string; // チップ・将来の感情マップの色
+  catch: string; // 逆引きページの見出し(泣きたい夜に、開く。)
+  night: string; // どんな時に効くか(処方箋の効能書き)
 }
 
 export const EMOTIONS: Emotion[] = [
-  { id: "cry", label: "泣いた", emoji: "😭", color: "#3b82f6" },
-  { id: "hot", label: "胸が熱い", emoji: "🔥", color: "#e6532a" },
-  { id: "shiver", label: "震えた", emoji: "⚡", color: "#7c3aed" },
-  { id: "laugh", label: "笑った", emoji: "😆", color: "#f59e0b" },
-  { id: "heal", label: "救われた", emoji: "🌿", color: "#16a34a" },
-  { id: "chill", label: "ゾッとした", emoji: "😱", color: "#475569" },
+  { id: "cry", label: "泣いた", emoji: "😭", color: "#3b82f6", catch: "泣きたい夜に、開く。", night: "思いきり泣いてしまいたい夜のための処方" },
+  { id: "hot", label: "胸が熱い", emoji: "🔥", color: "#e6532a", catch: "胸を熱くしたい日に。", night: "くすぶる心に火を入れたい日のための処方" },
+  { id: "shiver", label: "震えた", emoji: "⚡", color: "#7c3aed", catch: "鳥肌の立つ一撃を。", night: "表現の凄みに打たれたい夜のための処方" },
+  { id: "laugh", label: "笑った", emoji: "😆", color: "#f59e0b", catch: "今日はもう、笑うしかない。", night: "何も考えず笑い飛ばしたい日のための処方" },
+  { id: "heal", label: "救われた", emoji: "🌿", color: "#16a34a", catch: "疲れた心に、効く。", night: "そっと肯定されたい夜のための処方" },
+  { id: "chill", label: "ゾッとした", emoji: "😱", color: "#475569", catch: "背筋が凍る夜へ。", night: "怖いと知りつつページをめくりたい夜の処方" },
 ];
 
 export const EMOTION_IDS = EMOTIONS.map((e) => e.id);

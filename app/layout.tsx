@@ -61,6 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/atlas">舞台マップ</Link>
             <Link href="/eras">時代設定マップ</Link>
             <Link href="/works">作品図鑑</Link>
+            <Link href="/feels">感情でさがす</Link>
             <Link href="/history">マンガ史年表</Link>
             <Link href="/community">みんなの投稿</Link>
           </nav>
