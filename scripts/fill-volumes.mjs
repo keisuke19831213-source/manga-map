@@ -126,16 +126,15 @@ async function main() {
       await sleep(700);
       continue;
     }
-    meta.works[w.id] = { ...cur, volumes };
-    // 1作品ごとに保存(途中で落ちても進捗が残る)
+    // その作品のvolumesだけをPATCH(既存のasin等は保持される。全件書き戻しをしないので競合しない)
     const res = await fetch(`${API}/api/meta`, {
-      method: "POST",
+      method: "PATCH",
       headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
-      body: JSON.stringify(meta),
+      body: JSON.stringify({ works: { [w.id]: { volumes } } }),
     });
     done++;
     console.log(`✓ ${w.title}: ${volumes.length}巻分 (${volumes[0].v}〜${volumes[volumes.length - 1].v}) ${res.ok ? "" : "※保存失敗"}`);
-    await sleep(900);
+    await sleep(700);
   }
   console.log(`完了: ${done}作品にvolumes設定`);
 }

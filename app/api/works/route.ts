@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GENRES, WORKS } from "@/lib/data";
 import { addUserWork, deleteUserWork, getAllWorks, type UserWork } from "@/lib/user-works";
-import { readMeta, writeMeta } from "@/lib/meta-server";
+import { deleteWorkMeta, patchMeta } from "@/lib/meta-server";
 import { ADMIN_ERROR, isAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
@@ -58,11 +58,9 @@ export async function POST(req: NextRequest) {
 
   try {
     await addUserWork(work);
-    // ASINが指定されていれば書影・アフィリエイト設定にも登録
+    // ASINが指定されていれば書影・アフィリエイト設定にも登録(per-itemで安全に)
     if (typeof asin === "string" && asin.trim()) {
-      const meta = await readMeta();
-      meta.works[work.id] = { ...meta.works[work.id], asin: asin.trim() };
-      await writeMeta(meta);
+      await patchMeta({ [work.id]: { asin: asin.trim() } });
     }
   } catch {
     return NextResponse.json({ error: "保存に失敗しました。時間をおいて再試行してください。" }, { status: 503 });
@@ -84,11 +82,7 @@ export async function DELETE(req: NextRequest) {
     if (!removed) {
       return NextResponse.json({ error: "作品が見つかりません" }, { status: 404 });
     }
-    const meta = await readMeta();
-    if (meta.works[id]) {
-      delete meta.works[id];
-      await writeMeta(meta);
-    }
+    await deleteWorkMeta(id);
   } catch {
     return NextResponse.json({ error: "保存に失敗しました" }, { status: 503 });
   }

@@ -87,6 +87,28 @@ async function seedCollection<T extends HasId>(collection: string, seedFile: str
   return seeds;
 }
 
+// コレクションが未初期化(Blobが空)ならシードを取り込むだけ(全件fetchはしない)
+export async function ensureCollection<T extends HasId>(collection: string, seedFile: string): Promise<void> {
+  if (!useBlob()) return;
+  const { blobs } = await list({ prefix: `${PREFIX}${collection}/` });
+  if (blobs.length === 0) await seedCollection<T>(collection, seedFile);
+}
+
+// コレクションから1件だけ読む(全件fetchを避ける軽量パス)
+export async function readItem<T extends HasId>(collection: string, seedFile: string, id: string): Promise<T | null> {
+  if (!useBlob()) {
+    const arr = await readLocalFile<T[]>(seedFile, []);
+    return arr.find((x) => x.id === id) ?? null;
+  }
+  try {
+    const h = await head(itemPath(collection, id));
+    const res = await fetch(bust(h.url), { cache: "no-store" });
+    return res.ok ? ((await res.json()) as T) : null;
+  } catch {
+    return null; // 未存在
+  }
+}
+
 export async function listItems<T extends HasId>(collection: string, seedFile: string): Promise<T[]> {
   if (!useBlob()) return readLocalFile<T[]>(seedFile, []);
 

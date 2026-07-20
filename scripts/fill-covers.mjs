@@ -1,14 +1,25 @@
 // 全作品の書影+Amazonリンクを一括設定する。
 // 方式: 国立国会図書館サーチ(NDL)で「作品名が完全一致」する巻1のISBNを引き、
-//       ISBN-10(=ASIN)に変換 → Amazon画像が実在するか検証 → meta.works[id].asin に設定。
-// ASINを入れると app 側が書影(Amazon画像)とアフィリエイトリンクを自動生成する。
-// 完全一致に絞ることで、スピンオフ/ガイド本の誤ヒットを避ける(外れたものは未設定=プレースホルダ)。
+//       ISBN-10(=ASIN)に変換 → Amazon画像が実在するか検証 → その作品の {asin} を設定。
+// 【更新】単一docの全件書き戻しをやめ、PATCH /api/meta で「変更した作品だけ」を送る。
+//         per-itemマージなので他作品や既存のvolumesを巻き込む更新ロストが起きない。
 // 使い方: set -a && . ./.env.local && set +a && node scripts/fill-covers.mjs
-import { writeFile } from "node:fs/promises";
-import { put } from "@vercel/blob";
-
-const API = "https://manga-map.jp";
+const API = process.env.API || "https://manga-map.jp";
+const ADMIN_KEY = process.env.ADMIN_KEY;
+if (!ADMIN_KEY) {
+  console.error("ADMIN_KEY がありません (.env.local を読み込んでください)");
+  process.exit(1);
+}
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function patchWork(id, partial) {
+  const res = await fetch(`${API}/api/meta`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", "x-admin-key": ADMIN_KEY },
+    body: JSON.stringify({ works: { [id]: partial } }),
+  });
+  return res.ok;
+}
 
 const norm = (s) =>
   (s || "")
@@ -126,25 +137,16 @@ async function main() {
     if (!asin) asin = await findAsin(w.title, w.author);
 
     if (asin) {
-      meta.works[w.id] = { ...existing, asin };
+      // その作品だけをPATCH(既存のvolumes等は保持される)
+      const ok = await patchWork(w.id, { asin });
       filled++;
-      console.log(`✓ ${w.title} -> ${asin}`);
+      console.log(`✓ ${w.title} -> ${asin}${ok ? "" : " ※保存失敗"}`);
     } else {
       missing.push(w.title);
       console.log(`✗ ${w.title}`);
     }
-    await sleep(200);
+    await sleep(250);
   }
-
-  const json = JSON.stringify(meta, null, 2);
-  await writeFile(new URL("../data/works-meta.json", import.meta.url), json + "\n");
-  await put("manga-map/works-meta.json", json, {
-    access: "public",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    contentType: "application/json",
-    cacheControlMaxAge: 0,
-  });
 
   console.log(`\n完了: ${filled}/${works.length}件に書影+リンクを設定。未取得 ${missing.length}件`);
   if (missing.length) console.log("未取得:", missing.join(", "));
