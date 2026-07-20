@@ -76,25 +76,26 @@ const xOf = (g: GenreNode) => 40 + (COL_OF[catOf(g).colX] ?? 0) * COL_W;
 export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => void }) {
   const meta = useMeta();
   const wrapRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<string | null>(null);
-  const [view, setView] = useState({ tx: 0, ty: 0, k: 0.94 });
 
-  // rAF間引き(MangaMapと同じパターン)
-  const viewRef = useRef(view);
-  useEffect(() => {
-    viewRef.current = view;
-  }, [view]);
-  const pendingView = useRef<typeof view | null>(null);
+  /* パン/ピンチはReactを通さない(神マップが軽い理由)。
+   * setStateを毎フレーム呼ぶとSVG全体をReactが毎フレーム再構築してしまうので、
+   * 変形はrefで持ち、rAFでDOMのtransformに直接書く。Reactは選択状態だけを扱う */
+  const viewRef = useRef({ tx: 0, ty: 0, k: 0.94 });
   const rafId = useRef(0);
-  const pushView = (fn: (v: typeof view) => typeof view) => {
-    pendingView.current = fn(pendingView.current ?? viewRef.current);
+  const applyView = () => {
+    const el = innerRef.current;
+    if (!el) return;
+    const v = viewRef.current;
+    el.style.transform = `translate3d(${v.tx}px, ${v.ty}px, 0) scale(${v.k})`;
+  };
+  const pushView = (fn: (v: { tx: number; ty: number; k: number }) => { tx: number; ty: number; k: number }) => {
+    viewRef.current = fn(viewRef.current);
     if (!rafId.current) {
       rafId.current = requestAnimationFrame(() => {
         rafId.current = 0;
-        if (pendingView.current) {
-          setView(pendingView.current);
-          pendingView.current = null;
-        }
+        applyView();
       });
     }
   };
@@ -104,7 +105,8 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
     const el = wrapRef.current;
     if (!el) return;
     const k = Math.min(1.1, el.clientWidth / TREE_W);
-    setView({ tx: (el.clientWidth - TREE_W * k) / 2, ty: -((1946 - Y0) * YS + 40) * k + 10, k });
+    viewRef.current = { tx: (el.clientWidth - TREE_W * k) / 2, ty: -((1946 - Y0) * YS + 40) * k + 10, k };
+    applyView();
   }, []);
 
   // 代表作数でノード半径
@@ -132,7 +134,7 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
   const onPointerDown = (e: React.PointerEvent) => {
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
-      const vc = pendingView.current ?? viewRef.current;
+      const vc = viewRef.current;
       drag.current = { x: e.clientX, y: e.clientY, tx: vc.tx, ty: vc.ty, moved: false };
     } else {
       captureNow(e);
@@ -180,17 +182,24 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
     if (pointers.current.size === 0) captured.current = false;
   };
 
-  // ノードへセンタリング(つながりタップで移動)
+  // ノードへセンタリング(つながりタップで移動)。CSS transitionでスーッと飛ぶ
   const flyTo = (id: string) => {
     const g = genreById(id);
     const el = wrapRef.current;
-    if (!g || !el) return;
+    const inner = innerRef.current;
+    if (!g || !el || !inner) return;
     setSelected(id);
-    setView((v) => ({
-      k: v.k,
-      tx: el.clientWidth / 2 - xOf(g) * v.k,
-      ty: el.clientHeight * 0.35 - yOf(g) * v.k,
-    }));
+    const k = viewRef.current.k;
+    viewRef.current = {
+      k,
+      tx: el.clientWidth / 2 - xOf(g) * k,
+      ty: el.clientHeight * 0.35 - yOf(g) * k,
+    };
+    inner.style.transition = "transform 0.35s ease-out";
+    applyView();
+    setTimeout(() => {
+      if (innerRef.current) innerRef.current.style.transition = "";
+    }, 380);
   };
 
   const sel = selected ? genreById(selected) : null;
@@ -256,6 +265,46 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
     );
   }, []);
 
+  // ノード層もメモ化: パン中は再構築ゼロ、選択が変わった時だけ作り直す
+  const nodesLayer = useMemo(() => {
+    return GENRES.map((g) => {
+      const x = xOf(g);
+      const y = yOf(g);
+      const c = catOf(g).color;
+      const r = sizeOf(g.id);
+      const on = selected === g.id;
+      return (
+        <g
+          key={g.id}
+          onClick={(ev) => {
+            ev.stopPropagation();
+            if (drag.current?.moved) return;
+            setSelected(on ? null : g.id);
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          {/* タップ領域を広げる透明円 */}
+          <circle cx={x} cy={y} r={18} fill="transparent" />
+          <circle cx={x} cy={y} r={r} fill={c} stroke="#171310" strokeWidth={on ? 3 : 1.8} opacity={selected && !on ? 0.45 : 1} />
+          {on && <circle cx={x} cy={y} r={r + 5} fill="none" stroke={c} strokeWidth={1.5} opacity={0.6} />}
+          <text
+            x={x}
+            y={y + r + 11}
+            textAnchor="middle"
+            fontSize={9.5}
+            fontWeight={800}
+            fill="#171310"
+            opacity={selected && !on ? 0.4 : 1}
+            style={{ paintOrder: "stroke", stroke: "#f6f1e4", strokeWidth: 3 }}
+          >
+            {SHORT[g.id] ?? g.name}
+          </text>
+        </g>
+      );
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, sizeOf]);
+
   return (
     <div className="gt-outer">
       {/* 凡例 + リスト切替 */}
@@ -280,45 +329,10 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
         onPointerLeave={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-        <div style={{ position: "absolute", left: 0, top: 0, transform: `translate3d(${view.tx}px, ${view.ty}px, 0) scale(${view.k})`, transformOrigin: "0 0", willChange: "transform" }}>
+        <div ref={innerRef} style={{ position: "absolute", left: 0, top: 0, transformOrigin: "0 0", willChange: "transform" }}>
           <svg width={TREE_W} height={TREE_H} style={{ display: "block", overflow: "visible" }}>
             {staticLayer}
-            {/* ノード(円 + ラベル) */}
-            {GENRES.map((g) => {
-              const x = xOf(g);
-              const y = yOf(g);
-              const c = catOf(g).color;
-              const r = sizeOf(g.id);
-              const on = selected === g.id;
-              return (
-                <g
-                  key={g.id}
-                  onClick={(ev) => {
-                    ev.stopPropagation();
-                    if (drag.current?.moved) return;
-                    setSelected(on ? null : g.id);
-                  }}
-                  style={{ cursor: "pointer" }}
-                >
-                  {/* タップ領域を広げる透明円 */}
-                  <circle cx={x} cy={y} r={18} fill="transparent" />
-                  <circle cx={x} cy={y} r={r} fill={c} stroke="#171310" strokeWidth={on ? 3 : 1.8} opacity={selected && !on ? 0.45 : 1} />
-                  {on && <circle cx={x} cy={y} r={r + 5} fill="none" stroke={c} strokeWidth={1.5} opacity={0.6} />}
-                  <text
-                    x={x}
-                    y={y + r + 11}
-                    textAnchor="middle"
-                    fontSize={9.5}
-                    fontWeight={800}
-                    fill="#171310"
-                    opacity={selected && !on ? 0.4 : 1}
-                    style={{ paintOrder: "stroke", stroke: "#f6f1e4", strokeWidth: 3 }}
-                  >
-                    {SHORT[g.id] ?? g.name}
-                  </text>
-                </g>
-              );
-            })}
+            {nodesLayer}
           </svg>
         </div>
 
