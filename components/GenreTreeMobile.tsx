@@ -7,9 +7,10 @@ import { coverThumb } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 
 /* スマホ用ジャンル系統図(神マップ方式)。
- * PCの箱型ノードはスマホでは読めないので、円ノード+外側ラベルにして
- * 樹形(どこから来てどこへ影響したか)そのものを小さな画面で見せる。
- * 縦=年代 / 横=カテゴリ列。パン+ピンチ、タップでボトムシート。 */
+ * 描画はCanvas: SVGを巨大な合成レイヤーとして持つとiOSがGPUに載せきれず
+ * パンのたびに再ラスタライズして激重になるため、毎フレーム自前で描く。
+ * ノード47+エッジ60程度ならCanvasの再描画は1ms未満で、ズームしても文字が
+ * ボケない。Reactは選択シートの表示だけを担当する。 */
 
 // 表示用の短縮名(ビュー都合なのでここで持つ)
 const SHORT: Record<string, string> = {
@@ -68,76 +69,196 @@ const COL_W = 62;
 const TREE_W = 40 + 5 * COL_W + 44; // ≈394
 const Y0 = 1893;
 const YS = 10; // 1年=10px
-const TREE_H = (2028 - Y0) * YS + 140;
+const INK = "#171310";
+const PAPER = "#f6f1e4";
 
 const yOf = (g: GenreNode) => ((g.ly ?? g.year) - Y0) * YS + 70;
 const xOf = (g: GenreNode) => 40 + (COL_OF[catOf(g).colX] ?? 0) * COL_W;
 
+interface View {
+  tx: number;
+  ty: number;
+  k: number;
+}
+
 export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => void }) {
   const meta = useMeta();
   const wrapRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const selectedRef = useRef<string | null>(null);
 
-  /* パン/ピンチはReactを通さない(神マップが軽い理由)。
-   * setStateを毎フレーム呼ぶとSVG全体をReactが毎フレーム再構築してしまうので、
-   * 変形はrefで持ち、rAFでDOMのtransformに直接書く。Reactは選択状態だけを扱う */
-  const viewRef = useRef({ tx: 0, ty: 0, k: 0.94 });
+  // ノードの描画情報を先に計算しておく(毎フレームのオブジェクト生成を避ける)
+  const nodes = useMemo(() => {
+    const count: Record<string, number> = {};
+    for (const w of WORKS) for (const g of w.genres) count[g] = (count[g] ?? 0) + 1;
+    return GENRES.map((g) => {
+      const n = count[g.id] ?? 0;
+      return {
+        id: g.id,
+        x: xOf(g),
+        y: yOf(g),
+        r: n >= 6 ? 13 : n >= 3 ? 11 : n >= 1 ? 9 : 7,
+        color: catOf(g).color,
+        label: SHORT[g.id] ?? g.name,
+      };
+    });
+  }, []);
+  const edges = useMemo(
+    () =>
+      EDGES.flatMap((e) => {
+        const a = genreById(e.from);
+        const b = genreById(e.to);
+        if (!a || !b) return [];
+        return [{ x1: xOf(a), y1: yOf(a), x2: xOf(b), y2: yOf(b), kind: e.kind }];
+      }),
+    []
+  );
+
+  /* ---- 描画(Canvas)。Reactを一切通さない ---- */
+  const viewRef = useRef<View>({ tx: 0, ty: 0, k: 0.94 });
   const rafId = useRef(0);
-  const applyView = () => {
-    const el = innerRef.current;
-    if (!el) return;
-    const v = viewRef.current;
-    el.style.transform = `translate3d(${v.tx}px, ${v.ty}px, 0) scale(${v.k})`;
+
+  const draw = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    const { tx, ty, k } = viewRef.current;
+    const sel = selectedRef.current;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(k * dpr, 0, 0, k * dpr, tx * dpr, ty * dpr);
+
+    // 可視範囲(ワールド座標)
+    const vT = -ty / k - 30;
+    const vB = (canvas.height / dpr - ty) / k + 30;
+
+    // 十年紀ガイド
+    ctx.strokeStyle = "rgba(23,19,16,0.09)";
+    ctx.fillStyle = "rgba(23,19,16,0.35)";
+    ctx.lineWidth = 1;
+    ctx.font = "700 8.5px 'Zen Kaku Gothic New', sans-serif";
+    ctx.textAlign = "left";
+    ctx.setLineDash([4, 5]);
+    for (let d = 1900; d <= 2020; d += 10) {
+      const y = (d - Y0) * YS + 70;
+      if (y < vT || y > vB) continue;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(TREE_W, y);
+      ctx.stroke();
+      ctx.fillText(String(d), 4, y - 4);
+    }
+    ctx.setLineDash([]);
+
+    // エッジ
+    for (const e of edges) {
+      if (Math.max(e.y1, e.y2) < vT || Math.min(e.y1, e.y2) > vB) continue;
+      const my = (e.y1 + e.y2) / 2;
+      ctx.strokeStyle = e.kind === "counter" ? "rgba(230,83,42,0.55)" : e.kind === "influence" ? "rgba(23,19,16,0.3)" : "rgba(23,19,16,0.5)";
+      ctx.lineWidth = e.kind === "evolution" ? 1.6 : 1.1;
+      ctx.setLineDash(e.kind === "influence" ? [4, 4] : e.kind === "counter" ? [2, 3] : []);
+      ctx.beginPath();
+      ctx.moveTo(e.x1, e.y1);
+      ctx.bezierCurveTo(e.x1, my, e.x2, my, e.x2, e.y2);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // ノード + ラベル
+    ctx.textAlign = "center";
+    for (const n of nodes) {
+      if (n.y < vT || n.y > vB) continue;
+      const on = sel === n.id;
+      const dim = sel && !on;
+      ctx.globalAlpha = dim ? 0.42 : 1;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = n.color;
+      ctx.fill();
+      ctx.lineWidth = on ? 3 : 1.8;
+      ctx.strokeStyle = INK;
+      ctx.stroke();
+      if (on) {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r + 5, 0, Math.PI * 2);
+        ctx.strokeStyle = n.color;
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = 0.7;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+      // ラベル(白フチ文字)
+      ctx.font = "800 9.5px 'Zen Kaku Gothic New', sans-serif";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = PAPER;
+      ctx.lineJoin = "round";
+      ctx.strokeText(n.label, n.x, n.y + n.r + 11);
+      ctx.fillStyle = INK;
+      ctx.fillText(n.label, n.x, n.y + n.r + 11);
+    }
+    ctx.globalAlpha = 1;
   };
-  const pushView = (fn: (v: { tx: number; ty: number; k: number }) => { tx: number; ty: number; k: number }) => {
-    viewRef.current = fn(viewRef.current);
+
+  const scheduleDraw = () => {
     if (!rafId.current) {
       rafId.current = requestAnimationFrame(() => {
         rafId.current = 0;
-        applyView();
+        draw();
       });
     }
   };
 
-  // 初期ビュー: 横は全列フィット、縦は戦後(1946〜)から
+  const pushView = (fn: (v: View) => View) => {
+    viewRef.current = fn(viewRef.current);
+    scheduleDraw();
+  };
+
+  // キャンバスのサイズ合わせ + 初期ビュー(戦後1946〜から)
   useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const k = Math.min(1.1, el.clientWidth / TREE_W);
-    viewRef.current = { tx: (el.clientWidth - TREE_W * k) / 2, ty: -((1946 - Y0) * YS + 40) * k + 10, k };
-    applyView();
-  }, []);
-
-  // 代表作数でノード半径
-  const sizeOf = useMemo(() => {
-    const count: Record<string, number> = {};
-    for (const w of WORKS) for (const g of w.genres) count[g] = (count[g] ?? 0) + 1;
-    return (id: string) => {
-      const n = count[id] ?? 0;
-      return n >= 6 ? 13 : n >= 3 ? 11 : n >= 1 ? 9 : 7;
+    const wrap = wrapRef.current;
+    const canvas = canvasRef.current;
+    if (!wrap || !canvas) return;
+    const fit = () => {
+      const dpr = Math.min(3, window.devicePixelRatio || 1);
+      canvas.width = Math.round(wrap.clientWidth * dpr);
+      canvas.height = Math.round(wrap.clientHeight * dpr);
+      canvas.style.width = wrap.clientWidth + "px";
+      canvas.style.height = wrap.clientHeight + "px";
+      draw();
     };
+    const k = Math.min(1.1, wrap.clientWidth / TREE_W);
+    viewRef.current = { tx: (wrap.clientWidth - TREE_W * k) / 2, ty: -((1946 - Y0) * YS + 40) * k + 10, k };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(wrap);
+    // フォント読込後に描き直し(ラベルのフォールバック字形を置き換える)
+    document.fonts?.ready.then(() => draw()).catch(() => {});
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ---- パン & ピンチ(deferred capture: タップを殺さない) ---- */
+  // 選択が変わったら描き直し
+  useEffect(() => {
+    selectedRef.current = selected;
+    scheduleDraw();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
+
+  /* ---- パン & ピンチ & タップ ---- */
   const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinchDist = useRef<number | null>(null);
-  const captured = useRef(false);
-  const captureNow = (e: React.PointerEvent) => {
-    if (captured.current) return;
-    try {
-      (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
-      captured.current = true;
-    } catch {}
-  };
+  const flyAnim = useRef(0);
+
   const onPointerDown = (e: React.PointerEvent) => {
+    cancelAnimationFrame(flyAnim.current);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
       const vc = viewRef.current;
       drag.current = { x: e.clientX, y: e.clientY, tx: vc.tx, ty: vc.ty, moved: false };
     } else {
-      captureNow(e);
       drag.current = null;
       pinchDist.current = null;
     }
@@ -167,39 +288,59 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
     if (!d0) return;
     const dx = e.clientX - d0.x;
     const dy = e.clientY - d0.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) {
-      d0.moved = true;
-      captureNow(e);
-    }
+    if (Math.abs(dx) + Math.abs(dy) > 3) d0.moved = true;
     const ntx = d0.tx + dx;
     const nty = d0.ty + dy;
     pushView((v) => ({ ...v, tx: ntx, ty: nty }));
   };
   const onPointerUp = (e: React.PointerEvent) => {
+    const wasTap = drag.current && !drag.current.moved && pointers.current.size === 1;
     pointers.current.delete(e.pointerId);
     pinchDist.current = null;
     drag.current = null;
-    if (pointers.current.size === 0) captured.current = false;
+    if (!wasTap) return;
+    // タップ: ワールド座標で最寄りノードを判定
+    const rect = wrapRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const { tx, ty, k } = viewRef.current;
+    const wx = (e.clientX - rect.left - tx) / k;
+    const wy = (e.clientY - rect.top - ty) / k;
+    let best: string | null = null;
+    let bestD = 22; // タップ許容半径(ワールドpx)
+    for (const n of nodes) {
+      const d = Math.hypot(n.x - wx, n.y - wy);
+      if (d < bestD) {
+        bestD = d;
+        best = n.id;
+      }
+    }
+    setSelected((cur) => (best ? (cur === best ? null : best) : null));
   };
 
-  // ノードへセンタリング(つながりタップで移動)。CSS transitionでスーッと飛ぶ
+  // ノードへセンタリング(つながりタップ)。rAFでスーッと飛ぶ
   const flyTo = (id: string) => {
     const g = genreById(id);
     const el = wrapRef.current;
-    const inner = innerRef.current;
-    if (!g || !el || !inner) return;
+    if (!g || !el) return;
     setSelected(id);
-    const k = viewRef.current.k;
-    viewRef.current = {
-      k,
-      tx: el.clientWidth / 2 - xOf(g) * k,
-      ty: el.clientHeight * 0.35 - yOf(g) * k,
+    const from = { ...viewRef.current };
+    const k = from.k;
+    const to = { k, tx: el.clientWidth / 2 - xOf(g) * k, ty: el.clientHeight * 0.35 - yOf(g) * k };
+    const t0 = performance.now();
+    const DUR = 350;
+    cancelAnimationFrame(flyAnim.current);
+    const step = (now: number) => {
+      const t = Math.min(1, (now - t0) / DUR);
+      const e = 1 - Math.pow(1 - t, 3); // ease-out
+      viewRef.current = {
+        k,
+        tx: from.tx + (to.tx - from.tx) * e,
+        ty: from.ty + (to.ty - from.ty) * e,
+      };
+      draw();
+      if (t < 1) flyAnim.current = requestAnimationFrame(step);
     };
-    inner.style.transition = "transform 0.35s ease-out";
-    applyView();
-    setTimeout(() => {
-      if (innerRef.current) innerRef.current.style.transition = "";
-    }, 380);
+    flyAnim.current = requestAnimationFrame(step);
   };
 
   const sel = selected ? genreById(selected) : null;
@@ -211,7 +352,8 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
         kind: e.kind,
       }))
     : [];
-  // 方向と種類で自然な日本語に(「←対抗された」のような機械的表現を避ける)
+
+  // 方向と種類で自然な日本語に
   const edgeLabel = (dir: string, kind: string, name: string) => {
     if (dir === "→") {
       if (kind === "evolution") return <>進化して → <strong>{name}</strong></>;
@@ -222,88 +364,6 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
     if (kind === "counter") return <><strong>{name}</strong> への反発から誕生</>;
     return <><strong>{name}</strong> の影響を受けた</>;
   };
-
-  // 静的レイヤ(パン中に再構築しない)
-  const staticLayer = useMemo(() => {
-    return (
-      <>
-        {/* 十年紀ガイド */}
-        {Array.from({ length: 13 }, (_, i) => 1900 + i * 10).map((d) => (
-          <g key={d}>
-            <line x1={0} y1={(d - Y0) * YS + 70} x2={TREE_W} y2={(d - Y0) * YS + 70} stroke="#17131018" strokeWidth={1} strokeDasharray="4 5" />
-            <text x={4} y={(d - Y0) * YS + 66} fontSize={8.5} fontWeight={700} fill="#17131055">
-              {d}
-            </text>
-          </g>
-        ))}
-        {/* エッジ */}
-        {EDGES.map((e, i) => {
-          const a = genreById(e.from);
-          const b = genreById(e.to);
-          if (!a || !b) return null;
-          const x1 = xOf(a);
-          const y1 = yOf(a);
-          const x2 = xOf(b);
-          const y2 = yOf(b);
-          const my = (y1 + y2) / 2;
-          const stroke = e.kind === "counter" ? "#e6532a" : "#171310";
-          const dash = e.kind === "influence" ? "4 4" : e.kind === "counter" ? "2 3" : undefined;
-          const op = e.kind === "evolution" ? 0.5 : 0.3;
-          return (
-            <path
-              key={i}
-              d={`M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`}
-              fill="none"
-              stroke={stroke}
-              strokeWidth={e.kind === "evolution" ? 1.6 : 1.1}
-              strokeDasharray={dash}
-              opacity={op}
-            />
-          );
-        })}
-      </>
-    );
-  }, []);
-
-  // ノード層もメモ化: パン中は再構築ゼロ、選択が変わった時だけ作り直す
-  const nodesLayer = useMemo(() => {
-    return GENRES.map((g) => {
-      const x = xOf(g);
-      const y = yOf(g);
-      const c = catOf(g).color;
-      const r = sizeOf(g.id);
-      const on = selected === g.id;
-      return (
-        <g
-          key={g.id}
-          onClick={(ev) => {
-            ev.stopPropagation();
-            if (drag.current?.moved) return;
-            setSelected(on ? null : g.id);
-          }}
-          style={{ cursor: "pointer" }}
-        >
-          {/* タップ領域を広げる透明円 */}
-          <circle cx={x} cy={y} r={18} fill="transparent" />
-          <circle cx={x} cy={y} r={r} fill={c} stroke="#171310" strokeWidth={on ? 3 : 1.8} opacity={selected && !on ? 0.45 : 1} />
-          {on && <circle cx={x} cy={y} r={r + 5} fill="none" stroke={c} strokeWidth={1.5} opacity={0.6} />}
-          <text
-            x={x}
-            y={y + r + 11}
-            textAnchor="middle"
-            fontSize={9.5}
-            fontWeight={800}
-            fill="#171310"
-            opacity={selected && !on ? 0.4 : 1}
-            style={{ paintOrder: "stroke", stroke: "#f6f1e4", strokeWidth: 3 }}
-          >
-            {SHORT[g.id] ?? g.name}
-          </text>
-        </g>
-      );
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, sizeOf]);
 
   return (
     <div className="gt-outer">
@@ -329,13 +389,7 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
         onPointerLeave={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-        <div ref={innerRef} style={{ position: "absolute", left: 0, top: 0, transformOrigin: "0 0", willChange: "transform" }}>
-          <svg width={TREE_W} height={TREE_H} style={{ display: "block", overflow: "visible" }}>
-            {staticLayer}
-            {nodesLayer}
-          </svg>
-        </div>
-
+        <canvas ref={canvasRef} style={{ display: "block" }} />
         <div className="gt-hint">ドラッグで移動 · ピンチで拡大 · ●をタップ</div>
       </div>
 
