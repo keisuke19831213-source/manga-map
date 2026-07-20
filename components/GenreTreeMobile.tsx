@@ -96,6 +96,7 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [sheetFull, setSheetFull] = useState(false); // シートは最初コンパクト(地図が主役)
   const selectedRef = useRef<string | null>(null);
 
   // ノード/エッジ/隣接を先に計算(毎フレームのオブジェクト生成を避ける)
@@ -190,7 +191,7 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
         ctx.lineWidth = e.kind === "evolution" ? 2.4 : 1.8;
         // 流れる破線: from→to の向きに流れて影響の方向が見える
         ctx.setLineDash([7, 5]);
-        ctx.lineDashOffset = -(now / 40) % 12;
+        ctx.lineDashOffset = -(now / 28) % 12;
       } else {
         ctx.strokeStyle = e.kind === "counter" ? "rgba(230,83,42,0.55)" : e.kind === "influence" ? "rgba(23,19,16,0.3)" : "rgba(23,19,16,0.5)";
         ctx.lineWidth = e.kind === "evolution" ? 1.6 : 1.1;
@@ -243,19 +244,25 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
       ctx.lineWidth = on ? 3 : 1.8;
       ctx.strokeStyle = INK;
       ctx.stroke();
-      // 選択リング(ふわっと広がって消える)
+      // 選択リング(2本、ふわっと広がって消える)
       if (on && pop.current?.id === n.id) {
         const t = (now - pop.current.t0) / 1000;
-        if (t < 0.55) {
-          const rp = r + 4 + t * 34;
-          ctx.beginPath();
-          ctx.arc(n.x, n.y, rp, 0, Math.PI * 2);
-          ctx.strokeStyle = n.color;
-          ctx.lineWidth = 2;
-          ctx.globalAlpha = (1 - t / 0.55) * 0.7;
-          ctx.stroke();
-          ctx.globalAlpha = dim ? 0.2 : 1;
+        for (const [d0, dur] of [
+          [0, 0.7],
+          [0.14, 0.7],
+        ] as const) {
+          const tt = (t - d0) / dur;
+          if (tt > 0 && tt < 1) {
+            const rp = r + 4 + tt * 40;
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, rp, 0, Math.PI * 2);
+            ctx.strokeStyle = n.color;
+            ctx.lineWidth = 2.2;
+            ctx.globalAlpha = (1 - tt) * 0.75;
+            ctx.stroke();
+          }
         }
+        ctx.globalAlpha = dim ? 0.2 : 1;
       }
       // ラベル(白フチ文字)
       ctx.font = "800 9.5px 'Zen Kaku Gothic New', sans-serif";
@@ -293,7 +300,7 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
         else active = true;
       }
       if (bloomT0.current && now - bloomT0.current < 1400) active = true;
-      if (pop.current && now - pop.current.t0 < 620) active = true;
+      if (pop.current && now - pop.current.t0 < 900) active = true;
       if (selectedRef.current) active = true; // 系譜の流れる破線
 
       draw(now);
@@ -335,12 +342,34 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
     const k = Math.min(1.1, wrap.clientWidth / TREE_W);
     viewRef.current = { tx: (wrap.clientWidth - TREE_W * k) / 2, ty: -((1946 - Y0) * YS + 40) * k + 10, k };
     fit();
-    bloomT0.current = performance.now();
-    ensureLoop();
+    // ブルームはマップが実際に画面へ入った瞬間に開始(見逃させない)
+    let bloomed = false;
+    const startBloom = () => {
+      if (bloomed) return;
+      bloomed = true;
+      bloomT0.current = performance.now();
+      ensureLoop();
+    };
+    let io: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      io = new IntersectionObserver(
+        (es) => {
+          if (es.some((x) => x.isIntersecting)) {
+            startBloom();
+            io?.disconnect();
+          }
+        },
+        { threshold: 0.35 }
+      );
+      io.observe(wrap);
+    } else {
+      startBloom();
+    }
     const ro = new ResizeObserver(fit);
     ro.observe(wrap);
     document.fonts?.ready.then(() => scheduleDraw()).catch(() => {});
     return () => {
+      io?.disconnect();
       ro.disconnect();
       cancelAnimationFrame(loopId.current);
       cancelAnimationFrame(rafOnce.current);
@@ -470,7 +499,21 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
       pop.current = { id: best, t0: now };
       ensureLoop();
     }
-    setSelected((cur) => (best ? (cur === best ? null : best) : null));
+    setSheetFull(false);
+    setSelected((cur) => {
+      const next = best ? (cur === best ? null : best) : null;
+      // 新しく選んだ時: ノードをシートに隠れない画面上部1/3へスッと寄せる
+      // (弾み・リング・流れる系譜がちゃんと見えるように)
+      if (next && next !== cur) {
+        const g = genreById(next);
+        const el = wrapRef.current;
+        if (g && el) {
+          const v = viewRef.current;
+          animateView({ ...v }, { k: v.k, tx: el.clientWidth / 2 - xOf(g) * v.k, ty: el.clientHeight * 0.3 - yOf(g) * v.k }, 320);
+        }
+      }
+      return next;
+    });
   };
 
   // 焦点を保ったままズーム(ダブルタップ)
@@ -507,11 +550,12 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
     const el = wrapRef.current;
     if (!g || !el) return;
     setSelected(id);
-    pop.current = { id, t0: performance.now() + 200 };
+    setSheetFull(false); // 地図を主役に戻して移動を見せる
+    pop.current = { id, t0: performance.now() + 220 };
     ensureLoop();
     const from = { ...viewRef.current };
     const k = from.k;
-    animateView(from, { k, tx: el.clientWidth / 2 - xOf(g) * k, ty: el.clientHeight * 0.35 - yOf(g) * k }, 350);
+    animateView(from, { k, tx: el.clientWidth / 2 - xOf(g) * k, ty: el.clientHeight * 0.3 - yOf(g) * k }, 350);
   };
 
   const sel = selected ? genreById(selected) : null;
@@ -564,16 +608,39 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
         <div className="gt-hint">ドラッグで移動 · ピンチ/2度タップで拡大 · ●をタップ</div>
       </div>
 
-      {/* ボトムシート */}
+      {/* ボトムシート: 最初はコンパクト(地図の系譜アニメが主役)、「詳しく」で全開 */}
       {sel && (
-        <div className="gt-sheet" role="dialog" aria-label={sel.name}>
+        <div className={`gt-sheet ${sheetFull ? "" : "gt-peek"}`} role="dialog" aria-label={sel.name}>
           <button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる">
             ×
           </button>
-          <div className="gt-sheet-cat" style={{ color: catOf(sel).color }}>
-            {catOf(sel).name} · {sel.year}年頃〜
+          <div className="gt-sheet-head">
+            <div style={{ minWidth: 0 }}>
+              <div className="gt-sheet-cat" style={{ color: catOf(sel).color }}>
+                {catOf(sel).name} · {sel.year}年頃〜
+              </div>
+              <h2>{sel.name}</h2>
+            </div>
+            <button className="gt-more" onClick={() => setSheetFull(!sheetFull)}>
+              {sheetFull ? "たたむ ▾" : "詳しく ▴"}
+            </button>
           </div>
-          <h2>{sel.name}</h2>
+
+          {/* つながりチップ(ピーク時も横一列で系譜を辿れる) */}
+          {selEdges.length > 0 && (
+            <div className="gt-sheet-edges">
+              {selEdges.map((e, i) => {
+                const other = genreById(e.other);
+                if (!other) return null;
+                return (
+                  <button key={i} onClick={() => flyTo(e.other)}>
+                    {edgeLabel(e.dir, e.kind, other.name)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           <p className="gt-sheet-desc">{sel.desc}</p>
           {selWorks.length > 0 && (
             <div className="gt-sheet-works">
@@ -588,19 +655,6 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
                   <span>{w.title}</span>
                 </Link>
               ))}
-            </div>
-          )}
-          {selEdges.length > 0 && (
-            <div className="gt-sheet-edges">
-              {selEdges.map((e, i) => {
-                const other = genreById(e.other);
-                if (!other) return null;
-                return (
-                  <button key={i} onClick={() => flyTo(e.other)}>
-                    {edgeLabel(e.dir, e.kind, other.name)}
-                  </button>
-                );
-              })}
             </div>
           )}
         </div>
