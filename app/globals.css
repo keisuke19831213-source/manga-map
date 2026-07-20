@@ -46,6 +46,186 @@ a {
 }
 
 /* ---- ヘッダー: 週刊誌の表紙風 ---- */
+/* ================= スマホ版ジャンル系統図(円ノードの樹形図) ================= */
+.gt-outer {
+  position: relative;
+}
+
+.gt-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px 12px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.gt-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+
+.gt-cat i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  display: inline-block;
+}
+
+.gt-list-btn {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 900;
+  font-family: var(--font-base);
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 4px 12px;
+  box-shadow: 2px 2px 0 var(--ink);
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.gt-wrap {
+  position: relative;
+  overflow: hidden;
+  height: calc(100dvh - var(--header-h) - 220px);
+  min-height: 420px;
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  background-color: #f6f1e4;
+  background-image: radial-gradient(rgba(23, 19, 16, 0.05) 1px, transparent 1.3px);
+  background-size: 10px 10px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.gt-hint {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+  padding: 2px 8px;
+  pointer-events: none;
+}
+
+/* ボトムシート */
+.gt-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  background: #fffdf4;
+  border-top: 3.5px solid var(--ink);
+  box-shadow: 0 -6px 24px rgba(23, 19, 16, 0.25);
+  padding: 16px 18px calc(16px + env(safe-area-inset-bottom));
+  max-height: 62dvh;
+  overflow-y: auto;
+  animation: gt-sheet-in 0.22s ease-out;
+}
+
+@keyframes gt-sheet-in {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.gt-sheet-cat {
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.gt-sheet h2 {
+  margin: 2px 0 6px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.gt-sheet-desc {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  line-height: 1.85;
+  color: var(--ink-soft);
+}
+
+.gt-sheet-works {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.gt-w {
+  flex: 0 0 64px;
+  text-decoration: none;
+  color: var(--ink);
+  font-size: 9.5px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.gt-w img,
+.gt-w .ph {
+  display: block;
+  width: 60px;
+  height: 86px;
+  object-fit: cover;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  margin: 0 auto 4px;
+  background: #fff;
+}
+
+.gt-w .ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: repeating-linear-gradient(45deg, #f1e9d6, #f1e9d6 5px, #e7ddc4 5px, #e7ddc4 10px);
+}
+
+.gt-w span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gt-sheet-edges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gt-sheet-edges button {
+  text-align: left;
+  font-size: 12px;
+  font-family: var(--font-base);
+  font-weight: 700;
+  color: var(--ink);
+  background: #fff;
+  border: 1.8px solid rgba(23, 19, 16, 0.35);
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.gt-sheet-edges button strong {
+  font-weight: 900;
+  color: var(--accent);
+}
+
 /* フッターのサイト内リンク */
 .footer-nav {
   display: flex;
