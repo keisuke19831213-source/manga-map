@@ -98,6 +98,7 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
   const [selected, setSelected] = useState<string | null>(null);
   const [sheetFull, setSheetFull] = useState(false); // シートは最初コンパクト(地図が主役)
   const selectedRef = useRef<string | null>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
 
   // ノード/エッジ/隣接を先に計算(毎フレームのオブジェクト生成を避ける)
   const nodes = useMemo(() => {
@@ -558,6 +559,56 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
     animateView(from, { k, tx: el.clientWidth / 2 - xOf(g) * k, ty: el.clientHeight * 0.3 - yOf(g) * k }, 350);
   };
 
+  /* ---- シートのスワイプ(グラバー+ヘッダ帯だけをドラッグゾーンにして、
+   *      シート内スクロールと衝突させない) ---- */
+  const sheetDrag = useRef<{ y0: number; dy: number; samples: { t: number; y: number }[] } | null>(null);
+
+  const onSheetDown = (e: React.PointerEvent) => {
+    sheetDrag.current = { y0: e.clientY, dy: 0, samples: [{ t: performance.now(), y: e.clientY }] };
+    try {
+      (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    } catch {}
+  };
+  const onSheetMove = (e: React.PointerEvent) => {
+    const d = sheetDrag.current;
+    const sheet = sheetRef.current;
+    if (!d || !sheet) return;
+    const now = performance.now();
+    d.dy = e.clientY - d.y0;
+    d.samples.push({ t: now, y: e.clientY });
+    while (d.samples.length > 2 && now - d.samples[0].t > 80) d.samples.shift();
+    // 指に追従(上方向は抵抗を付ける: ピークからの引き上げは半分だけ動く)
+    const dy = d.dy < 0 ? d.dy * (sheetFull ? 0.15 : 0.5) : d.dy;
+    sheet.style.transition = "none";
+    sheet.style.transform = `translateY(${dy}px)`;
+  };
+  const onSheetUp = () => {
+    const d = sheetDrag.current;
+    const sheet = sheetRef.current;
+    sheetDrag.current = null;
+    if (!d || !sheet) return;
+    // 速度(px/ms): 直近サンプルから
+    let vel = 0;
+    if (d.samples.length >= 2) {
+      const a = d.samples[0];
+      const b = d.samples[d.samples.length - 1];
+      if (b.t - a.t > 5) vel = (b.y - a.y) / (b.t - a.t);
+    }
+    sheet.style.transition = "transform 0.24s ease-out";
+    sheet.style.transform = "";
+    const up = d.dy < -40 || vel < -0.45;
+    const down = d.dy > 55 || vel > 0.45;
+    if (sheetFull) {
+      if (down) setSheetFull(false); // 全開 → ピークへ
+    } else {
+      if (up) setSheetFull(true); // ピーク → 全開
+      else if (down) setSelected(null); // ピーク → 閉じる
+    }
+    setTimeout(() => {
+      if (sheetRef.current) sheetRef.current.style.transition = "";
+    }, 260);
+  };
+
   const sel = selected ? genreById(selected) : null;
   const selWorks = sel ? WORKS.filter((w) => w.genres.includes(sel.id)).slice(0, 4) : [];
   const selEdges = sel
@@ -610,10 +661,20 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
 
       {/* ボトムシート: 最初はコンパクト(地図の系譜アニメが主役)、「詳しく」で全開 */}
       {sel && (
-        <div className={`gt-sheet ${sheetFull ? "" : "gt-peek"}`} role="dialog" aria-label={sel.name}>
+        <div ref={sheetRef} className={`gt-sheet ${sheetFull ? "" : "gt-peek"}`} role="dialog" aria-label={sel.name}>
           <button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる">
             ×
           </button>
+          {/* ドラッグゾーン(つまみ+ヘッダ): 上スワイプで全開、下スワイプでたたむ/閉じる */}
+          <div
+            className="gt-drag-zone"
+            onPointerDown={onSheetDown}
+            onPointerMove={onSheetMove}
+            onPointerUp={onSheetUp}
+            onPointerCancel={onSheetUp}
+          >
+            <div className="gt-grab" aria-hidden />
+          </div>
           <div className="gt-sheet-head">
             <div style={{ minWidth: 0 }}>
               <div className="gt-sheet-cat" style={{ color: catOf(sel).color }}>

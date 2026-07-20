@@ -139,6 +139,22 @@ a {
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* シートのつまみ(スワイプのドラッグゾーン)。当たりを広めに取る */
+.gt-drag-zone {
+  margin: -8px 0 2px;
+  padding: 6px 0 10px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.gt-grab {
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(23, 19, 16, 0.28);
+  margin: 0 auto;
+}
+
 .gt-sheet-head {
   display: flex;
   align-items: flex-start;
