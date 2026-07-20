@@ -828,6 +828,7 @@ export const WORKS: Work[] = [
   { id: "akairo", title: "赤色エレジー", author: "林静一", year: 1970, magazine: "ガロ", genres: ["garo"], desc: "貧しく生きる若い男女の同棲と別れ。叙情的な線でガロの詩的リアリズムを象徴する名作。" },
   { id: "toma", title: "トーマの心臓", author: "萩尾望都", year: 1974, magazine: "週刊少女コミック", genres: ["year24", "bl"], desc: "ドイツの寄宿舎で少年の死をめぐる魂の物語。24年組が少年愛と内面を描いた金字塔。" },
   { id: "domu", title: "童夢", author: "大友克洋", year: 1980, magazine: "アクションデラックス", genres: ["newwave", "seinen_sf"], desc: "団地で老人と少女が超能力で対決。緻密な描写と静かな破壊で日本SF漫画を刷新した問題作。" },
+  { id: "sangokushi", title: "三国志", author: "横山光輝", year: 1971, magazine: "希望の友→コミックトム", genres: ["gekiga_jidai"], desc: "後漢末の動乱から三国鼎立、そして晋の統一まで。吉川英治版を下敷きに全60巻で描き切った、日本人の三国志像を決定づけた歴史漫画の金字塔。" },
 ];
 
 // ---- helpers ----
@@ -1199,6 +1200,7 @@ export const TIMELINE: TimelineEntry[] = [
   // ---- 中国・アジア ----
   { workId: "hoshin", region: "asia", year: -1046, label: "紀元前11世紀", note: "殷周革命。仙人たちの封神計画" },
   { workId: "kingdom", region: "asia", year: -245, label: "紀元前3世紀", note: "秦王・嬴政の中華統一戦争" },
+  { workId: "sangokushi", region: "asia", year: 220, label: "2〜3世紀(後漢末〜三国時代)", note: "劉備・曹操・孫権、天下三分の戦い" },
   { workId: "kusuriya", region: "asia", year: 750, label: "中華風王朝(唐がモデル)", note: "後宮の謎を薬学で解く猫猫" },
   { workId: "sololeveling", region: "asia", year: 2020, label: "現代", note: "ゲートが開いた現代ソウル" },
 
