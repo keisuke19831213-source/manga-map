@@ -788,6 +788,46 @@ export const WORKS: Work[] = [
   { id: "saint_oniisan", title: "聖☆おにいさん", author: "中村光", year: 2006, magazine: "モーニング・ツー", genres: ["nonsense", "essay"], desc: "ブッダとイエスが下界で暮らすゆるい日常コメディ。宗教をやわらかく扱う発想の妙で人気を得た。" },
   { id: "nichijou", title: "日常", author: "あらゐけいいち", year: 2006, magazine: "月刊少年エース", genres: ["nonsense", "moe_yonkoma"], desc: "淡々とした日常が突然シュールに崩れるギャグ。独特のテンポと不条理さで熱狂的ファンを持つ。" },
   { id: "relife", title: "ReLIFE", author: "夜宵草", year: 2013, magazine: "comico", genres: ["webtoon"], desc: "ニートの主人公が薬で高校生に戻りやり直す。縦読みフルカラーアプリ発の初期ヒット作。" },
+
+  // ===== 代表作の拡充(2026-07) =====
+  // 異世界・なろう系
+  { id: "rezero", title: "Re:ゼロから始める異世界生活", author: "長月達平・原作", year: 2014, magazine: "月刊コミックアライブ他", genres: ["isekai"], desc: "死ぬたびに時間が巻き戻る「死に戻り」を武器に、少年スバルが絶望の異世界で足掻く。なろう発の代表作のひとつ。" },
+  { id: "overlord", title: "オーバーロード", author: "丸山くがね・原作", year: 2014, magazine: "コンプエース", genres: ["isekai"], desc: "ゲーム世界に骸骨の魔王として取り残された男の征服譚。「強すぎる主人公」もの異世界の代表格。" },
+  { id: "tatenoyusha", title: "盾の勇者の成り上がり", author: "アネコユサギ・原作", year: 2014, magazine: "月刊コミックフラッパー", genres: ["isekai"], desc: "攻撃できない盾だけを与えられ裏切られた勇者の逆襲。追放・復讐系なろうの火付け役。" },
+  { id: "mushoku", title: "無職転生", author: "理不尽な孫の手・原作", year: 2014, magazine: "月刊コミックフラッパー", genres: ["isekai"], desc: "引きこもりが赤ん坊から異世界をやり直す。「なろうの金字塔」と呼ばれる転生一代記。" },
+  { id: "konosuba", title: "この素晴らしい世界に祝福を!", author: "暁なつめ・原作", year: 2015, magazine: "月刊ドラゴンエイジ", genres: ["isekai", "nonsense"], desc: "ポンコツ女神たちと繰り広げる異世界ギャグ。なろう系をパロディした脱力コメディの定番。" },
+  // 戦闘美少女
+  { id: "madoka", title: "魔法少女まどか☆マギカ", author: "Magica Quartet・ハノカゲ", year: 2011, magazine: "まんがタイムきらら☆マギカ", genres: ["battle_bishojo", "dark_fantasy"], desc: "魔法少女の「願いと絶望」を反転させた衝撃作。可愛い絵柄の裏の残酷さで魔法少女像を更新した。" },
+  { id: "precure", title: "ふたりはプリキュア", author: "東堂いづみ・上北ふたご", year: 2004, magazine: "なかよし", genres: ["battle_bishojo"], desc: "肉弾戦で戦う二人の中学生。長寿シリーズ「プリキュア」の原点となった変身ヒロイン。" },
+  // ビジネス・情報
+  { id: "naniwa", title: "ナニワ金融道", author: "青木雄二", year: 1990, magazine: "モーニング", genres: ["business", "gamble"], desc: "街金融の現場から人間の欲と法の抜け穴を描く。バブル崩壊期のリアルを刻んだ金融劇画。" },
+  { id: "investorz", title: "インベスターZ", author: "三田紀房", year: 2013, magazine: "モーニング", genres: ["business"], desc: "中学生が学園の資産を運用する投資部の物語。お金と経済のしくみを物語で学べる情報マンガ。" },
+  { id: "dragonzakura", title: "ドラゴン桜", author: "三田紀房", year: 2003, magazine: "モーニング", genres: ["business", "shakai"], desc: "落ちこぼれ高校から東大を目指す受験攻略ドラマ。「勉強法マンガ」の代名詞。" },
+  // ギャンブル
+  { id: "ginto", title: "銀と金", author: "福本伸行", year: 1992, magazine: "アクションピザッツ", genres: ["gamble"], desc: "裏社会の大金を巡る心理戦。カイジ・アカギに連なる福本ギャンブル劇画の原点的作品。" },
+  { id: "tetsuya", title: "哲也-雀聖と呼ばれた男", author: "さいふうめい・星野泰視", year: 1997, magazine: "週刊少年マガジン", genres: ["gamble"], desc: "戦後の焼け跡を渡り歩く麻雀無宿・哲也。博打の熱と昭和の匂いを刻んだ雀士伝。" },
+  { id: "kakegurui", title: "賭ケグルイ", author: "河本ほむら・尚村透", year: 2014, magazine: "月刊ガンガンJOKER", genres: ["gamble"], desc: "賭博がすべてを決める学園に現れた狂気の転校生。ギャンブルの快楽と表情芝居に振り切った令和のヒット。" },
+  // 不条理ギャグ
+  { id: "utsurun", title: "伝染るんです。", author: "吉田戦車", year: 1989, magazine: "ビッグコミックスピリッツ", genres: ["fujori"], desc: "脈絡のない不条理な笑い。90年代の不条理ギャグブームを牽引した一冊。" },
+  { id: "bonobono", title: "ぼのぼの", author: "いがらしみきお", year: 1986, magazine: "まんがライフ", genres: ["yonkoma", "fujori"], desc: "ラッコの子・ぼのぼのと森の仲間たちの、ゆるくて哲学的な4コマ。癒しと不条理が同居する長寿作。" },
+  // サブカル系
+  { id: "lychee", title: "ライチ☆光クラブ", author: "古屋兎丸", year: 2005, magazine: "マンガ・エロティクス・エフ", genres: ["subculture"], desc: "少年たちが作った機械「ライチ」を巡る耽美と暴力。アングラ演劇を原作にしたカルト的サブカル漫画。" },
+  { id: "shojotsubaki", title: "少女椿", author: "丸尾末広", year: 1984, magazine: "青林堂", genres: ["subculture", "shojo_horror"], desc: "見世物小屋に売られた少女みどりの受難。エログロと大正浪漫が交錯する、アングラ漫画の金字塔。" },
+  // ウェブトゥーン
+  { id: "kaminotou", title: "神之塔", author: "SIU", year: 2010, magazine: "LINEマンガ", genres: ["webtoon", "isekai"], desc: "塔を登り願いを叶えようとする少年。韓国発ウェブトゥーンの世界的ヒットで、縦読みを世界に広めた。" },
+  { id: "megami", title: "女神降臨", author: "yaongyi", year: 2018, magazine: "webtoon", genres: ["webtoon", "shojo_romance"], desc: "メイクで「女神」になった少女の恋と自己肯定。縦スクロール少女漫画の代表的ヒット。" },
+  // SNS発
+  { id: "otakoi", title: "ヲタクに恋は難しい", author: "ふじた", year: 2014, magazine: "pixiv→comicPOOL", genres: ["sns", "lovecome"], desc: "オタク同士の不器用な社会人恋愛。pixiv発・SNSでバズって書籍化した令和型ラブコメ。" },
+  // 少女ホラー
+  { id: "baptism", title: "洗礼", author: "楳図かずお", year: 1974, magazine: "少女コミック", genres: ["shojo_horror"], desc: "美貌に執着する母が娘の体を奪おうとする。少女漫画にトラウマ級の恐怖を持ち込んだ楳図ホラーの代表作。" },
+  // 4コマ・新聞
+  { id: "kobochan", title: "コボちゃん", author: "植田まさし", year: 1982, magazine: "読売新聞", genres: ["yonkoma", "newspaper"], desc: "幼稚園児コボちゃんと家族の日常を描く新聞4コマの定番。世代を超えて読み継がれる国民的作品。" },
+  // 源流・黎明
+  { id: "jungle", title: "ジャングル大帝", author: "手塚治虫", year: 1950, magazine: "漫画少年", genres: ["story", "kodomo"], desc: "白いライオン・レオ三代の物語。長編ストーリー漫画の初期到達点で、カラーアニメの原点にもなった。" },
+  { id: "akko", title: "ひみつのアッコちゃん", author: "赤塚不二夫", year: 1962, magazine: "りぼん", genres: ["akatsuka", "shojo_dawn"], desc: "鏡で何にでも変身できる少女アッコ。魔法少女ものの元祖のひとつで、赤塚が少女漫画で放ったヒット。" },
+  { id: "akairo", title: "赤色エレジー", author: "林静一", year: 1970, magazine: "ガロ", genres: ["garo"], desc: "貧しく生きる若い男女の同棲と別れ。叙情的な線でガロの詩的リアリズムを象徴する名作。" },
+  { id: "toma", title: "トーマの心臓", author: "萩尾望都", year: 1974, magazine: "週刊少女コミック", genres: ["year24", "bl"], desc: "ドイツの寄宿舎で少年の死をめぐる魂の物語。24年組が少年愛と内面を描いた金字塔。" },
+  { id: "domu", title: "童夢", author: "大友克洋", year: 1980, magazine: "アクションデラックス", genres: ["newwave", "seinen_sf"], desc: "団地で老人と少女が超能力で対決。緻密な描写と静かな破壊で日本SF漫画を刷新した問題作。" },
 ];
 
 // ---- helpers ----
