@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import WorksExplorer from "@/components/WorksExplorer";
 
 export const metadata = { title: "作品図鑑 — MANGA MAP" };
@@ -11,7 +12,10 @@ export default function WorksPage() {
         マンガ史の節目となった代表作コレクション。各作品のページでは、おすすめコメントや
         「この巻のこのページのこのコマが凄い」というピンポイントの語りを投稿できます。
       </p>
-      <WorksExplorer />
+      {/* useSearchParams(?q=)を使うクライアント側はSuspense境界が必要 */}
+      <Suspense>
+        <WorksExplorer />
+      </Suspense>
     </div>
   );
 }

@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { CATEGORIES, genreById, catOf, type CategoryId } from "@/lib/data";
 import { coverThumb } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useVoicesByWork } from "@/lib/usePosts";
 import { useWorks } from "@/lib/useWorks";
+import { buildDoc, fold, scoreDoc, strip, SEARCH_ALIASES } from "@/lib/search";
 import Cover from "@/components/Cover";
 import MiniBubble from "@/components/MiniBubble";
 
@@ -15,21 +17,52 @@ type SortKey = "year" | "kana" | "voices";
 export default function WorksExplorer() {
   const [cat, setCat] = useState<CategoryId | "all">("all");
   const [sort, setSort] = useState<SortKey>("year");
+  const sp = useSearchParams();
+  const [q, setQ] = useState(sp.get("q") ?? "");
   const meta = useMeta();
   const voices = useVoicesByWork();
   const { works: allWorks } = useWorks();
 
+  // ヘッダー検索から /works?q=… で飛んできたときに反映(図鑑表示中の再検索も拾う)
+  useEffect(() => {
+    setQ(sp.get("q") ?? "");
+  }, [sp]);
+
   const works = useMemo(() => {
-    const list = cat === "all" ? allWorks : allWorks.filter((w) => w.genres.some((g) => genreById(g)?.cat === cat));
+    let list = cat === "all" ? allWorks : allWorks.filter((w) => w.genres.some((g) => genreById(g)?.cat === cat));
+    const query = q.trim();
+    if (query) {
+      const qF = fold(query);
+      const qS = strip(query);
+      list = list.filter((w) => scoreDoc(buildDoc(w, w.title, w.author, SEARCH_ALIASES[w.id]), qF, qS) >= 0);
+    }
     const sorted = [...list];
     if (sort === "kana") sorted.sort((a, b) => a.title.localeCompare(b.title, "ja"));
     else if (sort === "voices") sorted.sort((a, b) => (voices[b.id]?.count ?? 0) - (voices[a.id]?.count ?? 0) || a.year - b.year);
     else sorted.sort((a, b) => a.year - b.year);
     return sorted;
-  }, [cat, sort, allWorks, voices]);
+  }, [cat, sort, q, allWorks, voices]);
 
   return (
     <>
+      <div className="works-search">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="🔍 タイトル・作者でしぼり込む(かな・略称OK)"
+          aria-label="作品のしぼり込み検索"
+        />
+        {q && (
+          <button className="works-search-clear" aria-label="検索をクリア" onClick={() => setQ("")}>
+            ×
+          </button>
+        )}
+        {q.trim() && (
+          <span className="works-search-count">
+            {works.length}件
+          </span>
+        )}
+      </div>
       <div className="filter-row">
         <button
           className={`chip ${cat === "all" ? "active" : ""}`}
@@ -64,6 +97,18 @@ export default function WorksExplorer() {
         ))}
       </div>
 
+      {works.length === 0 && (
+        <div className="works-empty">
+          <div style={{ fontSize: 34 }}>🔍</div>
+          <p>
+            {q.trim() ? (
+              <>「{q.trim()}」に合う作品が見つかりません。かな・略称でも検索できます(例: はがれん、こち亀)。</>
+            ) : (
+              <>該当する作品がありません。</>
+            )}
+          </p>
+        </div>
+      )}
       <div className="works-grid">
         {works.map((w) => {
           const primary = genreById(w.genres[0]);
