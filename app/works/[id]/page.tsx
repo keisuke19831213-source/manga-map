@@ -3,13 +3,16 @@ import { notFound } from "next/navigation";
 import { WORKS, genreById, catOf } from "@/lib/data";
 import { findWork } from "@/lib/user-works";
 import { amazonLink, coverSrc } from "@/lib/affiliate";
-import { readMeta } from "@/lib/meta-server";
+import { readWorkMeta } from "@/lib/meta-server";
 import WorkPosts from "@/components/WorkPosts";
 import Cover, { AmazonButton } from "@/components/Cover";
 
-// 静的カタログはビルド時に生成、登録作品(uw-*)はリクエスト時に描画される
+// 作品ページは初回アクセス時にオンデマンド生成し revalidate 秒キャッシュ(ISR)。
+// 全作品(200超)をビルド時に生成すると、各ページが書影メタ(Blob)を読むため
+// ビルドが不安定・遅くなる。書影は動的に変わるので、そもそも都度生成が理にかなう。
+export const dynamicParams = true;
 export function generateStaticParams() {
-  return WORKS.map((w) => ({ id: w.id }));
+  return [];
 }
 
 // シェア時のタイトル・説明文(静的カタログのみ。登録作品はサイト共通のまま)
@@ -35,7 +38,7 @@ export default async function WorkDetail({ params }: { params: Promise<{ id: str
   const work = await findWork(id);
   if (!work) notFound();
 
-  const meta = await readMeta();
+  const meta = await readWorkMeta(work.id); // この作品1件分だけ(全200作品を読まない)
   const cover = coverSrc(meta, work.id);
   const az = amazonLink(meta, work.id);
 

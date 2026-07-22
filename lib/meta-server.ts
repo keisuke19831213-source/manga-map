@@ -71,6 +71,21 @@ export async function patchMeta(partialWorks: Record<string, WorkMeta>, affiliat
   return updated;
 }
 
+// 1作品分だけのメタを返す(作品詳細ページ用)。全200作品のBlobを読まずに済むので
+// ビルド/ISRの再生成が軽い。coverSrc/amazonLink はこの最小SiteMetaでそのまま使える。
+export async function readWorkMeta(id: string): Promise<SiteMeta> {
+  const [tagDoc, item] = await Promise.all([
+    readJson<{ affiliateTag?: string } | null>(TAG_DOC, null),
+    readItem<WorkMetaItem>(COLLECTION, SEED, id),
+  ]);
+  const works: Record<string, WorkMeta> = {};
+  if (item) {
+    const { id: _omit, ...m } = item;
+    works[id] = m;
+  }
+  return normalizeMeta({ affiliateTag: tagDoc?.affiliateTag ?? "", works });
+}
+
 // 1作品のメタを削除(登録作品の削除時)
 export async function deleteWorkMeta(id: string): Promise<void> {
   await delItem<WorkMetaItem>(COLLECTION, SEED, id);
