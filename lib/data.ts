@@ -664,6 +664,7 @@ export const WORKS: Work[] = [
   { id: "jojo7", title: "ジョジョ第7部 スティール・ボール・ラン", author: "荒木飛呂彦", year: 2004, magazine: "ウルトラジャンプ", genres: ["seinen_mag", "gekiga_jidai"], desc: "1890年アメリカ、大陸横断レース。遺体のパーツを巡る競争を通じ、世界観を仕切り直した新生ジョジョ。荒木の画力と構成が円熟した最高傑作との呼び声も高い。" },
   { id: "jojo8", title: "ジョジョ第8部 ジョジョリオン", author: "荒木飛呂彦", year: 2011, magazine: "ウルトラジャンプ", genres: ["seinen_mag"], desc: "震災後の杜王町。記憶を失った男「定助」の正体を巡るミステリ。「呪い」を解くための、もうひとつの杜王町の物語。" },
   { id: "jojo9", title: "ジョジョ第9部 The JOJOLands", author: "荒木飛呂彦", year: 2023, magazine: "ウルトラジャンプ", genres: ["seinen_mag"], desc: "現代のハワイ。「大金持ちになる」ことを願う少年ジョディオの奇妙な冒険。連載中の最新部。" },
+  { id: "hxh", title: "HUNTER×HUNTER", author: "冨樫義博", year: 1998, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "shonen_mystery"], desc: "少年ゴンが、幻の父ジンを探してハンターを目指す冒険。「念能力」の緻密なルール設計と、勝敗が知略で決まる頭脳戦で、バトルマンガの水準を更新し続ける怪作。" },
   { id: "cityhunter", title: "シティーハンター", author: "北条司", year: 1985, magazine: "週刊少年ジャンプ", genres: ["weekly", "gekiga"], desc: "新宿の凄腕スイーパー・冴羽獠のハードボイルド&コメディ。大人の色気とギャグの緩急で青年層まで取り込んだ。" },
   { id: "yuyu", title: "幽☆遊☆白書", author: "冨樫義博", year: 1990, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "不良少年・浦飯幽助が霊界探偵となり戦う。霊力バトルと魅力的な敵キャラで90年代前半ジャンプを支えた。" },
   { id: "yugioh", title: "遊☆戯☆王", author: "高橋和希", year: 1996, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "闇のゲームとカードデュエルを描く。作中のカードゲームが現実で世界的商品となった、メディアミックスの金字塔。" },
