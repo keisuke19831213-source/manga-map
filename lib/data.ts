@@ -674,6 +674,8 @@ export const WORKS: Work[] = [
   { id: "bleach", title: "BLEACH", author: "久保帯人", year: 2001, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "dark_fantasy"], desc: "死神の力を得た黒崎一護の戦い。洗練された画面構成とキャラデザインで2000年代ジャンプの看板を担った。" },
   { id: "eyeshield", title: "アイシールド21", author: "稲垣理一郎・村田雄介", year: 2002, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "俊足の小早川瀬那が挑むアメフト。マイナー競技を圧倒的な画力と戦略で描き切った異色のスポーツマンガ。" },
   { id: "gintama", title: "銀魂", author: "空知英秋", year: 2004, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "nonsense"], desc: "天人が来訪した江戸を舞台にした万事屋・坂田銀時の物語。下ネタ全開のギャグと熱いシリアスの落差で熱狂的支持を得た。" },
+  { id: "masaru", title: "セクシーコマンドー外伝 すごいよ!!マサルさん", author: "うすた京介", year: 1995, magazine: "週刊少年ジャンプ", genres: ["nonsense", "fujori"], desc: "謎の格闘技「セクシーコマンドー」に打ち込むマサルさんと愉快な部員たち。脈絡を断ち切るシュールな間で90年代ジャンプにギャグ革命を起こした。" },
+  { id: "jaguar", title: "ピューと吹く!ジャガー", author: "うすた京介", year: 2000, magazine: "週刊少年ジャンプ", genres: ["nonsense", "fujori"], desc: "笛に人生を捧げる男・ジャガーに振り回される日々を描く脱力系ギャグ。じわじわ効いてくる会話の「ズレ」で10年連載を完走した、うすたギャグの完成形。" },
   { id: "kurobas", title: "黒子のバスケ", author: "藤巻忠俊", year: 2008, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "影の6人目・黒子とキセキの世代のバスケ。能力バトル的な演出でスポーツマンガに新風を吹き込んだ。" },
   { id: "haikyu", title: "ハイキュー!!", author: "古舘春一", year: 2012, magazine: "週刊少年ジャンプ", genres: ["spokon"], desc: "小柄な日向翔陽が挑む高校バレー。緻密な試合描写とチーム群像で、2010年代スポーツマンガの代表作となった。" },
   { id: "hero_aca", title: "僕のヒーローアカデミア", author: "堀越耕平", year: 2014, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "誰もが個性(能力)を持つ世界で、無個性の緑谷出久が最高のヒーローを目指す。アメコミ的世界観で世界的人気を獲得した。" },
