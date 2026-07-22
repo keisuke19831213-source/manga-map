@@ -775,6 +775,7 @@ export const WORKS: Work[] = [
 
   // ===== 追加(第2弾): 青年誌の傑作 =====
   { id: "mushishi", title: "蟲師", author: "漆原友紀", year: 1999, magazine: "月刊アフタヌーン", genres: ["yokai", "seinen_mag"], desc: "「蟲」と人の関わりを描く幻想譚。静謐で詩的な世界観が高く評価される連作短編の名作。" },
+  { id: "blueperiod", title: "ブルーピリオド", author: "山口つばさ", year: 2017, magazine: "月刊アフタヌーン", genres: ["seinen_mag", "spokon"], desc: "遊びも勉強もそつなくこなす八虎が、一枚の絵に心を撃たれ美大受験の世界へ。「好き」に人生を賭ける苦しさと歓びを真正面から描き、美術を青春の競技に変えた話題作。" },
   { id: "historie", title: "ヒストリエ", author: "岩明均", year: 2003, magazine: "月刊アフタヌーン", genres: ["gekiga_jidai"], desc: "古代ギリシャの書記官エウメネスの生涯。『寄生獣』の岩明均が描く緻密な歴史大河。" },
   { id: "baki", title: "グラップラー刃牙", author: "板垣恵介", year: 1991, magazine: "週刊少年チャンピオン", genres: ["jump_battle", "spokon"], desc: "最強を求める格闘家・範馬刃牙の死闘。過剰な肉体描写と独特の格闘理論でカルト的人気を誇る。" },
   { id: "akagi", title: "アカギ", author: "福本伸行", year: 1992, magazine: "近代麻雀", genres: ["gamble"], desc: "天才・赤木しげるの麻雀と生き様。命を賭けた勝負の哲学で麻雀劇画の頂点に立つ。" },
