@@ -61,6 +61,17 @@ export const SEARCH_ALIASES: Record<string, string[]> = {
   gto: ["グレートティーチャーオニヅカ"],
   h2: ["エイチツー"],
   vinland: ["ヴィンランドサガ"],
+  bluegiant: ["ブルージャイアント", "ブルジャイ"],
+  onepunch: ["ワンパンマン"],
+  drstone: ["ドクターストーン"],
+  drslump: ["ドクタースランプ", "アラレちゃん"],
+  monster: ["モンスター"],
+  pluto: ["プルートウ", "プルート"],
+  akira: ["アキラ"],
+  nana: ["ナナ"],
+  relife: ["リライフ"],
+  major: ["メジャー"],
+  yawara: ["ヤワラ"],
 };
 
 export interface SearchDoc<T> {
