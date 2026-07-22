@@ -7,13 +7,10 @@ import { readWorkMeta } from "@/lib/meta-server";
 import WorkPosts from "@/components/WorkPosts";
 import Cover, { AmazonButton } from "@/components/Cover";
 
-// 作品ページは初回アクセス時にオンデマンド生成し revalidate 秒キャッシュ(ISR)。
-// 全作品(200超)をビルド時に生成すると、各ページが書影メタ(Blob)を読むため
-// ビルドが不安定・遅くなる。書影は動的に変わるので、そもそも都度生成が理にかなう。
-export const dynamicParams = true;
-export function generateStaticParams() {
-  return [];
-}
+// 作品ページはリクエスト時にSSR(force-dynamic)。全作品(200超)をビルド時に生成すると
+// 各ページが書影メタ(Blob)を読むためビルドが不安定になる。書影は動的に変わるので
+// 都度生成が理にかなう。読みは readWorkMeta で1作品分だけ(+15s キャッシュ)なので軽い。
+export const dynamic = "force-dynamic";
 
 // シェア時のタイトル・説明文(静的カタログのみ。登録作品はサイト共通のまま)
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -30,8 +27,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-// 書影・アフィリエイト設定(Blob)の更新を反映するため定期的に再生成
-export const revalidate = 60;
 
 export default async function WorkDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
