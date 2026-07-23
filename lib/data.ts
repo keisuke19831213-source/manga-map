@@ -707,6 +707,7 @@ export const WORKS: Work[] = [
   { id: "monster", title: "MONSTER", author: "浦沢直樹", year: 1994, magazine: "ビッグコミックオリジナル", genres: ["shakai", "shonen_mystery"], desc: "天才外科医テンマが救った少年が連続殺人鬼に。ドイツを舞台にした重厚な人間ドラマとサスペンスの傑作。" },
   { id: "yawara", title: "YAWARA!", author: "浦沢直樹", year: 1986, magazine: "ビッグコミックスピリッツ", genres: ["spokon"], desc: "天才柔道少女・猪熊柔の日常と競技。バブル期の空気を軽やかに描いた青年誌スポーツ&ラブコメの名作。" },
   { id: "vagabond", title: "バガボンド", author: "井上雄彦", year: 1998, magazine: "モーニング", genres: ["gekiga_jidai", "gekiga"], desc: "吉川英治『宮本武蔵』を原作に、剣豪の生と強さの意味を描く。圧倒的な筆致で時代劇画を新たな高みへ引き上げた。" },
+  { id: "hyouge", title: "へうげもの", author: "山田芳裕", year: 2005, magazine: "モーニング", genres: ["gekiga_jidai"], desc: "戦国乱世を「武」ではなく「数寄(茶の湯と美)」で生き抜こうとした武将・古田織部の生涯。天下人と名物茶器に振り回される滑稽と、美への異常な執着を描き、歴史マンガに「美意識」という主題を持ち込んだ怪作。" },
   { id: "kingdom", title: "キングダム", author: "原泰久", year: 2006, magazine: "週刊ヤングジャンプ", genres: ["gekiga_jidai"], desc: "古代中国・春秋戦国末期、下僕の少年・信が大将軍を目指す。壮大な戦記と群像劇で青年誌屈指の大ヒットとなった。" },
   { id: "vinland", title: "ヴィンランド・サガ", author: "幸村誠", year: 2005, magazine: "週刊少年マガジン→アフタヌーン", genres: ["gekiga_jidai"], desc: "11世紀の北欧、復讐に生きる青年トルフィンが「真の戦士」へと変わっていく。史実に基づくヴァイキング叙事詩。" },
   { id: "planetes", title: "プラネテス", author: "幸村誠", year: 1999, magazine: "モーニング", genres: ["seinen_sf"], desc: "宇宙のデブリ回収員たちを描く近未来SF。宇宙開発のリアルと人間の内面を静かに描いた叙情的傑作。" },
