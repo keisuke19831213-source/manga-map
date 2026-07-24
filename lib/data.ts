@@ -787,6 +787,7 @@ export const WORKS: Work[] = [
   { id: "pluto", title: "PLUTO", author: "浦沢直樹・手塚治虫", year: 2003, magazine: "ビッグコミックオリジナル", genres: ["seinen_sf"], desc: "手塚治虫『鉄腕アトム』の「地上最大のロボット」を浦沢直樹がリメイク。ロボットと戦争を重厚に描いた傑作。" },
   { id: "kodoku", title: "孤独のグルメ", author: "久住昌之・谷口ジロー", year: 1994, magazine: "月刊PANJA", genres: ["gourmet"], desc: "中年男が一人で飯を食うだけの物語。派手な蘊蓄も事件もない「ただ食べる」ことの豊かさで新境地を開いた。" },
   { id: "shinya", title: "深夜食堂", author: "安倍夜郎", year: 2006, magazine: "ビッグコミックオリジナル", genres: ["gourmet"], desc: "深夜だけ開く小さな食堂に集う人々の人情群像。一皿ごとに描かれる市井のドラマが胸を打つ。" },
+  { id: "beck", title: "BECK", author: "ハロルド作石", year: 1999, magazine: "月刊少年マガジン", genres: ["spokon"], desc: "冴えない中学生コユキが、天才ギタリスト竜介と出会いバンド「BECK」に加わる。無音のマンガで「鳴っている音」を信じさせ、洋楽ロックの熱を日本の少年誌に持ち込んだ音楽マンガの代表作。" },
   { id: "bluegiant", title: "BLUE GIANT", author: "石塚真一", year: 2013, magazine: "ビッグコミック", genres: ["seinen_mag"], desc: "世界一のジャズプレイヤーを目指す少年の物語。音を絵で聴かせる圧巻の演奏描写で高く評価された。" },
   { id: "kusuriya", title: "薬屋のひとりごと", author: "日向夏・ねこクラゲ", year: 2017, magazine: "月刊サンデーGX / ビッグガンガン", genres: ["shonen_mystery", "gekiga_jidai"], desc: "後宮を舞台に、薬の知識で事件を解く少女・猫猫。中華風ミステリーとして大ヒットしたコミカライズ。" },
 
