@@ -30,12 +30,22 @@ export function asinCover(asin: string, large = false): string {
   return `https://images-na.ssl-images-amazon.com/images/P/${asin}.09._${large ? "SCLZZZZZZZ" : "SL160"}_.jpg`;
 }
 
+// 作品を代表するASIN。マップ・一覧・作品ページの「顔」は必ず第1巻にそろえる。
+// 単独の asin は映画タイアップの豪華版や外国語版が紛れ込むことがある(NDL/Amazon検索の副作用)
+// のに対し、volumes は全巻そろいで収集した同一シリーズなので、その1巻が最も安全。
+// volumes が無い作品だけ従来の asin にフォールバックする。
+export function primaryAsin(m: WorkMeta | undefined): string | null {
+  if (!m) return null;
+  const v1 = m.volumes?.find((v) => v.v === 1);
+  return v1?.asin ?? m.asin ?? null;
+}
+
 export function amazonLink(meta: SiteMeta, workId: string): string | null {
   const m = meta.works[workId];
   if (!m) return null;
   if (m.amazonUrl) return m.amazonUrl;
-  if (m.asin) return asinLink(meta, m.asin);
-  return null;
+  const asin = primaryAsin(m);
+  return asin ? asinLink(meta, asin) : null;
 }
 
 // 一覧・地図ピン用の軽量サムネイル(約160px, 大判の1/6サイズ)。モバイルのメモリ対策
@@ -48,11 +58,9 @@ export function coverSrc(meta: SiteMeta, workId: string): string | null {
   const m = meta.works[workId];
   if (!m) return null;
   if (m.coverUrl) return m.coverUrl;
-  if (m.asin) {
-    // ASINから書影を取得するAmazonの画像エンドポイント
-    return `https://images-na.ssl-images-amazon.com/images/P/${m.asin}.09._SCLZZZZZZZ_.jpg`;
-  }
-  return null;
+  const asin = primaryAsin(m);
+  // ASINから書影を取得するAmazonの画像エンドポイント
+  return asin ? `https://images-na.ssl-images-amazon.com/images/P/${asin}.09._SCLZZZZZZZ_.jpg` : null;
 }
 
 export function normalizeMeta(raw: unknown): SiteMeta {
