@@ -778,6 +778,7 @@ export const WORKS: Work[] = [
   { id: "mushishi", title: "蟲師", author: "漆原友紀", year: 1999, magazine: "月刊アフタヌーン", genres: ["yokai", "seinen_mag"], desc: "「蟲」と人の関わりを描く幻想譚。静謐で詩的な世界観が高く評価される連作短編の名作。" },
   { id: "blueperiod", title: "ブルーピリオド", author: "山口つばさ", year: 2017, magazine: "月刊アフタヌーン", genres: ["seinen_mag", "spokon"], desc: "遊びも勉強もそつなくこなす八虎が、一枚の絵に心を撃たれ美大受験の世界へ。「好き」に人生を賭ける苦しさと歓びを真正面から描き、美術を青春の競技に変えた話題作。" },
   { id: "eizouken", title: "映像研には手を出すな!", author: "大童澄瞳", year: 2016, magazine: "月刊!スピリッツ", genres: ["seinen_mag", "spokon"], desc: "設定オタクの浅草氏、カリスマ読者モデルの水崎氏、金勘定担当の金森氏が「最強の世界」を作るためアニメ制作に挑む。頭の中の空想がそのまま画面に噴き出す作画で、ものづくりの快感を描き切った。" },
+  { id: "thermae", title: "テルマエ・ロマエ", author: "ヤマザキマリ", year: 2008, magazine: "月刊コミックビーム", genres: ["gekiga_jidai", "nonsense"], desc: "古代ローマの浴場設計技師ルシウスが、現代日本の風呂へタイムスリップ。「平たい顔族」の技術に打ちのめされては持ち帰る、風呂だけで歴史と文明論をやり切った異色の比較文化ギャグ。" },
   { id: "historie", title: "ヒストリエ", author: "岩明均", year: 2003, magazine: "月刊アフタヌーン", genres: ["gekiga_jidai"], desc: "古代ギリシャの書記官エウメネスの生涯。『寄生獣』の岩明均が描く緻密な歴史大河。" },
   { id: "baki", title: "グラップラー刃牙", author: "板垣恵介", year: 1991, magazine: "週刊少年チャンピオン", genres: ["jump_battle", "spokon"], desc: "最強を求める格闘家・範馬刃牙の死闘。過剰な肉体描写と独特の格闘理論でカルト的人気を誇る。" },
   { id: "akagi", title: "アカギ", author: "福本伸行", year: 1992, magazine: "近代麻雀", genres: ["gamble"], desc: "天才・赤木しげるの麻雀と生き様。命を賭けた勝負の哲学で麻雀劇画の頂点に立つ。" },
@@ -899,6 +900,10 @@ export const SPOTS: MapSpot[] = [
   {
     id: "w-versailles", map: "world", lon: 2.12, lat: 48.8, place: "フランス・パリ / ヴェルサイユ",
     works: [{ workId: "berubara", note: "革命前夜のヴェルサイユ宮殿。オスカルが駆けた石畳の街" }],
+  },
+  {
+    id: "w-rome", map: "world", lon: 12.5, lat: 41.9, dx: 6, dy: 8, place: "イタリア・ローマ",
+    works: [{ workId: "thermae", note: "2世紀の帝都。ルシウスが設計した公衆浴場テルマエの街" }],
   },
   {
     id: "w-arles", map: "world", lon: 4.63, lat: 43.68, dy: 8, place: "南フランス・アルル",
@@ -1222,6 +1227,7 @@ export const TIMELINE: TimelineEntry[] = [
 
   // ---- ヨーロッパ ----
   { workId: "historie", region: "europe", year: -335, label: "紀元前4世紀", note: "アレクサンドロス大王の時代を生きる書記官" },
+  { workId: "thermae", region: "europe", year: 130, label: "ハドリアヌス帝の時代", note: "古代ローマの浴場技師が現代日本の風呂へ" },
   { workId: "vinland", region: "europe", year: 1013, label: "11世紀", note: "ヴァイキング全盛期の北欧と英国" },
   { workId: "berubara", region: "europe", year: 1789, label: "フランス革命", note: "ヴェルサイユの薔薇、オスカルの運命" },
   { workId: "poe", region: "europe", year: 1795, label: "18世紀末〜", note: "永遠を生きる一族の200年の旅" },
