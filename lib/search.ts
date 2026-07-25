@@ -63,6 +63,7 @@ export const SEARCH_ALIASES: Record<string, string[]> = {
   vinland: ["ヴィンランドサガ"],
   bluegiant: ["ブルージャイアント", "ブルジャイ"],
   eizouken: ["エイゾウケン"],
+  ellen: ["左利きのエレン", "ヒダリキキノエレン", "エレン"],
   onepunch: ["ワンパンマン"],
   drstone: ["ドクターストーン"],
   drslump: ["ドクタースランプ", "アラレちゃん"],

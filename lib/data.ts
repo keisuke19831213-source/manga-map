@@ -684,7 +684,7 @@ export const WORKS: Work[] = [
   { id: "drstone", title: "Dr.STONE", author: "稲垣理一郎・Boichi", year: 2017, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "seinen_sf"], desc: "人類が石化した世界を科学の力で再建する千空の物語。「科学で無双」という新機軸で少年誌に知的興奮を持ち込んだ。" },
   { id: "jujutsu", title: "呪術廻戦", author: "芥見下々", year: 2018, magazine: "週刊少年ジャンプ", genres: ["dark_fantasy"], desc: "呪いを祓う呪術師たちの死闘。負の感情から生まれる呪霊という設定と現代的な演出で、令和のジャンプを代表するヒットに。" },
   { id: "spyfamily", title: "SPY×FAMILY", author: "遠藤達哉", year: 2019, magazine: "少年ジャンプ+", genres: ["webcomic", "nonsense"], desc: "スパイ・超能力者・殺し屋が「仮初めの家族」を演じるホームコメディ。Web連載発で全世代的な大ヒットとなった。" },
-  { id: "ellen", title: "左利きのエレン", author: "かっぴー・nifuni", year: 2017, magazine: "少年ジャンプ+", genres: ["webcomic", "business"], desc: "広告代理店のデザイナー・朝倉光一と、天才画家・山岸エレン。「天才になれなかったすべての人へ」を掲げ、才能への嫉妬と折り合いをつけながら働き続けることを描いた、Web発のクリエイター群像劇。" },
+  { id: "ellen", title: "左ききのエレン", author: "かっぴー・nifuni", year: 2017, magazine: "少年ジャンプ+", genres: ["webcomic", "business"], desc: "広告代理店のデザイナー・朝倉光一と、天才画家・山岸エレン。「天才になれなかったすべての人へ」を掲げ、才能への嫉妬と折り合いをつけながら働き続けることを描いた、Web発のクリエイター群像劇。" },
   { id: "fma", title: "鋼の錬金術師", author: "荒川弘", year: 2001, magazine: "月刊少年ガンガン", genres: ["dark_fantasy", "jump_battle"], desc: "錬金術で身体を失った兄弟の旅。等価交換のテーマと緻密な伏線回収で、月刊少年誌屈指の完成度を誇る名作。" },
   { id: "dai", title: "DRAGON QUEST ダイの大冒険", author: "三条陸・稲田浩司", year: 1989, magazine: "週刊少年ジャンプ", genres: ["jump_battle"], desc: "ゲーム『ドラゴンクエスト』の世界を舞台にした勇者ダイの冒険。王道ファンタジーバトルの完成形として今も愛される。" },
 
