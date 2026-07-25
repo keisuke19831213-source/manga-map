@@ -644,6 +644,7 @@ export const WORKS: Work[] = [
   // ===== 追加: 名作・ヒット作(源流〜昭和の古典) =====
   { id: "sazae", title: "サザエさん", author: "長谷川町子", year: 1946, magazine: "夕刊フクニチ→朝日新聞", genres: ["newspaper"], desc: "磯野家を中心とした日常を描く新聞4コマの金字塔。戦後日本の家庭像そのものとなり、国民的アニメへと続いた。" },
   { id: "tetsujin28", title: "鉄人28号", author: "横山光輝", year: 1956, magazine: "少年", genres: ["gekkan"], desc: "リモコンで操る巨大ロボットと少年・金田正太郎。鉄腕アトムと並ぶ巨大ロボットマンガの原点となった。" },
+  { id: "babil", title: "バビル2世", author: "横山光輝", year: 1971, magazine: "週刊少年チャンピオン", genres: ["weekly"], desc: "古代バビロニアの超人の力を受け継いだ少年・浩一が、三つのしもべを従えて世界征服を企むヨミと戦う。念力・テレパシーを「技」として描き切り、後の超能力バトルマンガの原型となった。" },
   { id: "osomatsu", title: "おそ松くん", author: "赤塚不二夫", year: 1962, magazine: "週刊少年サンデー", genres: ["akatsuka"], desc: "六つ子とイヤミ、チビ太らが暴れるギャグの古典。「シェー」は流行語となり、キャラクターギャグを確立した。" },
   { id: "hinotori", title: "火の鳥", author: "手塚治虫", year: 1967, magazine: "COM", genres: ["com", "story"], desc: "生命と輪廻を壮大なスケールで描く手塚治虫のライフワーク。過去編と未来編が交互に進む構成で「マンガの神様」の思想が凝縮されている。" },
   { id: "doraemon", title: "ドラえもん", author: "藤子・F・不二雄", year: 1969, magazine: "小学館の学年誌", genres: ["gekkan"], desc: "未来から来た猫型ロボットと、のび太のひみつ道具をめぐる物語。国民的キャラクターとして世界中で愛される児童マンガの最高峰。" },
