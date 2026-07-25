@@ -826,6 +826,89 @@ main {
   z-index: 2;
 }
 
+/* ---- 名場面タイムライン(全巻を貫く1本の感情の地図) ---- */
+.wtl {
+  border: 2.5px solid var(--ink);
+  background: #fffdf4;
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 14px 16px 12px;
+  margin: 8px 0 26px;
+}
+
+.wtl-title {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.wtl-sub {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin: 2px 0 14px;
+}
+
+.wtl-track {
+  position: relative;
+  border-bottom: 2px solid rgba(23, 19, 16, 0.35);
+  margin: 0 6px;
+}
+
+.wtl-tick {
+  position: absolute;
+  top: 0;
+  bottom: -2px;
+  width: 0;
+  border-left: 1.5px dashed rgba(23, 19, 16, 0.16);
+}
+
+.wtl-tick span {
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: 800;
+  color: rgba(23, 19, 16, 0.45);
+  white-space: nowrap;
+}
+
+.wtl-dot {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: #fff;
+  font-size: 11px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s;
+  z-index: 1;
+  font-family: var(--font-base);
+}
+
+.wtl-dot:hover {
+  transform: scale(1.4);
+  z-index: 3;
+}
+
+.wtl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.wtl-legend span {
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
 /* ---- シーン名タグ ---- */
 /* ---- 作品ページのセクションジャンプ ---- */
 .wk-jump {

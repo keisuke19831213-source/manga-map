@@ -7,6 +7,7 @@ import { asinCover, asinLink, coverThumb, type SiteMeta } from "@/lib/affiliate"
 import { useMeta } from "@/lib/useMeta";
 import { EMOTIONS, emotionOf, type EmotionId } from "@/lib/emotions";
 import type { BubbleFont, BubbleStyle, Post } from "@/lib/posts";
+import WorkTimeline, { posOf, volNum } from "@/components/WorkTimeline";
 
 function fmtDate(iso: string) {
   const d = new Date(iso);
@@ -39,20 +40,6 @@ function inVolLabel(p: Post): string {
   if (p.panel) parts.push(p.panel);
   return parts.join(" · ");
 }
-
-// 巻内の読書位置(0-100)。Kindle%はそのまま、ページは1冊≈220pとして換算
-function posOf(p: Post): number | null {
-  if (!p.page) return null;
-  const n = parseFloat(p.page);
-  if (!Number.isFinite(n)) return null;
-  if (p.page.includes("%")) return Math.max(0, Math.min(100, n));
-  return Math.max(0, Math.min(98, (n / 220) * 100));
-}
-
-const volNum = (p: Post): number => {
-  const n = parseInt((p.volume || "").replace(/[^0-9]/g, ""), 10);
-  return Number.isFinite(n) && n > 0 ? n : 0; // 0 = 巻の指定なし
-};
 
 /* ================= 全巻書影シェルフ ================= */
 function VolumeShelf({
@@ -254,6 +241,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       {/* セクションジャンプ(長いページの回遊用) */}
       <nav className="wk-jump" aria-label="ページ内セクション">
         {volumes.length > 0 && <a href="#shelf">📚 巻をそろえる</a>}
+        {comments.some((p) => volNum(p) > 0) && <a href="#timeline">🗺 タイムライン</a>}
         {emotionTotal > 0 && <a href="#emotions">💗 感情</a>}
         <a href="#talks">💬 コマ語り{comments.length > 0 ? ` (${comments.length})` : ""}</a>
         <a href="#recommends">👍 おすすめ{recommends.length > 0 ? ` (${recommends.length})` : ""}</a>
@@ -261,6 +249,13 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
 
       <div id="shelf" className="wk-anchor" />
       <VolumeShelf workId={workId} workTitle={workTitle} meta={meta} commentCounts={commentCounts} onJump={jumpToVolume} />
+
+      <div id="timeline" className="wk-anchor" />
+      <WorkTimeline
+        comments={comments}
+        shelfMaxVol={volumes.length > 0 ? Math.max(...volumes.map((x) => x.v)) : 0}
+        onJump={jumpToPost}
+      />
 
       <div id="emotions" className="wk-anchor" />
       {emotionTotal > 0 && (
