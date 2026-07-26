@@ -683,6 +683,7 @@ export const WORKS: Work[] = [
   { id: "promised", title: "約束のネバーランド", author: "白井カイウ・出水ぽすか", year: 2016, magazine: "週刊少年ジャンプ", genres: ["shonen_mystery", "dark_fantasy"], desc: "農園という名の孤児院に隠された真実に、子どもたちが知略で立ち向かう。頭脳戦とダークな世界観を融合させた話題作。" },
   { id: "drstone", title: "Dr.STONE", author: "稲垣理一郎・Boichi", year: 2017, magazine: "週刊少年ジャンプ", genres: ["jump_battle", "seinen_sf"], desc: "人類が石化した世界を科学の力で再建する千空の物語。「科学で無双」という新機軸で少年誌に知的興奮を持ち込んだ。" },
   { id: "jujutsu", title: "呪術廻戦", author: "芥見下々", year: 2018, magazine: "週刊少年ジャンプ", genres: ["dark_fantasy"], desc: "呪いを祓う呪術師たちの死闘。負の感情から生まれる呪霊という設定と現代的な演出で、令和のジャンプを代表するヒットに。" },
+  { id: "nigeue", title: "逃げ上手の若君", author: "松井優征", year: 2021, magazine: "週刊少年ジャンプ", genres: ["gekiga_jidai", "jump_battle"], desc: "鎌倉幕府滅亡で全てを失った少年・北条時行が、唯一の才能「逃げ」を武器に頂点を目指す。『暗殺教室』の松井優征が、地味とされた南北朝時代を少年マンガの主戦場に変えた異色の歴史活劇。" },
   { id: "spyfamily", title: "SPY×FAMILY", author: "遠藤達哉", year: 2019, magazine: "少年ジャンプ+", genres: ["webcomic", "nonsense"], desc: "スパイ・超能力者・殺し屋が「仮初めの家族」を演じるホームコメディ。Web連載発で全世代的な大ヒットとなった。" },
   { id: "ellen", title: "左ききのエレン", author: "かっぴー・nifuni", year: 2017, magazine: "少年ジャンプ+", genres: ["webcomic", "business"], desc: "広告代理店のデザイナー・朝倉光一と、天才画家・山岸エレン。「天才になれなかったすべての人へ」を掲げ、才能への嫉妬と折り合いをつけながら働き続けることを描いた、Web発のクリエイター群像劇。" },
   { id: "fma", title: "鋼の錬金術師", author: "荒川弘", year: 2001, magazine: "月刊少年ガンガン", genres: ["dark_fantasy", "jump_battle"], desc: "錬金術で身体を失った兄弟の旅。等価交換のテーマと緻密な伏線回収で、月刊少年誌屈指の完成度を誇る名作。" },
@@ -1191,6 +1192,7 @@ export const TIMELINE: TimelineEntry[] = [
   // ---- 日本 ----
   { workId: "chojugiga", region: "japan", year: 1150, label: "平安時代末期", note: "兎と蛙が相撲をとる、墨線だけの戯画絵巻" },
   { workId: "hokusai", region: "japan", year: 1814, label: "江戸後期(文化年間)", note: "北斎が描いた約4000点の素描。「漫画」の語を広めた絵手本" },
+  { workId: "nigeue", region: "japan", year: 1333, label: "鎌倉幕府滅亡〜南北朝", note: "すべてを失った北条時行が「逃げ」で挑む再起" },
   { workId: "vagabond", region: "japan", year: 1600, label: "1600年頃(関ヶ原直後)", note: "無双を目指す宮本武蔵の求道" },
   { workId: "kamui", region: "japan", year: 1645, label: "江戸初期", note: "忍者カムイと身分社会の大河劇画" },
   { workId: "ooku", region: "japan", year: 1716, label: "江戸中期", note: "男女逆転の江戸城大奥" },
