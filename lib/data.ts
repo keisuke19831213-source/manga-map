@@ -798,6 +798,7 @@ export const WORKS: Work[] = [
   { id: "animal_doctor", title: "動物のお医者さん", author: "佐々木倫子", year: 1987, magazine: "花とゆめ", genres: ["nonsense"], desc: "北海道の獣医学部を舞台にした脱力系コメディ。シベリアンハスキーブームを起こした少女誌の異色作。" },
   { id: "patalliro", title: "パタリロ!", author: "魔夜峰央", year: 1978, magazine: "花とゆめ", genres: ["nonsense", "bl"], desc: "常若の王パタリロが引き起こすギャグと美形スパイの物語。少女誌の長寿ギャグ&BLの先駆けとして知られる。" },
   { id: "yona", title: "暁のヨナ", author: "草凪みずほ", year: 2009, magazine: "花とゆめ", genres: ["shojo_romance"], desc: "国を追われた王女ヨナの成長と冒険。ファンタジー大河として少女マンガの枠を広げた人気作。" },
+  { id: "7seeds", title: "7SEEDS", author: "田村由美", year: 2001, magazine: "別冊少女コミック→月刊flowers", genres: ["shojo_romance", "seinen_sf"], desc: "隕石衝突後の日本で目覚めた若者たちのサバイバル。少女マンガの器で終末SFを16年35巻描き切り、小学館漫画賞を受賞した大河。" },
   { id: "ouran", title: "桜蘭高校ホスト部", author: "葉鳥ビスコ", year: 2002, magazine: "LaLa", genres: ["shojo_romance"], desc: "名門校のホスト部に巻き込まれた少女ハルヒ。逆ハーレムコメディの代表作として人気を博した。" },
   { id: "tarareba", title: "東京タラレバ娘", author: "東村アキコ", year: 2014, magazine: "Kiss", genres: ["ladies"], desc: "アラサー女子の恋と焦りをシビアかつコミカルに描く。等身大の共感で女性読者の圧倒的支持を得た。" },
   { id: "sekaiichi", title: "世界一初恋", author: "中村春菊", year: 2006, magazine: "エメラルド", genres: ["bl"], desc: "編集部を舞台にした社会人BLの人気作。商業BLの拡大を象徴する代表的シリーズ。" },
