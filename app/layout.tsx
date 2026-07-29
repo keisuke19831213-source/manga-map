@@ -6,7 +6,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "MANGA MAP — マンガの歴史とジャンルの進化マップ",
   description:
-    "musicmapのマンガ版。ジャンル系統マップ、舞台マップ(世界/日本)、時代設定タイムラインでマンガの歴史を可視化。おすすめ投稿とコマ単位のコメントは吹き出しで。",
+    "マンガ100年の系譜を一枚の地図に。ジャンル系統マップ、舞台マップ(世界/日本)、時代設定タイムラインでマンガの歴史を可視化。おすすめ投稿とコマ単位のコメントは吹き出しで。",
   openGraph: {
     title: "MANGA MAP — マンガの歴史とジャンルの進化マップ",
     description:
