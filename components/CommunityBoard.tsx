@@ -27,6 +27,7 @@ const CB = {
     comment: "おすすめコメント", commentPh: "この作品のどこが凄い? どんな人に読んでほしい?",
     preview: "プレビュー", busy: "投稿中…", submit: "おすすめを投稿する!!",
     ok: "投稿しました!", fail: "投稿に失敗しました", none: "まだ投稿がありません。",
+    formLabel: "投稿コーナー",
   },
   en: {
     nick: "Nickname (optional)", nickPh: "An anonymous reader",
@@ -36,6 +37,7 @@ const CB = {
     comment: "Why you recommend it", commentPh: "What is great about it? Who should read it?",
     preview: "Preview", busy: "Posting…", submit: "Post your recommendation!!",
     ok: "Posted!", fail: "Could not post", none: "No posts yet.",
+    formLabel: "Post here",
   },
 } as const;
 
@@ -101,7 +103,11 @@ export default function CommunityBoard() {
   return (
     <>
       {adminKey ? (
-      <form className="post-form" onSubmit={submit}>
+      <form
+        className="post-form"
+        style={{ ["--form-label" as string]: `"${cb.formLabel}"` }}
+        onSubmit={submit}
+      >
         <div className="row">
           <div className="field">
             <label>{cb.nick}</label>

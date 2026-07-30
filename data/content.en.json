@@ -1272,6 +1272,10 @@
     },
     "monster": {
       "desc": "A boy the genius surgeon Tenma saved becomes a serial killer. A weighty human drama and suspense set across Germany."
+    },
+    "uw-1783194623967-059g": {
+      "title": "Parasyte",
+      "desc": "Science-fiction suspense about the coexistence of Shinichi, a high-school student, and Migi, the creature that has taken over his right hand. Its overwhelming command of structure, asking what a human being actually is, made it a monument of 1990s seinen manga."
     }
   },
   "timeline": {
@@ -1602,7 +1606,44 @@
     "読売新聞": "Yomiuri Shimbun",
     "漫画少年": "Manga Shonen",
     "青林堂": "Seirindo",
-    "少女コミック": "Shojo Comic"
+    "少女コミック": "Shojo Comic",
+    "モーニングオープン増刊 → 月刊アフタヌーン": "Morning Open Zokan → Monthly Afternoon",
+    "高山寺蔵(国宝)": "Held at Kozan-ji (National Treasure)",
+    "版本(全15編)": "woodblock edition (15 parts)",
+    "育英出版(赤本)": "Ikuei Shuppan (akahon)",
+    "単行本描き下ろし": "drawn for the collected edition",
+    "夕刊フクニチ→朝日新聞": "Yukan Fukunichi → Asahi Shimbun",
+    "希望の友→コミックトム": "Kibo no Tomo → Comic Tom",
+    "小学館の学年誌": "Shogakukan's grade magazines",
+    "アクションデラックス": "Action Deluxe",
+    "月刊アニマルハウス→ヤングアニマル": "Monthly Animal House → Young Animal",
+    "ヤングマガジン海賊版": "Young Magazine Kaizokuban",
+    "近代麻雀ゴールド": "Kindai Mahjong Gold",
+    "月刊PANJA": "Monthly PANJA",
+    "ミラクルジャンプ→週刊ヤングジャンプ": "Miracle Jump → Weekly Young Jump",
+    "月刊少年ジャンプ→ジャンプSQ.": "Monthly Shonen Jump → Jump SQ.",
+    "別冊少女コミック→月刊flowers": "Bessatsu Shojo Comic → Monthly Flowers",
+    "週刊少年マガジン→アフタヌーン": "Weekly Shonen Magazine → Afternoon",
+    "ヤングユー→コーラス": "Young You → Chorus",
+    "月刊サンデーGX / ビッグガンガン": "Monthly Sunday GX / Big Gangan",
+    "まんがタイムきらら☆マギカ": "Manga Time Kirara Magica",
+    "月刊コミックアライブ他": "Monthly Comic Alive and others",
+    "マンガ・エロティクス・エフ": "Manga Erotics F",
+    "ガンガンONLINE": "Gangan ONLINE",
+    "good!アフタヌーン": "good! Afternoon",
+    "アクションピザッツ": "Action Pizazz",
+    "月刊ガンガンJOKER": "Monthly Gangan JOKER",
+    "月刊ドラゴンエイジ": "Monthly Dragon Age",
+    "コンプエース": "Comp Ace",
+    "月刊コンプティーク": "Monthly Comptiq",
+    "エメラルド": "Emerald",
+    "モーニング・ツー": "Morning Two",
+    "月刊少年エース": "Monthly Shonen Ace",
+    "月刊!スピリッツ": "Monthly! Spirits",
+    "月刊コミックビーム": "Monthly Comic Beam",
+    "まんがライフ": "Manga Life",
+    "まんがタイムきららフォワード": "Manga Time Kirara Forward",
+    "月刊サンデーGX": "Monthly Sunday GX"
   },
   "emotions": {
     "cry": {

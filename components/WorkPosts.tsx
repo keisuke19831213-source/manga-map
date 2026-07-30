@@ -57,6 +57,9 @@ const WP = {
     shelfSub: "書影をクリックするとAmazonでその巻が開きます。💬 はその巻への語りの数 — クリックで読めます。",
     panelMap: "コマ語りマップ", allRecs: "みんなのおすすめ", readVol: "この巻を読む →",
     panelMapSub: "名場面・名ゴマをピンポイントで語る。バーは1冊の読書位置 — ●をタップするとその語りへ飛びます",
+    formLabel: "投稿コーナー",
+    formSub: (tt: string) =>
+      `『${tt}』への熱いセリフをどうぞ。巻・ページ(Kindleなら位置%)・コマまで指定して、マニアックに語れます。`,
   },
   en: {
     lang: "en" as const,
@@ -86,6 +89,9 @@ const WP = {
     shelfSub: "Click a cover to open that volume on Amazon. 💬 is how many people have talked about that volume — click to read them.",
     panelMap: "Panel-talk map", allRecs: "Recommendations", readVol: "Read this volume →",
     panelMapSub: "Talk about one exact scene or panel. The bar is your position through a volume — tap a dot to jump to that post.",
+    formLabel: "Post here",
+    formSub: (tt: string) =>
+      `Say something about ${tt}. You can point at the volume, the page (or the % position on Kindle) and even the panel, and go as deep as you like.`,
   },
 } as const;
 
@@ -354,10 +360,14 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       <>
       <h2 className="section-title">{wp.postVoice}</h2>
       <p className="section-sub">
-        『{workTitle}』への熱いセリフをどうぞ。巻・ページ(Kindleなら位置%)・コマまで指定して、マニアックに語れます。
+        {wp.formSub(workTitle)}
       </p>
 
-      <form className="post-form" onSubmit={submit}>
+      <form
+        className="post-form"
+        style={{ ["--form-label" as string]: `"${wp.formLabel}"` }}
+        onSubmit={submit}
+      >
         <div className="row">
           <button
             type="button"
