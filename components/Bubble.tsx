@@ -1,5 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import { langFromPath, t } from "@/lib/i18n";
+
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { BubbleFont, BubbleStyle } from "@/lib/posts";
@@ -339,7 +342,7 @@ export function PostMeta({
   return (
     <>
       <span className={`type-tag ${type === "comment" ? "type-comment-tag" : ""}`}>
-        {type === "recommend" ? "おすすめ" : "コマ語り"}
+        {t(type === "recommend" ? "post.recommend" : "post.panel", langFromPath(usePathname() || "/"))}
       </span>
       {workTitle && workId && (
         <Link className="worklink" href={`/works/${workId}`}>

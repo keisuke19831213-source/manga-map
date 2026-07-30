@@ -605,7 +605,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
                     {many && lod > 0 && <span className="mp-cnt">{b.members.length}</span>}
                   </div>
                   <i className="mp-tip" />
-                  <b className="mp-name">{many ? `${title} ほか` : title}</b>
+                  <b className="mp-name">{many ? `${title} ${t("atlas.others", lang)}` : title}</b>
                 </div>
               </div>
             );

@@ -7,6 +7,9 @@ import { useMeta } from "@/lib/useMeta";
 import { coverThumb } from "@/lib/affiliate";
 import { buildDoc, fold, scoreDoc, strip, SEARCH_ALIASES, type SearchDoc } from "@/lib/search";
 import type { Work } from "@/lib/data";
+import { langFromPath, lp, t } from "@/lib/i18n";
+import { workTitle } from "@/lib/content-en";
+import { usePathname } from "next/navigation";
 
 // ヘッダーの作品検索。
 // ・かな/カナ・全角/半角・記号ゆれを吸収(「じょじょ」「はがれん」「らきすた」でもヒット)
@@ -23,11 +26,16 @@ export default function SearchBox() {
   const [open, setOpen] = useState(false);
   const [cursor, setCursor] = useState(0);
   const router = useRouter();
+  const lang = langFromPath(usePathname() || "/");
   const inputRef = useRef<HTMLInputElement>(null);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const docs = useMemo<SearchDoc<Work>[]>(
-    () => works.map((w) => buildDoc(w, w.title, w.author, SEARCH_ALIASES[w.id])),
+    () =>
+      works.map((w) =>
+        // 英題も検索語に入れる（英語で来た人が Attack on Titan で引ける）
+        buildDoc(w, w.title, w.author, [...(SEARCH_ALIASES[w.id] ?? []), workTitle(w, "en")])
+      ),
     [works],
   );
 
@@ -72,8 +80,8 @@ export default function SearchBox() {
   const act = (row: Row | undefined) => {
     if (!row) return;
     if (blurTimer.current) clearTimeout(blurTimer.current);
-    if (row.kind === "work") router.push(`/works/${row.w.id}`);
-    else router.push(`/works?q=${encodeURIComponent(query)}`);
+    if (row.kind === "work") router.push(`${lp(lang, "/works")}/${row.w.id}`);
+    else router.push(`${lp(lang, "/works")}?q=${encodeURIComponent(query)}`);
     setQ("");
     close();
     inputRef.current?.blur();
@@ -96,14 +104,15 @@ export default function SearchBox() {
 
   // マッチ箇所ハイライト(foldは1文字→1文字なので元文字列のindexがそのまま使える)
   const renderTitle = (w: Work) => {
-    if (!qF) return w.title;
-    const idx = fold(w.title).indexOf(qF);
-    if (idx < 0) return w.title;
+    const shown = workTitle(w, lang);
+    if (!qF) return shown;
+    const idx = fold(shown).indexOf(qF);
+    if (idx < 0) return shown;
     return (
       <>
-        {w.title.slice(0, idx)}
-        <mark>{w.title.slice(idx, idx + qF.length)}</mark>
-        {w.title.slice(idx + qF.length)}
+        {shown.slice(0, idx)}
+        <mark>{shown.slice(idx, idx + qF.length)}</mark>
+        {shown.slice(idx + qF.length)}
       </>
     );
   };
@@ -116,7 +125,7 @@ export default function SearchBox() {
       <input
         ref={inputRef}
         value={q}
-        placeholder="🔍 作品・作者をさがす"
+        placeholder={`🔍 ${t("search", lang)}`}
         onChange={(e) => {
           setQ(e.target.value);
           setOpen(true);
@@ -140,12 +149,12 @@ export default function SearchBox() {
             inputRef.current?.blur();
           }
         }}
-        aria-label="作品検索"
+        aria-label={t("search.aria", lang)}
       />
       {q && (
         <button
           className="searchbox-clear"
-          aria-label="検索をクリア"
+          aria-label={t("lib.clear", lang)}
           onMouseDown={(e) => {
             e.preventDefault();
             setQ("");
@@ -158,7 +167,7 @@ export default function SearchBox() {
       )}
       {(showDrop || showEmpty) && (
         <div className="searchbox-drop">
-          {!query && <div className="searchbox-sec">📚 今日のおすすめ</div>}
+          {!query && <div className="searchbox-sec">📚 {t("search.today", lang)}</div>}
           {rows.map((row, i) =>
             row.kind === "work" ? (
               <button
@@ -193,25 +202,29 @@ export default function SearchBox() {
                 }}
                 onMouseEnter={() => setCursor(i)}
               >
-                「{query}」を作品図鑑でさがす →
+                {lang === "en" ? `"${query}" ` : `「${query}」`}
+                {t("search.all", lang)}
               </button>
             ),
           )}
           {showEmpty && (
             <div className="searchbox-none">
-              <div className="ne">「{query}」に合う作品が見つかりません</div>
-              <div className="nh">かな・略称でも検索できます(例: はがれん、こち亀)</div>
+              <div className="ne">
+                {lang === "en" ? `"${query}" ` : `「${query}」`}
+                {t("search.noneFor", lang)}
+              </div>
+              <div className="nh">{t("search.noneHint", lang)}</div>
               <button
                 className="searchbox-item all"
                 onMouseDown={(e) => {
                   e.preventDefault();
                   if (blurTimer.current) clearTimeout(blurTimer.current);
-                  router.push("/works");
+                  router.push(lp(lang, "/works"));
                   setQ("");
                   close();
                 }}
               >
-                作品図鑑をながめる →
+                {t("search.browse", lang)}
               </button>
             </div>
           )}

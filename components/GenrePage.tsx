@@ -26,6 +26,7 @@ import {
   genreDesc,
   genreName,
   hasEnGenre,
+  magazineName,
   workDesc,
   workTitle,
 } from "@/lib/content-en";
@@ -178,7 +179,7 @@ export default function GenrePage({ id, lang = "ja" }: { id: string; lang?: Lang
                     </Link>
                     <div className="gw-au">
                       {w.author}
-                      {w.magazine ? ` / ${w.magazine}` : ""}
+                      {w.magazine ? ` / ${magazineName(w.magazine, lang)}` : ""}
                     </div>
                     <p>{workDesc(w, lang)}</p>
                     <div className="gw-foot">

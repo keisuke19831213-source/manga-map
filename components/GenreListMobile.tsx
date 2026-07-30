@@ -6,15 +6,17 @@ import { coverThumb, amazonLink } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useWorks } from "@/lib/useWorks";
 import { AmazonButton } from "@/components/Cover";
+import { lp, t, type Lang } from "@/lib/i18n";
+import { catBlurb, catName, genreDesc, genreName, workTitle } from "@/lib/content-en";
 
-const EDGE_LABEL: Record<string, string> = {
-  evolution: "直系の進化",
-  influence: "影響",
-  counter: "対抗・反発",
+const EDGE_KEY: Record<string, string> = {
+  evolution: "tree.legend.evolution",
+  influence: "tree.edge.influence",
+  counter: "tree.edge.counter",
 };
 
 // スマホ用: ジャンル系統図の縦スクロール版(カテゴリ別アコーディオン)
-export default function GenreListMobile() {
+export default function GenreListMobile({ lang = "ja" }: { lang?: Lang }) {
   const meta = useMeta();
   const { works: allWorks } = useWorks();
 
@@ -29,11 +31,8 @@ export default function GenreListMobile() {
   return (
     <div className="page" style={{ paddingTop: 20 }}>
       <div className="page-en">GENRE MAP</div>
-      <h1>ジャンル系統図</h1>
-      <p className="page-lead">
-        マンガのジャンルがどう生まれ、影響し合ってきたかの系譜。ジャンルをタップすると解説・代表作・つながりが開きます。
-        (PCでは一枚のズームマップで表示されます)
-      </p>
+      <h1>{t("nav.map", lang)}</h1>
+      <p className="page-lead">{t("gl.lead", lang)}</p>
 
       {CATEGORIES.map((c) => {
         const genres = GENRES.filter((g) => g.cat === c.id).sort((a, b) => a.year - b.year);
@@ -53,9 +52,9 @@ export default function GenreListMobile() {
                 marginBottom: 4,
               }}
             >
-              {c.name}
+              {catName(c, lang)}
             </div>
-            <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: "4px 0 10px" }}>{c.blurb}</p>
+            <p style={{ fontSize: 11.5, color: "var(--ink-soft)", margin: "4px 0 10px" }}>{catBlurb(c, lang)}</p>
 
             {genres.map((g) => {
               const works = allWorks.filter((w) => w.genres.includes(g.id)).sort((a, b) => a.year - b.year);
@@ -65,23 +64,23 @@ export default function GenreListMobile() {
                 <details key={g.id} id={`g-${g.id}`} className="acc" style={{ borderLeftColor: c.color }}>
                   <summary>
                     <span className="acc-year">{g.year}</span>
-                    <span className="acc-name">{g.name}</span>
-                    <span className="acc-en">{g.en}</span>
+                    <span className="acc-name">{genreName(g, lang)}</span>
+                    <span className="acc-en">{lang === "en" ? g.name : g.en}</span>
                   </summary>
                   <div className="acc-body">
-                    <p style={{ fontSize: 12.5, lineHeight: 1.9, margin: "6px 0 10px" }}>{g.desc}</p>
+                    <p style={{ fontSize: 12.5, lineHeight: 1.9, margin: "6px 0 10px" }}>{genreDesc(g, lang)}</p>
 
                     {works.length > 0 && (
                       <div className="acc-works">
                         {works.map((w) => (
-                          <Link key={w.id} href={`/works/${w.id}`} className="acc-work">
+                          <Link key={w.id} href={lp(lang, `/works/${w.id}`)} className="acc-work">
                             {coverThumb(meta, w.id) ? (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={coverThumb(meta, w.id)!} alt={w.title} loading="lazy" />
+                              <img src={coverThumb(meta, w.id)!} alt={workTitle(w, lang)} loading="lazy" />
                             ) : (
                               <span className="ph">📖</span>
                             )}
-                            <span className="t">{w.title}</span>
+                            <span className="t">{workTitle(w, lang)}</span>
                           </Link>
                         ))}
                       </div>
@@ -94,7 +93,7 @@ export default function GenreListMobile() {
                           if (!o) return null;
                           return (
                             <button key={`i${i}`} className="style-opt" style={{ margin: "0 6px 6px 0", borderColor: catOf(o).color }} onClick={() => jump(o.id)}>
-                              ← {o.name} <small>({EDGE_LABEL[e.kind]})</small>
+                              ← {genreName(o, lang)} <small>({t(EDGE_KEY[e.kind], lang)})</small>
                             </button>
                           );
                         })}
@@ -103,7 +102,7 @@ export default function GenreListMobile() {
                           if (!o) return null;
                           return (
                             <button key={`o${i}`} className="style-opt" style={{ margin: "0 6px 6px 0", borderColor: catOf(o).color }} onClick={() => jump(o.id)}>
-                              → {o.name} <small>({EDGE_LABEL[e.kind]})</small>
+                              → {genreName(o, lang)} <small>({t(EDGE_KEY[e.kind], lang)})</small>
                             </button>
                           );
                         })}

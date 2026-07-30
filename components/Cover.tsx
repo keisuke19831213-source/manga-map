@@ -1,5 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import { langFromPath, t } from "@/lib/i18n";
+
 import { useState } from "react";
 
 // 書影サムネイル。URLが無い/読み込めない場合は本の背表紙風プレースホルダを表示
@@ -59,7 +62,9 @@ export default function Cover({
 }
 
 // Amazonボタン(小)。リンクが無ければ何も出さない
+// ラベルはパスから言語を判定する（呼び先が多いので prop を足さない）
 export function AmazonButton({ href, small }: { href: string | null; small?: boolean }) {
+  const lang = langFromPath(usePathname() || "/");
   if (!href) return null;
   return (
     <a
@@ -79,7 +84,7 @@ export function AmazonButton({ href, small }: { href: string | null; small?: boo
         borderRadius: 4,
       }}
     >
-      🛒 Amazonで見る
+      🛒 {t("work.buy", lang)}
     </a>
   );
 }

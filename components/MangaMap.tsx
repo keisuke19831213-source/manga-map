@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { lp, t, type Lang } from "@/lib/i18n";
+import { catBlurb, catName, genreDesc, genreName, workDesc, workTitle } from "@/lib/content-en";
 import {
   CATEGORIES,
   EDGES,
@@ -26,13 +28,13 @@ import { useWorks } from "@/lib/useWorks";
 import Cover, { AmazonButton } from "@/components/Cover";
 import MiniBubble from "@/components/MiniBubble";
 
-const EDGE_STYLE: Record<EdgeKind, { dash?: string; label: string; opacity: number }> = {
-  evolution: { label: "直系の進化", opacity: 0.75 },
-  influence: { dash: "6 5", label: "影響", opacity: 0.5 },
-  counter: { dash: "2 4", label: "対抗・反発", opacity: 0.8 },
+const EDGE_STYLE: Record<EdgeKind, { dash?: string; labelKey: string; opacity: number }> = {
+  evolution: { labelKey: "tree.legend.evolution", opacity: 0.75 },
+  influence: { dash: "6 5", labelKey: "tree.edge.influence", opacity: 0.5 },
+  counter: { dash: "2 4", labelKey: "tree.edge.counter", opacity: 0.8 },
 };
 
-export default function MangaMap() {
+export default function MangaMap({ lang = "ja" }: { lang?: Lang }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState({ tx: 0, ty: 0, k: 0.8 });
   // ドラッグ/ピンチ中の更新をフレーム毎1回に間引く(モバイルの描画詰まり対策)
@@ -317,7 +319,7 @@ export default function MangaMap() {
                     fontSize={13}
                     fontWeight={800}
                   >
-                    {g.name}
+                    {genreName(g, lang)}
                   </text>
                   <text
                     x={NODE_W / 2}
@@ -344,7 +346,7 @@ export default function MangaMap() {
                 fontWeight={800}
                 letterSpacing={2}
               >
-                {c.id === "roots" ? "源流 → ギャグ" : c.name}
+                {c.id === "roots" ? t("tree.rootsGag", lang) : catName(c, lang)}
               </text>
             ))}
       </>
@@ -373,7 +375,7 @@ export default function MangaMap() {
                 })
               }
             >
-              {c.name}
+              {catName(c, lang)}
             </button>
           );
         })}
@@ -415,7 +417,7 @@ export default function MangaMap() {
             setView({ tx: (el.clientWidth - MAP_W * k) / 2, ty: Math.max(0, (el.clientHeight - MAP_H * k) / 2), k });
           }}
         >
-          全体
+          {t("cam.whole", lang)}
         </button>
       </div>
 
@@ -437,9 +439,9 @@ export default function MangaMap() {
           lineHeight: 2,
         }}
       >
-        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" /></svg> 直系の進化</div>
-        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" strokeDasharray="6 5" /></svg> 影響を与えた</div>
-        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#dc2626" strokeWidth="2.5" strokeDasharray="2 4" /></svg> 対抗・反発から誕生</div>
+        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" /></svg> {t("tree.legend.evolution", lang)}</div>
+        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#171310" strokeWidth="2.5" strokeDasharray="6 5" /></svg> {t("tree.legend.influence", lang)}</div>
+        <div><svg width="34" height="8"><line x1="0" y1="4" x2="34" y2="4" stroke="#dc2626" strokeWidth="2.5" strokeDasharray="2 4" /></svg> {t("tree.legend.counter", lang)}</div>
       </div>
 
       {/* マップ本体 */}
@@ -474,20 +476,25 @@ export default function MangaMap() {
           <button
             onClick={() => setSelected(null)}
             style={{ position: "absolute", top: 10, right: 12, background: "none", border: "none", color: "#6b6257", fontSize: 20, fontWeight: 900, cursor: "pointer" }}
-            aria-label="閉じる"
+            aria-label={t("close", lang)}
           >
             ×
           </button>
           <div style={{ fontSize: 11.5, fontWeight: 800, color: catOf(selectedGenre).color, letterSpacing: 1 }}>
-            {catOf(selectedGenre).name} · {selectedGenre.year}年頃〜
+            {catName(catOf(selectedGenre), lang)} · {selectedGenre.year}
+            {t("tree.around", lang)}
           </div>
-          <h2 style={{ margin: "4px 0 2px", fontSize: 22, fontFamily: "var(--font-base)", fontWeight: 900 }}>{selectedGenre.name}</h2>
-          <div style={{ fontSize: 12, color: "#6b6257", fontWeight: 700, marginBottom: 12 }}>{selectedGenre.en}</div>
-          <p style={{ fontSize: 13, lineHeight: 1.9, color: "#4a4238" }}>{selectedGenre.desc}</p>
+          <h2 style={{ margin: "4px 0 2px", fontSize: 22, fontFamily: "var(--font-base)", fontWeight: 900 }}>
+            {genreName(selectedGenre, lang)}
+          </h2>
+          <div style={{ fontSize: 12, color: "#6b6257", fontWeight: 700, marginBottom: 12 }}>
+            {lang === "en" ? selectedGenre.name : selectedGenre.en}
+          </div>
+          <p style={{ fontSize: 13, lineHeight: 1.9, color: "#4a4238" }}>{genreDesc(selectedGenre, lang)}</p>
 
           {/* 腰を据えて読む部屋へ（マップ＝泳ぐ入口 / ジャンルページ＝読み物） */}
-          <Link href={`/g/${selectedGenre.id}`} className="genre-more">
-            このジャンルのページで詳しく読む →
+          <Link href={lp(lang, `/g/${selectedGenre.id}`)} className="genre-more">
+            {t("tree.readPage", lang)}
           </Link>
 
           {(() => {
@@ -497,7 +504,7 @@ export default function MangaMap() {
             if (works.length === 0) return null;
             return (
               <>
-                <h3 style={{ fontSize: 13.5, margin: "18px 0 8px" }}>代表作品</h3>
+                <h3 style={{ fontSize: 13.5, margin: "18px 0 8px" }}>{t("tree.keyWorks", lang)}</h3>
                 {works.map((w) => {
                   const az = amazonLink(meta, w.id);
                   return (
@@ -514,10 +521,10 @@ export default function MangaMap() {
                         fontSize: 13,
                       }}
                     >
-                      <Cover src={coverThumb(meta, w.id)} title={w.title} width={42} />
+                      <Cover src={coverThumb(meta, w.id)} title={workTitle(w, lang)} width={42} />
                       <div style={{ minWidth: 0 }}>
                         <Link href={`/works/${w.id}`} style={{ display: "block" }}>
-                          <strong>{w.title}</strong>
+                          <strong>{workTitle(w, lang)}</strong>
                           <span style={{ color: "#6b6257", fontSize: 11.5 }}> — {w.author} ({w.year})</span>
                         </Link>
                         {az && (
@@ -557,8 +564,8 @@ export default function MangaMap() {
                       fontFamily: "var(--font-base)",
                     }}
                   >
-                    {other.name}
-                    <span style={{ color: "#6b6257", fontSize: 10.5 }}> · {EDGE_STYLE[e.kind].label}</span>
+                    {genreName(other, lang)}
+                    <span style={{ color: "#6b6257", fontSize: 10.5 }}> · {t(EDGE_STYLE[e.kind].labelKey, lang)}</span>
                   </button>
                 );
               });
@@ -566,13 +573,13 @@ export default function MangaMap() {
               <>
                 {inbound.length > 0 && (
                   <>
-                    <h3 style={{ fontSize: 13.5, margin: "18px 0 8px" }}>ルーツ(ここから生まれた)</h3>
+                    <h3 style={{ fontSize: 13.5, margin: "18px 0 8px" }}>{t("tree.roots", lang)}</h3>
                     <div>{renderList(inbound, "in")}</div>
                   </>
                 )}
                 {outbound.length > 0 && (
                   <>
-                    <h3 style={{ fontSize: 13.5, margin: "18px 0 8px" }}>その後の展開(ここへ繋がる)</h3>
+                    <h3 style={{ fontSize: 13.5, margin: "18px 0 8px" }}>{t("tree.after", lang)}</h3>
                     <div>{renderList(outbound, "out")}</div>
                   </>
                 )}
@@ -601,9 +608,11 @@ export default function MangaMap() {
             color: "#4a4238",
           }}
         >
-          <strong style={{ color: "#171310", fontSize: 15, fontFamily: "var(--font-pop)" }}>マンガの系統樹へようこそ</strong>
+          <strong style={{ color: "#171310", fontSize: 15, fontFamily: "var(--font-pop)" }}>
+            {t("tree.welcome", lang)}
+          </strong>
           <br />
-          上が1900年、下が現在。ノード(ジャンル)をクリックすると解説と代表作が出ます。線はジャンル同士の影響関係。ドラッグで移動、ホイールで拡大縮小。
+          {t("tree.welcomeBody", lang)}
         </div>
       )}
 
@@ -623,7 +632,7 @@ export default function MangaMap() {
                 color: "var(--ink-soft, #4a4238)",
               }}
             >
-              💬 読者の声 — 『{w.title}』
+              💬 {t("tree.voicesOn", lang)} {lang === "en" ? workTitle(w, lang) : `『${w.title}』`}
             </div>
             <MiniBubble post={p} />
           </Link>

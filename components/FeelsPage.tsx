@@ -8,6 +8,9 @@ import { EMOTIONS, emotionOf, type Emotion } from "@/lib/emotions";
 import { asinCover, asinLink, amazonLink, coverThumb } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import type { Post } from "@/lib/posts";
+import { langFromPath, lp, t } from "@/lib/i18n";
+import { emotionText } from "@/lib/content-en";
+import { usePathname } from "next/navigation";
 
 interface WorkLite {
   id: string;
@@ -52,6 +55,7 @@ function doseLabel(p: Post): string {
 
 /* ============ 感情ホーム(今夜は、どんな気分?) ============ */
 export function FeelsHome() {
+  const lang = langFromPath(usePathname() || "/");
   const posts = usePosts();
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -66,9 +70,11 @@ export function FeelsHome() {
         return (
           <Link key={e.id} href={`/feels/${e.id}`} className="feels-card" style={{ ["--emo" as string]: e.color }}>
             <span className="fc-emoji">{e.emoji}</span>
-            <span className="fc-catch">{e.catch}</span>
-            <span className="fc-night">{e.night}</span>
-            <span className="fc-count">{n > 0 ? `処方箋 ${n}件` : "調合中…"}</span>
+            <span className="fc-catch">{emotionText(e.id, "catch", e.catch, lang)}</span>
+            <span className="fc-night">{emotionText(e.id, "night", e.night, lang)}</span>
+            <span className="fc-count">
+              {n > 0 ? `${t("feels.rx", lang)} ${n}` : t("feels.mixing", lang)}
+            </span>
           </Link>
         );
       })}
@@ -78,6 +84,7 @@ export function FeelsHome() {
 
 /* ============ 感情別ページ(処方箋の束) ============ */
 export function FeelsDetail({ emotionId }: { emotionId: string }) {
+  const lang = langFromPath(usePathname() || "/");
   const emo = emotionOf(emotionId) as Emotion;
   const posts = usePosts();
   const works = useWorks();
@@ -104,7 +111,7 @@ export function FeelsDetail({ emotionId }: { emotionId: string }) {
     const vol = Number.isFinite(vn) ? vols.find((x) => x.v === vn) : undefined;
     if (vol) return { href: asinLink(meta, vol.asin), label: `${vn}巻を手に入れる` };
     const az = amazonLink(meta, p.workId);
-    return az ? { href: az, label: "この作品を手に入れる" } : null;
+    return az ? { href: az, label: t("feels.get", lang) } : null;
   };
 
   return (
@@ -114,11 +121,11 @@ export function FeelsDetail({ emotionId }: { emotionId: string }) {
         {EMOTIONS.map((e) =>
           e.id === emo.id ? (
             <span key={e.id} className="chip active" style={{ background: e.color, borderColor: e.color, color: "#fff" }}>
-              {e.emoji} {e.label}
+              {e.emoji} {emotionText(e.id, "label", e.label, lang)}
             </span>
           ) : (
             <Link key={e.id} href={`/feels/${e.id}`} className="chip" style={{ borderColor: e.color }}>
-              {e.emoji} {e.label}
+              {e.emoji} {emotionText(e.id, "label", e.label, lang)}
             </Link>
           )
         )}
@@ -128,12 +135,14 @@ export function FeelsDetail({ emotionId }: { emotionId: string }) {
         <div className="feels-empty">
           <div style={{ fontSize: 40 }}>{emo.emoji}</div>
           <p>
-            この感情の処方箋は、まだ調合中です。
+            {t("feels.none", lang)}
             <br />
-            作品ページで「{emo.label}」タグ付きの語りが投稿されると、ここに並びます。
+            {t("feels.emptyPre", lang)}
+            {emotionText(emo.id, "label", emo.label, lang)}
+            {t("feels.emptyPost", lang)}
           </p>
           <Link className="btn" href="/works">
-            作品図鑑から探しにいく
+            {t("feels.goLibrary", lang)}
           </Link>
         </div>
       )}
@@ -171,8 +180,8 @@ export function FeelsDetail({ emotionId }: { emotionId: string }) {
               return (
                 <div key={p.id} className="rx-card">
                   <div className="rx-dose" style={{ ["--emo" as string]: emo.color }}>
-                    <span className="rx-dose-label">用法</span>
-                    {dose ? <strong>{dose}</strong> : <strong>作品全体</strong>}
+                    <span className="rx-dose-label">{t("feels.dose", lang)}</span>
+                    {dose ? <strong>{dose}</strong> : <strong>{t("feels.doseAll", lang)}</strong>}
                     {p.scene && <span className="rx-scene">🎬 {p.scene}</span>}
                   </div>
                   <SpoilerGuard post={p}>

@@ -1603,5 +1603,80 @@
     "漫画少年": "Manga Shonen",
     "青林堂": "Seirindo",
     "少女コミック": "Shojo Comic"
+  },
+  "emotions": {
+    "cry": {
+      "label": "Cried",
+      "catch": "For a night you need to cry.",
+      "night": "A prescription for a night you want to cry it all out"
+    },
+    "hot": {
+      "label": "Fired up",
+      "catch": "For a day you need your chest to burn.",
+      "night": "A prescription for a day you want a fire lit under a smouldering heart"
+    },
+    "shiver": {
+      "label": "Shivered",
+      "catch": "For a blow that raises the hair on your arms.",
+      "night": "A prescription for a night you want to be struck by sheer craft"
+    },
+    "laugh": {
+      "label": "Laughed",
+      "catch": "Today, there is nothing left but to laugh.",
+      "night": "A prescription for a day you want to laugh without thinking"
+    },
+    "heal": {
+      "label": "Saved",
+      "catch": "For a tired heart.",
+      "night": "A prescription for a night you want to be quietly told it is all right"
+    },
+    "chill": {
+      "label": "Chilled",
+      "catch": "Into a night that runs cold down your spine.",
+      "night": "A prescription for a night you want to turn the page knowing it will scare you"
+    }
+  },
+  "history": {
+    "12C—1860s": {
+      "title": "Prehistory — the tradition of telling with pictures",
+      "body": "The late-Heian Choju-jinbutsu-giga has rabbits and frogs wrestling in ink line alone, making comedy and story out of pictures with nothing else. In the Edo period Toba-e and kusazoshi became popular entertainment, and in 1814 Hokusai published his sketchbook Hokusai Manga and spread the word manga. None of these have panels or speech balloons, so the bloodline to modern manga is thin — but the soil of a culture that reads pictures was grown here."
+    },
+    "1900s—1930s": {
+      "title": "Modern manga is born",
+      "body": "It starts with Rakuten Kitazawa's satirical drawings, and the grammar of panels and balloons settles in the newspaper serial Shochan no Boken. Norakuro in Shonen Club became the biggest hit of the prewar years, and a culture in which children read manga came into being. On street corners kamishibai flourished, training the gekiga artists to come."
+    },
+    "1945—1955": {
+      "title": "Tezuka and the story-manga revolution",
+      "body": "Amid the flood of cheap akahon manga in postwar Osaka, New Treasure Island in 1947 electrified young readers with cinematic panel work. Osamu Tezuka established story manga — telling a long narrative in comics — and with Astro Boy and Princess Knight made the templates for both boys' and girls' manga. The next generation of talent gathered at Tokiwa-so."
+    },
+    "1955—1965": {
+      "title": "Rental books, and the arrival of gekiga",
+      "body": "Volumes drawn specifically for rental shops formed a market of their own. Out of it, Yoshihiro Tatsumi and the Gekiga Kobo group declared gekiga: realistic manga for adults, set against Tezuka's round line. In 1959 Weekly Shonen Magazine and Sunday launched on the same day and the age of weekly serialisation began. In 1964 Garo was founded for Sanpei Shirato, and became the sanctuary of the alternative."
+    },
+    "1966—1975": {
+      "title": "The heat of sports-and-guts, and the Year 24 revolution",
+      "body": "Star of the Giants and Tomorrow's Joe brought gekiga's heat into boys' magazines, and dramas of effort and sheer will swept the decade. In shojo manga, Moto Hagio, Keiko Takemiya and the rest of the Year 24 Group brought interior monologue, science fiction and boys' love, and lifted the form to a literary height. The Rose of Versailles became a social phenomenon. Seinen magazines launched one after another, and the reader's age widened all at once."
+    },
+    "1976—1985": {
+      "title": "Romantic comedy, New Wave, diversification",
+      "body": "Rumiko Takahashi and Mitsuru Adachi carried shojo manga's grammar of romance into boys' magazines and romantic comedy bloomed. Otomo's AKIRA startled the world with a line that belonged neither to gekiga nor to Tezuka. In seinen magazines, Oishinbo and Section Chief Kosaku Shima invented the adult-practical genres of food and business. Manga became reading for every age."
+    },
+    "1985—1995": {
+      "title": "Jump's golden age",
+      "body": "With Dragon Ball, Fist of the North Star and SLAM DUNK, Weekly Shonen Jump reached a peak circulation of 6.53 million copies in 1995. The formula of friendship, effort and victory plus the tournament arc was complete. In girls' magazines, Sailor Moon created the fighting-beautiful-girl heroine and rewrote girls' culture worldwide."
+    },
+    "1995—2005": {
+      "title": "Fragmentation, and the subculture years",
+      "body": "Jump's dominance broke and genres split rapidly. Kaiji's psychological extremes, the slice-of-life Azumanga Daioh invented, DEATH NOTE's battles of wits, the comic essay of My Darling is a Foreigner — each niche began evolving on its own. Manga cafes and second-hand chains changed how manga was read, too."
+    },
+    "2005—2015": {
+      "title": "The web, a new continent",
+      "body": "One Punch Man, born on a personal website, became a hit by leaping over existing distribution. Attack on Titan went from a minor magazine to a social phenomenon, and huge hits from outside Jump became normal. E-books and phone apps spread, and adaptations of web novels — the isekai boom — grew into a major industry."
+    },
+    "2015—現在": {
+      "era": "2015—present",
+      "title": "Global, and the age of social media",
+      "body": "Demon Slayer produced a historic boom together with its anime, and a new generation led by Chainsaw Man keeps updating what Jump can be. Korean vertical-scroll webtoons grew fast through Piccoma and LINE Manga, and A Crocodile That Lives 100 Days, born on Twitter, made social media itself part of the story. Japanese manga is now at a point where the publishing format itself is the frontier."
+    }
   }
 }

@@ -12,7 +12,7 @@ import { buildDoc, fold, scoreDoc, strip, SEARCH_ALIASES } from "@/lib/search";
 import Cover from "@/components/Cover";
 import MiniBubble from "@/components/MiniBubble";
 import { lp, t, type Lang } from "@/lib/i18n";
-import { catName, workDesc, workTitle } from "@/lib/content-en";
+import { catName, magazineName, workDesc, workTitle } from "@/lib/content-en";
 
 type SortKey = "year" | "kana" | "voices";
 
@@ -141,7 +141,9 @@ export default function WorksExplorer({ lang = "ja" }: { lang?: Lang }) {
                   <div style={{ minWidth: 0 }}>
                     <h3>{workTitle(w, lang)}</h3>
                     <div className="meta">
-                      {w.author} · {w.year}年{w.magazine ? ` · ${w.magazine}` : ""}
+                      {w.author} · {w.year}
+                      {lang === "ja" ? "年" : ""}
+                      {w.magazine ? ` · ${magazineName(w.magazine, lang)}` : ""}
                     </div>
                   </div>
                 </div>

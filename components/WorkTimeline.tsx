@@ -1,5 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import { langFromPath, t } from "@/lib/i18n";
+
 import { useMemo } from "react";
 import { EMOTIONS, emotionOf } from "@/lib/emotions";
 import type { Post } from "@/lib/posts";
@@ -36,6 +39,7 @@ export default function WorkTimeline({
   shelfMaxVol: number; // 全巻棚から分かる最終巻(なければ0)
   onJump: (postId: string) => void;
 }) {
+  const lang = langFromPath(usePathname() || "/");
   const { points, maxVol, lanes } = useMemo(() => {
     const located = comments.filter((p) => volNum(p) > 0);
     const maxVol = Math.max(shelfMaxVol, ...located.map(volNum), 0);
@@ -67,14 +71,16 @@ export default function WorkTimeline({
 
   return (
     <div className="wtl">
-      <div className="wtl-title">🗺 名場面タイムライン</div>
+      <div className="wtl-title">{t("wtl.title", lang)}</div>
       <div className="wtl-sub">
-        全{maxVol}巻のどこで心が動いたか。●をタップするとその語りへ飛びます
+        {t("wtl.subPre", lang)}
+        {maxVol}
+        {t("wtl.subPost", lang)}
       </div>
       <div className="wtl-track" style={{ height: 28 + lanes * LANE_H }}>
         {ticks.map((v) => (
           <div key={v} className="wtl-tick" style={{ left: `${((v - 1) / maxVol) * 100}%` }}>
-            <span>{v === 1 ? "1巻" : v}</span>
+            <span>{v === 1 ? lang === "en" ? "Vol.1" : "1巻" : v}</span>
           </div>
         ))}
         {points.map(({ post, x, lane }) => {
@@ -82,13 +88,13 @@ export default function WorkTimeline({
           const page = !post.page
             ? ""
             : post.page.includes("%")
-              ? ` 位置${post.page}`
+              ? ` ${t("wtl.pos", lang)}${post.page}`
               : /^\d+$/.test(post.page.trim())
                 ? ` p.${post.page.trim()}`
                 : ` ${post.page}`;
           const label = post.spoiler
-            ? `${volNum(post)}巻 · ⚠️ ネタバレを含む語り — タップで読む`
-            : `${volNum(post)}巻${page}${post.scene ? ` · ${post.scene}` : ""} — タップで語りへ`;
+            ? `${t("loc.vol", lang)}${volNum(post)} · ${t("wtl.spoiler", lang)}`
+            : `${t("loc.vol", lang)}${volNum(post)}${page}${post.scene ? ` · ${post.scene}` : ""} ${t("wtl.hint", lang)}`;
           return (
             <button
               key={post.id}
@@ -108,7 +114,7 @@ export default function WorkTimeline({
             {e.emoji} {e.label}
           </span>
         ))}
-        {hasPlain && <span style={{ color: "var(--ink-soft)" }}>💬 コマ語り</span>}
+        {hasPlain && <span style={{ color: "var(--ink-soft)" }}>{t("wtl.plain", lang)}</span>}
       </div>
     </div>
   );

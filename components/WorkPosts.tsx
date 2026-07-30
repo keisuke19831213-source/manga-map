@@ -1,5 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import { langFromPath, type Lang } from "@/lib/i18n";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/components/Bubble";
 import { adminHeaders, useAdminKey } from "@/lib/useAdminKey";
@@ -23,9 +26,69 @@ function pageLabel(p: Post): string {
 }
 
 // 巻を含む位置ラベル(地図・年表など、作品ページ外で使う)
-export function locLabel(p: Post) {
+// 投稿UIの文言（日英）。ここで完結するのでローカルに持つ
+const WP = {
+  ja: {
+    tabRec: "👍 おすすめ", tabPanel: "💬 コマ語り",
+    voicesFor: "この作品を推す声", panelTalk: "コマ語り",
+    noneRec: "まだ投稿がありません。最初のおすすめを書いてみませんか?",
+    nonePanel: "まだコメントがありません。心に残ったコマを語ってみましょう。",
+    postVoice: "読者の声を投稿する",
+    nick: "ニックネーム(省略可)", nickPh: "名無しの読者",
+    vol: "巻", volNone: "巻の指定なし", page: "紙p.", panel: "コマ", panelOpt: "コマ(任意)",
+    sceneName: "シーン名(任意) — 語りの見出しになります",
+    section: "ページ内セクション", sectionHint: "1冊のどのあたりが語られているか",
+    start: "はじまり", end: "おわり",
+    recComment: "おすすめコメント",
+    recPh: "どんな人に読んでほしい? どこから読むのがおすすめ?",
+    panelPh: "演出、コマ割り、セリフ、線…このシーンの何に痺れたかを語ってください",
+    scenePh: "例: 山王戦ラスト、左手はそえるだけ",
+    whatGreat: "そのシーン・コマのどこが凄い?",
+    bubble: "吹き出しの形", font: "文字の書体", preview: "プレビュー",
+    spoilerNote: "ネタバレを含む投稿はぼかして表示されます",
+    tapShow: "タップして表示",
+    emotions: "💗 この作品が起こした感情",
+    emotionHint: "感情をタップすると、同じ感情のコマを全作品から逆引きできます",
+    busy: "投稿中…", submit: "投稿する!!", ok: "投稿しました!", fail: "投稿に失敗しました",
+    shelf: "📚 巻をそろえる", tl: "🗺 タイムライン", emo: "💗 感情",
+    volumes: "冊", spoilerChip: "⚠️ ネタバレを含む", spoilerTalk: "⚠️ ネタバレを含む語り",
+    shelfSub: "書影をクリックするとAmazonでその巻が開きます。💬 はその巻への語りの数 — クリックで読めます。",
+    panelMap: "コマ語りマップ", allRecs: "みんなのおすすめ", readVol: "この巻を読む →",
+    panelMapSub: "名場面・名ゴマをピンポイントで語る。バーは1冊の読書位置 — ●をタップするとその語りへ飛びます",
+  },
+  en: {
+    tabRec: "👍 Recommend", tabPanel: "💬 Panel talk",
+    voicesFor: "Voices for this work", panelTalk: "Panel talk",
+    noneRec: "No posts yet. Want to write the first recommendation?",
+    nonePanel: "No comments yet. Tell us about a panel that stayed with you.",
+    postVoice: "Add your voice",
+    nick: "Nickname (optional)", nickPh: "An anonymous reader",
+    vol: "Vol.", volNone: "no volume given", page: "p.", panel: "Panel", panelOpt: "Panel (optional)",
+    sceneName: "Scene name (optional) — becomes the heading",
+    section: "Where in the volume", sectionHint: "roughly where in the book this is",
+    start: "start", end: "end",
+    recComment: "Your recommendation",
+    recPh: "Who should read it? Where would you start?",
+    panelPh: "Staging, panel layout, the lines, the linework — tell us what got you",
+    scenePh: "e.g. the end of the Sannoh match",
+    whatGreat: "What is great about that scene or panel?",
+    bubble: "Balloon shape", font: "Typeface", preview: "Preview",
+    spoilerNote: "Posts marked as spoilers are shown blurred",
+    tapShow: "Tap to reveal",
+    emotions: "💗 Feelings this work set off",
+    emotionHint: "Tap a feeling to find panels with the same feeling across every work",
+    busy: "Posting…", submit: "Post!!", ok: "Posted!", fail: "Could not post",
+    shelf: "📚 Collect the volumes", tl: "🗺 Timeline", emo: "💗 Feelings",
+    volumes: " volumes", spoilerChip: "⚠️ Contains spoilers", spoilerTalk: "⚠️ Contains spoilers",
+    shelfSub: "Click a cover to open that volume on Amazon. 💬 is how many people have talked about that volume — click to read them.",
+    panelMap: "Panel-talk map", allRecs: "Recommendations", readVol: "Read this volume →",
+    panelMapSub: "Talk about one exact scene or panel. The bar is your position through a volume — tap a dot to jump to that post.",
+  },
+} as const;
+
+export function locLabel(p: Post, lang: Lang = "ja") {
   const parts: string[] = [];
-  if (p.volume) parts.push(`${p.volume}巻`);
+  if (p.volume) parts.push(lang === "en" ? `Vol.${p.volume}` : `${p.volume}巻`);
   const pl = pageLabel(p);
   if (pl) parts.push(pl);
   if (p.panel) parts.push(`${p.panel}`);
@@ -55,13 +118,17 @@ function VolumeShelf({
   commentCounts: Record<number, number>;
   onJump: (v: number) => void;
 }) {
+  const wp = WP[langFromPath(usePathname() || "/")];
   const volumes = meta.works[workId]?.volumes ?? [];
   if (volumes.length === 0) return null;
   return (
     <>
-      <h2 className="section-title">📚 巻をそろえる ({volumes.length}冊)</h2>
+      <h2 className="section-title">
+        {wp.shelf} ({volumes.length}
+        {wp.volumes})
+      </h2>
       <p className="section-sub">
-        書影をクリックするとAmazonでその巻が開きます。💬 はその巻への語りの数 — クリックで読めます。
+{wp.shelfSub}
       </p>
       <div className="vol-shelf" role="list">
         {volumes.map((vol) => {
@@ -93,20 +160,22 @@ function VolumeShelf({
 
 /* ================= ネタバレぼかし ================= */
 export function SpoilerGuard({ post, children }: { post: Post; children: React.ReactNode }) {
+  const wp = WP[langFromPath(usePathname() || "/")];
   const [open, setOpen] = useState(false);
   if (!post.spoiler || open) return <>{children}</>;
   return (
     <div className="spoiler-wrap">
       <div className="spoiler-inner">{children}</div>
       <button className="spoiler-cover" onClick={() => setOpen(true)}>
-        ⚠️ ネタバレを含む語り
-        <span>タップして表示</span>
+        {wp.spoilerTalk}
+        <span>{wp.tapShow}</span>
       </button>
     </div>
   );
 }
 
 export default function WorkPosts({ workId, workTitle }: { workId: string; workTitle: string }) {
+  const wp = WP[langFromPath(usePathname() || "/")];
   const [adminKey] = useAdminKey();
   const meta = useMeta();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -162,7 +231,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "投稿に失敗しました");
+        throw new Error(err.error || wp.fail);
       }
       const created: Post = await res.json();
       // 楽観的に即反映(Blobは数秒で整合するため直後の再取得はしない)
@@ -174,9 +243,9 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       setScene("");
       setSpoiler(false);
       setEmotion("");
-      setMsg({ ok: true, text: "投稿しました!" });
+      setMsg({ ok: true, text: wp.ok });
     } catch (err) {
-      setMsg({ ok: false, text: err instanceof Error ? err.message : "投稿に失敗しました" });
+      setMsg({ ok: false, text: err instanceof Error ? err.message : wp.fail });
     } finally {
       setBusy(false);
     }
@@ -240,11 +309,11 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
     <>
       {/* セクションジャンプ(長いページの回遊用) */}
       <nav className="wk-jump" aria-label="ページ内セクション">
-        {volumes.length > 0 && <a href="#shelf">📚 巻をそろえる</a>}
-        {comments.some((p) => volNum(p) > 0) && <a href="#timeline">🗺 タイムライン</a>}
-        {emotionTotal > 0 && <a href="#emotions">💗 感情</a>}
-        <a href="#talks">💬 コマ語り{comments.length > 0 ? ` (${comments.length})` : ""}</a>
-        <a href="#recommends">👍 おすすめ{recommends.length > 0 ? ` (${recommends.length})` : ""}</a>
+        {volumes.length > 0 && <a href="#shelf">{wp.shelf}</a>}
+        {comments.some((p) => volNum(p) > 0) && <a href="#timeline">{wp.tl}</a>}
+        {emotionTotal > 0 && <a href="#emotions">{wp.emo}</a>}
+        <a href="#talks">{wp.tabPanel}{comments.length > 0 ? ` (${comments.length})` : ""}</a>
+        <a href="#recommends">{wp.tabRec}{recommends.length > 0 ? ` (${recommends.length})` : ""}</a>
       </nav>
 
       <div id="shelf" className="wk-anchor" />
@@ -260,7 +329,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       <div id="emotions" className="wk-anchor" />
       {emotionTotal > 0 && (
         <div className="emotion-map">
-          <div className="emotion-map-title">💗 この作品が起こした感情</div>
+          <div className="emotion-map-title">{wp.emotions}</div>
           <div className="emotion-bars">
             {emotionTally.map(({ e, n }) => (
               <a key={e.id} href={`/feels/${e.id}`} className="emotion-bar-row" title={`「${e.label}」で作品を逆引きする`}>
@@ -274,13 +343,13 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
               </a>
             ))}
           </div>
-          <div className="emotion-map-more">感情をタップすると、同じ感情のコマを全作品から逆引きできます</div>
+          <div className="emotion-map-more">{wp.emotionHint}</div>
         </div>
       )}
 
       {adminKey ? (
       <>
-      <h2 className="section-title">読者の声を投稿する</h2>
+      <h2 className="section-title">{wp.postVoice}</h2>
       <p className="section-sub">
         『{workTitle}』への熱いセリフをどうぞ。巻・ページ(Kindleなら位置%)・コマまで指定して、マニアックに語れます。
       </p>
@@ -304,22 +373,22 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         </div>
         <div className="row">
           <div className="field">
-            <label>ニックネーム(省略可)</label>
-            <input value={user} onChange={(e) => setUser(e.target.value)} placeholder="名無しの読者" maxLength={30} />
+            <label>{wp.nick}</label>
+            <input value={user} onChange={(e) => setUser(e.target.value)} placeholder={wp.nickPh} maxLength={30} />
           </div>
         </div>
         {mode === "comment" && (
           <>
             <div className="row">
               <div className="field small">
-                <label>巻</label>
+                <label>{wp.vol}</label>
                 <input value={volume} onChange={(e) => setVolume(e.target.value)} placeholder="例: 31" maxLength={10} inputMode="numeric" />
               </div>
               <div className="field small">
                 <label style={{ display: "flex", gap: 6, alignItems: "center" }}>
                   位置
                   <span className="pos-toggle">
-                    <button type="button" className={posKind === "page" ? "on" : ""} onClick={() => setPosKind("page")}>紙p.</button>
+                    <button type="button" className={posKind === "page" ? "on" : ""} onClick={() => setPosKind("page")}>{wp.page}</button>
                     <button type="button" className={posKind === "pct" ? "on" : ""} onClick={() => setPosKind("pct")}>Kindle%</button>
                   </span>
                 </label>
@@ -332,23 +401,23 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
                 />
               </div>
               <div className="field small">
-                <label>コマ(任意)</label>
+                <label>{wp.panelOpt}</label>
                 <input value={panel} onChange={(e) => setPanel(e.target.value)} placeholder="例: 見開き" maxLength={20} />
               </div>
             </div>
             <div className="row">
               <div className="field">
-                <label>シーン名(任意) — 語りの見出しになります</label>
-                <input value={scene} onChange={(e) => setScene(e.target.value)} placeholder="例: 山王戦ラスト、左手はそえるだけ" maxLength={50} />
+                <label>{wp.sceneName}</label>
+                <input value={scene} onChange={(e) => setScene(e.target.value)} placeholder={wp.scenePh} maxLength={50} />
               </div>
               <div className="field small" style={{ alignSelf: "flex-end" }}>
                 <button
                   type="button"
                   className={`chip spoiler-chip ${spoiler ? "active" : ""}`}
                   onClick={() => setSpoiler(!spoiler)}
-                  title="ネタバレを含む投稿はぼかして表示されます"
+                  title={wp.spoilerNote}
                 >
-                  ⚠️ ネタバレを含む
+                  {wp.spoilerChip}
                 </button>
               </div>
             </div>
@@ -356,7 +425,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         )}
         <div className="row">
           <div className="field">
-            <label>吹き出しの形</label>
+            <label>{wp.bubble}</label>
             <div className="style-picker">
               {BUBBLE_OPTIONS.map((b) => (
                 <button
@@ -373,7 +442,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         </div>
         <div className="row">
           <div className="field">
-            <label>文字の書体</label>
+            <label>{wp.font}</label>
             <div className="style-picker">
               {FONT_OPTIONS.map((f) => (
                 <button
@@ -408,15 +477,15 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         </div>
         <div className="row">
           <div className="field">
-            <label>{mode === "recommend" ? "おすすめコメント" : "そのシーン・コマのどこが凄い?"}</label>
+            <label>{mode === "recommend" ? "おすすめコメント" : wp.whatGreat}</label>
             <textarea
               className={fontClass(font)}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={
                 mode === "recommend"
-                  ? "どんな人に読んでほしい? どこから読むのがおすすめ?"
-                  : "演出、コマ割り、セリフ、線…このシーンの何に痺れたかを語ってください"
+                  ? wp.recPh
+                  : wp.panelPh
               }
               required
             />
@@ -425,13 +494,13 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
         {text && (
           <div className="row">
             <div className="field">
-              <label>プレビュー</label>
-              <Bubble text={text} bubble={bubble} font={font} user={user || "名無しの読者"} />
+              <label>{wp.preview}</label>
+              <Bubble text={text} bubble={bubble} font={font} user={user || wp.nickPh} />
             </div>
           </div>
         )}
         <button className="btn" disabled={busy}>
-          {busy ? "投稿中…" : "投稿する!!"}
+          {busy ? wp.busy : wp.submit}
         </button>
         {msg && <div className={`form-msg ${msg.ok ? "ok" : "err"}`}>{msg.text}</div>}
       </form>
@@ -439,12 +508,12 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       ) : null}
 
       <div id="talks" className="wk-anchor" />
-      <h2 className="section-title">コマ語りマップ ({comments.length})</h2>
+      <h2 className="section-title">{wp.panelMap} ({comments.length})</h2>
       <p className="section-sub">
-        名場面・名ゴマをピンポイントで語る。バーは1冊の読書位置 — ●をタップするとその語りへ飛びます
+        {wp.panelMapSub}
       </p>
       {comments.length === 0 && (
-        <p style={{ color: "var(--ink-soft)", fontSize: 13 }}>まだコメントがありません。心に残ったコマを語ってみましょう。</p>
+        <p style={{ color: "var(--ink-soft)", fontSize: 13 }}>{wp.nonePanel}</p>
       )}
       {groups.map(([v, list]) => (
         <div
@@ -457,11 +526,11 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
           <div className="vol-group-head">
             {v > 0 && volCoverOf(v) && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={volCoverOf(v)!} alt={`${v}巻`} className="vg-cover" loading="lazy" />
+              <img src={volCoverOf(v)!} alt={`${wp.vol}${v}`} className="vg-cover" loading="lazy" />
             )}
             <div className="vg-body">
               <div className="vg-title">
-                {v > 0 ? `第${v}巻` : "巻の指定なし"}
+                {v > 0 ? `${wp.vol}${v}` : wp.volNone}
                 <span className="vg-count">💬 {list.length}</span>
                 {v > 0 && volumes.find((x) => x.v === v) && (
                   <a
@@ -470,14 +539,14 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
                     target="_blank"
                     rel="noopener sponsored"
                   >
-                    この巻を読む →
+                    {wp.readVol}
                   </a>
                 )}
               </div>
               {/* 読書位置バー: コメントの位置に●を打つ */}
               {list.some((p) => posOf(p) !== null) && (
-                <div className="pos-bar" title="1冊のどのあたりが語られているか">
-                  <span className="pos-s">はじまり</span>
+                <div className="pos-bar" title={wp.sectionHint}>
+                  <span className="pos-s">{wp.start}</span>
                   {list.map((p) => {
                     const pp = posOf(p);
                     if (pp === null) return null;
@@ -491,7 +560,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
                       />
                     );
                   })}
-                  <span className="pos-e">おわり</span>
+                  <span className="pos-e">{wp.end}</span>
                 </div>
               )}
             </div>
@@ -505,7 +574,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
                   {p.scene ? (
                     <span className="talk-scene">🎬 {p.scene}</span>
                   ) : (
-                    <span className="talk-scene talk-scene-plain">コマ語り</span>
+                    <span className="talk-scene talk-scene-plain">{wp.panelTalk}</span>
                   )}
                   {emo && (
                     <span className="emotion-chip" style={{ borderColor: emo.color, color: emo.color }}>
@@ -527,10 +596,10 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
       ))}
 
       <div id="recommends" className="wk-anchor" />
-      <h2 className="section-title">みんなのおすすめ ({recommends.length})</h2>
-      <p className="section-sub">この作品を推す声</p>
+      <h2 className="section-title">{wp.allRecs} ({recommends.length})</h2>
+      <p className="section-sub">{wp.voicesFor}</p>
       {recommends.length === 0 && (
-        <p style={{ color: "var(--ink-soft)", fontSize: 13 }}>まだ投稿がありません。最初のおすすめを書いてみませんか?</p>
+        <p style={{ color: "var(--ink-soft)", fontSize: 13 }}>{wp.noneRec}</p>
       )}
       {recommends.map((p) => {
         const emo = emotionOf(p.emotion);

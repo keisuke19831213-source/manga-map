@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { CATEGORIES, EDGES, GENRES, WORKS, catOf, genreById, type GenreNode } from "@/lib/data";
 import { coverThumb } from "@/lib/affiliate";
+import { lp, t, type Lang } from "@/lib/i18n";
+import { catName, genreDesc, genreName, workTitle } from "@/lib/content-en";
 import { useMeta } from "@/lib/useMeta";
 
 /* スマホ用ジャンル系統図(神マップ方式・Canvas描画)。
@@ -91,7 +93,13 @@ interface View {
   k: number;
 }
 
-export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => void }) {
+export default function GenreTreeMobile({
+  onSwitchList,
+  lang = "ja",
+}: {
+  onSwitchList: () => void;
+  lang?: Lang;
+}) {
   const meta = useMeta();
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -112,7 +120,7 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
         y: yOf(g),
         r: n >= 6 ? 13 : n >= 3 ? 11 : n >= 1 ? 9 : 7,
         color: catOf(g).color,
-        label: SHORT[g.id] ?? g.name,
+        label: lang === "en" ? genreName(g, "en") : SHORT[g.id] ?? g.name,
       };
     });
   }, []);
@@ -622,13 +630,14 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
   // 方向と種類で自然な日本語に
   const edgeLabel = (dir: string, kind: string, name: string) => {
     if (dir === "→") {
-      if (kind === "evolution") return <>進化して → <strong>{name}</strong></>;
-      if (kind === "counter") return <>反発されて → <strong>{name}</strong> が誕生</>;
-      return <>影響を与えた → <strong>{name}</strong></>;
+      if (kind === "evolution") return <>{t("gt.evolvedTo", lang)} <strong>{name}</strong></>;
+      if (kind === "counter")
+        return <>{t("gt.counterTo", lang)} <strong>{name}</strong> {t("gt.counterToSuffix", lang)}</>;
+      return <>{t("gt.influencedTo", lang)} <strong>{name}</strong></>;
     }
-    if (kind === "evolution") return <><strong>{name}</strong> から進化</>;
-    if (kind === "counter") return <><strong>{name}</strong> への反発から誕生</>;
-    return <><strong>{name}</strong> の影響を受けた</>;
+    if (kind === "evolution") return <><strong>{name}</strong> {t("gt.evolvedFrom", lang)}</>;
+    if (kind === "counter") return <><strong>{name}</strong> {t("gt.counterFrom", lang)}</>;
+    return <><strong>{name}</strong> {t("gt.influencedFrom", lang)}</>;
   };
 
   return (
@@ -642,7 +651,7 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
           </span>
         ))}
         <button className="gt-list-btn" onClick={onSwitchList}>
-          ☰ リスト表示
+          {t("tree.listView", lang)}
         </button>
       </div>
 
@@ -656,13 +665,13 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
         onPointerCancel={onPointerUp}
       >
         <canvas ref={canvasRef} style={{ display: "block" }} />
-        <div className="gt-hint">ドラッグで移動 · ピンチ/2度タップで拡大 · ●をタップ</div>
+        <div className="gt-hint">{t("tree.hintTouch", lang)}</div>
       </div>
 
       {/* ボトムシート: 最初はコンパクト(地図の系譜アニメが主役)、「詳しく」で全開 */}
       {sel && (
         <div ref={sheetRef} className={`gt-sheet ${sheetFull ? "" : "gt-peek"}`} role="dialog" aria-label={sel.name}>
-          <button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる">
+          <button className="sheet-close" onClick={() => setSelected(null)} aria-label={t("close", lang)}>
             ×
           </button>
           {/* ドラッグゾーン(つまみ+ヘッダ): 上スワイプで全開、下スワイプでたたむ/閉じる */}
@@ -678,12 +687,13 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
           <div className="gt-sheet-head">
             <div style={{ minWidth: 0 }}>
               <div className="gt-sheet-cat" style={{ color: catOf(sel).color }}>
-                {catOf(sel).name} · {sel.year}年頃〜
+                {catName(catOf(sel), lang)} · {sel.year}
+                {t("tree.around", lang)}
               </div>
-              <h2>{sel.name}</h2>
+              <h2>{genreName(sel, lang)}</h2>
             </div>
             <button className="gt-more" onClick={() => setSheetFull(!sheetFull)}>
-              {sheetFull ? "たたむ ▾" : "詳しく ▴"}
+              {sheetFull ? t("gt.less", lang) : t("gt.more", lang)}
             </button>
           </div>
 
@@ -695,25 +705,25 @@ export default function GenreTreeMobile({ onSwitchList }: { onSwitchList: () => 
                 if (!other) return null;
                 return (
                   <button key={i} onClick={() => flyTo(e.other)}>
-                    {edgeLabel(e.dir, e.kind, other.name)}
+                    {edgeLabel(e.dir, e.kind, genreName(other, lang))}
                   </button>
                 );
               })}
             </div>
           )}
 
-          <p className="gt-sheet-desc">{sel.desc}</p>
+          <p className="gt-sheet-desc">{genreDesc(sel, lang)}</p>
           {selWorks.length > 0 && (
             <div className="gt-sheet-works">
               {selWorks.map((w) => (
-                <Link key={w.id} href={`/works/${w.id}`} className="gt-w">
+                <Link key={w.id} href={lp(lang, `/works/${w.id}`)} className="gt-w">
                   {coverThumb(meta, w.id) ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={coverThumb(meta, w.id)!} alt={w.title} loading="lazy" />
+                    <img src={coverThumb(meta, w.id)!} alt={workTitle(w, lang)} loading="lazy" />
                   ) : (
                     <span className="ph">📖</span>
                   )}
-                  <span>{w.title}</span>
+                  <span>{workTitle(w, lang)}</span>
                 </Link>
               ))}
             </div>

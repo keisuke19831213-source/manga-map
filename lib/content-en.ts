@@ -9,6 +9,8 @@ import type { Lang } from "@/lib/i18n";
 type Bag = Record<string, string | undefined>;
 type EnFile = {
   mags?: Record<string, string>;
+  emotions?: Record<string, Bag>;
+  history?: Record<string, Bag>;
   cats?: Record<string, Bag>;
   regions?: Record<string, Bag>;
   genres?: Record<string, Bag>;
@@ -45,6 +47,21 @@ export function genreName(g: GenreNode, lang: Lang): string {
 
 export function genreDesc(g: GenreNode, lang: Lang): string {
   return lang === "en" ? pick(en.genres?.[g.id]?.desc, g.desc) : g.desc;
+}
+
+/** 感情タグ（ラベル・キャッチ・処方文） */
+export function emotionText(id: string, field: "label" | "catch" | "night", ja: string, lang: Lang): string {
+  return lang === "en" ? pick(en.emotions?.[id]?.[field], ja) : ja;
+}
+
+/** マンガ史年表の各時代（見出し・本文・期間表記） */
+export function historyText(
+  era: string,
+  field: "era" | "title" | "body",
+  ja: string,
+  lang: Lang
+): string {
+  return lang === "en" ? pick(en.history?.[era]?.[field], ja) : ja;
 }
 
 /** 掲載誌の名前。よく出る誌だけ英名を持ち、それ以外は日本語のまま */
