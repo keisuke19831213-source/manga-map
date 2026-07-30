@@ -372,6 +372,18 @@ export function useMapCamera(opts: CameraOpts): MapCamera {
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
+    // 浮遊UI（シート・一覧・ツールバー・ミニマップ等）の操作は地図に伝えない。
+    // 伝えてしまうとシートをスクロールした指が下の管理表に残り、
+    // 次の1本指タップが「ピンチの2本目」と誤判定されてタップが死ぬ。
+    if ((e.target as Element | null)?.closest("[data-map-ui]")) return;
+
+    // isPrimary は「ジェスチャの1本目」でだけ true。つまりここに来た時点で
+    // 前のジェスチャの取りこぼしは存在しえないので、管理表を作り直す＝自己修復。
+    if (e.isPrimary) {
+      pointers.current.clear();
+      capturedRef.current = false;
+      pinchRef.current = null;
+    }
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     cancelAnimationFrame(rafRef.current);
     cancelAnimationFrame(flyRef.current);

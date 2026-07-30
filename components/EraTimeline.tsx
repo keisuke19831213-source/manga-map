@@ -613,7 +613,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
         </div>
 
         {/* ---- 時代の地層（左端に貼りつく） ---- */}
-        <div className="era-strata" ref={strataHostRef}>
+        <div className="era-strata" ref={strataHostRef} data-map-ui>
           <div className="es-head">
             <span className="es-year" ref={yearRef}>
               —
@@ -633,7 +633,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
         </div>
 
         {/* ---- 地域帯の名前（上端に貼りつく） ---- */}
-        <div className="era-bandbar" ref={bandHostRef}>
+        <div className="era-bandbar" ref={bandHostRef} data-map-ui>
           {BANDS.map((b, i) => {
             const reg = TL_REGIONS.find((r) => r.id === b.id);
             return (
@@ -655,6 +655,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
 
         {/* ---- ミニマップ（全期間ナビ） ---- */}
         <div
+          data-map-ui
           className="era-mm"
           onPointerDown={(e) => {
             const bar = e.currentTarget.getBoundingClientRect();
@@ -695,7 +696,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
 
         {/* ---- 見出し ---- */}
         {introOpen && (
-          <div className="map-intro eras">
+          <div className="map-intro eras" data-map-ui>
             <button className="sheet-close" onClick={() => setIntroOpen(false)} aria-label={t("close", lang)}>
               ×
             </button>
@@ -707,7 +708,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
 
         {/* ---- 道具立て ---- */}
         {/* 絞り込みは上端の帯の名前をタップして行う（下にチップを並べると地図を食う） */}
-        <div className="map-toolbar">
+        <div className="map-toolbar" data-map-ui>
           {filter ? (
             <button
               className="chip active"
@@ -728,7 +729,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
           )}
         </div>
 
-        <div className="map-ctl">
+        <div className="map-ctl" data-map-ui>
           <button onClick={() => cam.zoomBy(1.6)} aria-label={t("cam.zoomIn", lang)}>
             ＋
           </button>
@@ -745,7 +746,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
 
         {/* ---- 読者の声 ---- */}
         {voice && !selected && (
-          <div className="map-voicebar">
+          <div className="map-voicebar" data-map-ui>
             <MiniBubble
               post={voice.post}
               cover={coverThumb(meta, voice.e.workId)}
@@ -757,7 +758,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
 
         {/* ---- 詳細シート ---- */}
         {selected && selWork && (
-          <aside className="map-sheet">
+          <aside className="map-sheet" data-map-ui>
             <button className="sheet-close" onClick={() => setSelected(null)} aria-label={t("close", lang)}>
               ×
             </button>

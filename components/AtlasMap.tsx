@@ -423,7 +423,7 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
 
         {/* ---- 見出し（初回だけ・操作したら引っ込む） ---- */}
         {introOpen && (
-          <div className="map-intro">
+          <div className="map-intro" data-map-ui>
             <button className="sheet-close" onClick={() => setIntroOpen(false)} aria-label={t("close", lang)}>
               ×
             </button>
@@ -434,7 +434,7 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
         )}
 
         {/* ---- 道具立て ---- */}
-        <div className="map-toolbar">
+        <div className="map-toolbar" data-map-ui>
           <button
             className={`chip ${mapKind === "japan" ? "active" : ""}`}
             onClick={() => setMapKind("japan")}
@@ -457,7 +457,7 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
           </span>
         </div>
 
-        <div className="map-ctl">
+        <div className="map-ctl" data-map-ui>
           <button onClick={() => cam.zoomBy(1.6)} aria-label={t("cam.zoomIn", lang)}>
             ＋
           </button>
@@ -471,7 +471,7 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
 
         {/* ---- 読者の声（地図を覆わない専用枠） ---- */}
         {voice && !selected && (
-          <div className="map-voicebar">
+          <div className="map-voicebar" data-map-ui>
             <MiniBubble
               post={voice.post}
               cover={coverThumb(meta, voice.workId)}
@@ -483,7 +483,7 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
 
         {/* ---- 一覧（畳める） ---- */}
         {!selected && listOpen && (
-          <div className="map-list">
+          <div className="map-list" data-map-ui>
             <button className="sheet-close" onClick={() => setListOpen(false)} aria-label={t("close", lang)}>
               ×
             </button>
@@ -505,7 +505,7 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
 
         {/* ---- 詳細シート ---- */}
         {selected && (
-          <aside className="map-sheet">
+          <aside className="map-sheet" data-map-ui>
             <button className="sheet-close" onClick={() => setSelectedId(null)} aria-label={t("close", lang)}>
               ×
             </button>
