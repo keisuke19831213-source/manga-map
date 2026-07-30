@@ -1,15 +1,22 @@
 "use client";
 
 // ============ 地図カメラ（シリーズ共通の心臓部） ============
-// 設計の要点は一つ: パン/ズーム中に React を再レンダーしない。
+// 設計の要点は二つ。
 //
-//   ・カメラの値は ref に持ち、毎フレーム stage の style.transform を直接書く
-//   ・ピンは stage の中（ワールド座標）に置き、CSS変数 --inv-k で逆スケールして
-//     画面上の大きさを一定に保つ → パンもズームも「1つのコンテナのtransform」だけが動く
-//   ・LOD は stage の data-lod 属性を直接書き替える（CSSが見た目を切り替える）
-//   ・React state を触るのは「慣性が止まったとき」と「LODが変わったとき」だけ
+// (1) パン/ズーム中に React を再レンダーしない
+//   ・カメラの値は ref に持ち、毎フレーム stage の style を直接書く
+//   ・LOD は stage の data-lod 属性を書き替える（見た目の切替はCSSの仕事）
+//   ・React state を触るのは「動きが止まったとき」と「LODが変わったとき」だけ
 //
-// これで音楽マップ 41_操作仕様 §7（性能の掟）を構造として満たす。
+// (2) 拡大は scale() でやらない ← ぼやけない理由
+//   ステージを scale すると、合成レイヤは元の解像度で一度ラスタライズされてから
+//   GPUで引き伸ばされる（＝ぼやける）。しかも中身を逆スケールして見た目の大きさを
+//   保つと、書影の実レイアウトが k=18 で3pxまで縮み、それを18倍に拡大することになる。
+//   なので **倍率 k はレイアウトに焼き込む**：
+//   ・stage の transform は translate だけ（平行移動はぼやけない）
+//   ・k は CSS変数 --k として渡し、中身は left: calc(var(--wx) * var(--k) * 1px) で置く
+//   ・地図のSVGも width/height を calc で伸ばす → ベクタとして再描画され常に鮮明
+//   パン中は --k が変わらないので再レイアウトも起きない。ズームのときだけ効く。
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -120,6 +127,7 @@ export function useMapCamera(opts: CameraOpts): MapCamera {
   fitRef.current = fitK;
 
   const camRef = useRef<Cam>({ tx: 0, ty: 0, k: 0 });
+  const lastK = useRef(0);
   const lodRef = useRef(0);
   const rafRef = useRef(0);
   const runningRef = useRef(false);
@@ -165,8 +173,13 @@ export function useMapCamera(opts: CameraOpts): MapCamera {
     const st = stageRef.current;
     const c = camRef.current;
     if (!st || !c.k) return;
-    st.style.transform = `translate3d(${c.tx}px, ${c.ty}px, 0) scale(${c.k})`;
-    st.style.setProperty("--inv-k", String(1 / c.k));
+    // transform は平行移動だけ（scaleするとレイヤが引き伸ばされてぼやける）
+    st.style.transform = `translate3d(${c.tx}px, ${c.ty}px, 0)`;
+    // 倍率はレイアウトへ。--k が変わったときだけブラウザが中身を組み直す
+    if (c.k !== lastK.current) {
+      lastK.current = c.k;
+      st.style.setProperty("--k", String(c.k));
+    }
     const f = fitRef.current || 1;
     const r = c.k / f;
     // LOD（ヒステリシスつき）。data属性だけ書き替え、CSSが見た目を切り替える

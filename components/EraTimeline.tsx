@@ -298,10 +298,9 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
   const chrome = useMemo(
     () => (
       <svg
-        width={WORLD_W}
-        height={TL_H}
         viewBox={`0 0 ${WORLD_W} ${TL_H}`}
-        style={{ position: "absolute", left: 0, top: 0, display: "block" }}
+        className="stage-svg"
+        preserveAspectRatio="none"
         aria-hidden
       >
         {/* 時代の地層（一段ごとに地色を変える） */}
@@ -499,7 +498,11 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
         role="application"
         aria-label={t("eras.title", lang)}
       >
-        <div ref={cam.stageRef} className="mapstage" style={{ width: WORLD_W, height: TL_H }}>
+        <div
+          ref={cam.stageRef}
+          className="mapstage"
+          style={{ ["--w" as string]: WORLD_W, ["--h" as string]: TL_H }}
+        >
           {chrome}
 
           {/* 歴史イベントのラベル（逆スケールで文字サイズ一定） */}
@@ -508,7 +511,11 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
             if (!b || (filter && filter !== ev.region)) return null;
             const reg = TL_REGIONS.find((r) => r.id === ev.region);
             return (
-              <div key={`el-${ev.region}${ev.year}`} className="ev" style={{ left: b.x0, top: tlY(ev.year) }}>
+              <div
+                key={`el-${ev.region}${ev.year}`}
+                className="ev"
+                style={{ ["--wx" as string]: b.x0, ["--wy" as string]: tlY(ev.year) }}
+              >
                 <span className="ev-in" style={{ color: reg?.color }}>
                   {ev.year < 0 ? `BC${-ev.year}` : ev.year} {lang === "en" ? ev.en : ev.ja}
                 </span>
@@ -537,7 +544,11 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
               <div
                 key={b.members.map((m) => keyOf(m.item)).join("+")}
                 className={`mp ${many ? "multi" : ""} ${isOn ? "on" : ""} ${showName ? "" : "noname"}`}
-                style={{ left: b.wx, top: b.wy, ["--pin" as string]: reg?.color }}
+                style={{
+                  ["--wx" as string]: b.wx,
+                  ["--wy" as string]: b.wy,
+                  ["--pin" as string]: reg?.color,
+                }}
               >
                 <div
                   className="mp-in"

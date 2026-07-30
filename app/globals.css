@@ -3317,9 +3317,10 @@ main {
    全画面マップステージ（舞台マップ / 時代設定マップ 共通・2026-07-30 大工事）
 
    性能の設計:
-   ・パン/ズーム中に動くのは .mapstage の transform ただ1つ
-   ・ピンはステージ内のワールド座標に置き、--inv-k で逆スケールして
-     画面上の大きさを一定に保つ（Reactの再レンダーは起きない）
+   ・パン中に動くのは .mapstage の transform（translateのみ）ただ1つ
+   ・拡大は scale() を使わず、倍率 --k をレイアウトに焼き込む。
+     ピンは left: calc(var(--wx) * var(--k) * 1px) で置き、中身は素の寸法のまま
+     → 書影も文字も地図も、どこまで寄っても鮮明（scaleだと引き伸ばしでぼやける）
    ・LOD は .mapstage[data-lod] を書き替えるだけ。見た目の切替はCSSの仕事
    ========================================================================== */
 
@@ -3359,12 +3360,28 @@ main {
   top: 0;
   transform-origin: 0 0;
   will-change: transform;
-  --inv-k: 1;
+  /* 倍率。JSがここだけ書き替える（transformにscaleは使わない＝ぼやけない） */
+  --k: 1;
+  width: calc(var(--w) * var(--k) * 1px);
+  height: calc(var(--h) * var(--k) * 1px);
+}
+
+/* 下地の地図/年表は width/height を伸ばす → ベクタとして再描画され常に鮮明 */
+.stage-svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: calc(var(--w) * var(--k) * 1px);
+  height: calc(var(--h) * var(--k) * 1px);
 }
 
 /* ---- ピン（ワールド座標に置き、逆スケールで画面上一定サイズ） ---- */
 .mp {
   position: absolute;
+  /* --wx / --wy はワールド座標。k を掛けた位置に置く */
+  left: calc(var(--wx) * var(--k) * 1px);
+  top: calc(var(--wy) * var(--k) * 1px);
   width: 0;
   height: 0;
 }
@@ -3373,9 +3390,8 @@ main {
   position: absolute;
   left: 0;
   bottom: 0;
-  /* bottom-center をワールド座標にぴったり合わせる（§計算はtransform-originと対） */
-  transform: translate(-50%, 0) scale(var(--inv-k));
-  transform-origin: 50% 100%;
+  /* bottom-center をワールド座標にぴったり合わせる */
+  transform: translateX(-50%);
   text-align: center;
   cursor: pointer;
 }
@@ -4035,6 +4051,8 @@ main {
 /* 歴史イベントのラベル（下地の中・文字サイズは一定） */
 .ev {
   position: absolute;
+  left: calc(var(--wx) * var(--k) * 1px);
+  top: calc(var(--wy) * var(--k) * 1px);
   width: 0;
   height: 0;
   pointer-events: none;
@@ -4045,8 +4063,6 @@ main {
   position: absolute;
   left: 0;
   top: 0;
-  transform: scale(var(--inv-k));
-  transform-origin: 0 0;
   white-space: nowrap;
   font-size: 9.5px;
   font-weight: 800;

@@ -188,16 +188,12 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cam.fitK, project, spots]);
 
-  // ベース地図はパン/ズームで作り直さない
+  // ベース地図はパン/ズームで作り直さない。
+  // 大きさはCSS（width/height = ワールド寸法 × --k）が決めるので、
+  // ズームしてもベクタとして再描画され鮮明なまま。
   const baseLayer = useMemo(
     () => (
-      <svg
-        width={w}
-        height={h}
-        viewBox={`0 0 ${w} ${h}`}
-        style={{ display: "block", position: "absolute", left: 0, top: 0 }}
-        aria-hidden
-      >
+      <svg viewBox={`0 0 ${w} ${h}`} className="stage-svg" preserveAspectRatio="none" aria-hidden>
         <g
           fill="#ffffff"
           stroke="#171310"
@@ -350,7 +346,11 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
         role="application"
         aria-label={t(mapKind === "world" ? "atlas.world" : "atlas.japan", lang)}
       >
-        <div ref={cam.stageRef} className="mapstage names-on" style={{ width: w, height: h }}>
+        <div
+          ref={cam.stageRef}
+          className="mapstage names-on"
+          style={{ ["--w" as string]: w, ["--h" as string]: h }}
+        >
           {baseLayer}
 
           {labeled.rows.map((row) => {
@@ -369,7 +369,7 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
               <div
                 key={b.members.map((m) => m.item.id).join("+")}
                 className={`mp ${many ? "multi" : ""} ${isOn ? "on" : ""} ${showName ? "" : "noname"}`}
-                style={{ left: b.wx, top: b.wy }}
+                style={{ ["--wx" as string]: b.wx, ["--wy" as string]: b.wy }}
               >
                 <div
                   className="mp-in"

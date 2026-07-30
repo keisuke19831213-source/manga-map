@@ -105,12 +105,25 @@
 <h2>§0 実装記録（2026-07-30 実施ぶん）</h2>
 
 <div class="lead" style="background:#fff;">
-  <b>提案の全項目を実装しました。</b>骨格は新設した共通カメラ <code>lib/useMapCamera.ts</code>。
-  設計の要点はひとつ：<b>パン/ズーム中にReactを再レンダーしない。</b>
-  カメラの値は ref に置き、毎フレーム <code>stage.style.transform</code> と CSS変数 <code>--inv-k</code> を直接書く。
-  ピンはステージの中（ワールド座標）に置いて <code>--inv-k</code> で逆スケールするので、
-  <b>パンでもズームでも動くのは「1つのコンテナのtransform」だけ</b>になります。
-  LODは <code>data-lod</code> 属性の書き替えで、見た目の切替はCSSの仕事にしました。
+  <b>提案の全項目を実装しました。</b>骨格は新設した共通カメラ <code>lib/useMapCamera.ts</code>。設計の要点は2つ。<br>
+  <b>①パン中にReactを再レンダーしない</b> — カメラの値は ref に置き、毎フレーム
+  <code>stage.style.transform</code>（translateだけ）を直接書く。LODは <code>data-lod</code> 属性の書き替えで、
+  見た目の切替はCSSの仕事。<br>
+  <b>②拡大に <code>scale()</code> を使わない</b> — 倍率 <code>--k</code> を<b>レイアウトに焼き込む</b>。
+  ピンは <code>left: calc(var(--wx) * var(--k) * 1px)</code> で置き、中身は素の寸法のまま。
+  地図のSVGも width/height を伸ばすので、ベクタとして再描画され<b>どこまで寄っても鮮明</b>です。
+</div>
+
+<div class="card" style="background:#fffdf4;">
+  <b>⚠️ ぼやけの原因と処方（松石さんの指摘 → 同日修正）</b><br>
+  初版はステージ全体を <code>scale(k)</code> し、ピン側を <code>1/k</code> で逆スケールして見た目の大きさを保っていました。
+  幾何としては綺麗ですが、<b>合成レイヤは元の解像度で一度ラスタライズされてからGPUで引き伸ばされる</b>ので、
+  寄るほどぼやけます。さらに悪いことに、逆スケールのせいで<b>書影の実レイアウトが k=18 のとき3pxまで縮み、
+  それを18倍に拡大していました</b>（＝原寸3pxの画像の拡大表示）。<br>
+  処方＝<b>scaleをやめて倍率をレイアウトに焼き込む</b>。平行移動はぼやけないのでパンの軽さはそのまま、
+  <b>再レイアウトはズームのときだけ</b>走ります（パン中は <code>--k</code> が変わらない）。
+  <span class="note">学び＝<b>「合成レイヤのtransformは速いが、scaleは解像度を持ち越さない」</b>。
+  拡大を伴うキャンバスでは、倍率はtransformでなくレイアウトに渡す。</span>
 </div>
 
 <table>
@@ -128,13 +141,18 @@
 
 <h3>性能の実測（§2の契約の検証）</h3>
 <div class="card">
-  ドラッグ120回ぶんを実測（レイアウト強制フラッシュを含む・LOD2）：
+  ぼやけ修正後に測り直した値（レイアウト強制フラッシュを含む・LOD2・60fpsの予算は16.67ms）：
+  <table style="margin-top:10px">
+    <tr><th>操作</th><th style="width:16%">中央値</th><th style="width:14%">p95</th><th style="width:14%">最大</th><th style="width:30%">1操作あたりのDOM書き込み</th></tr>
+    <tr><td>舞台マップ・パン</td><td>0.1ms</td><td>0.3ms</td><td>2.4ms</td><td><b>1回</b>（ステージのtransformだけ）</td></tr>
+    <tr><td>舞台マップ・ズーム</td><td>0.8ms</td><td>1.3ms</td><td>5.3ms</td><td>2回（transform＋<code>--k</code>）※11274pxのSVG再レイアウト込み</td></tr>
+    <tr><td>時代設定マップ・パン</td><td>0.2ms</td><td>0.9ms</td><td>2.3ms</td><td>ステージ1回＋貼りつく道具立て約5回（意図した書き込み）</td></tr>
+    <tr><td>時代設定マップ・ズーム</td><td>2.0ms</td><td>2.5ms</td><td>3.8ms</td><td>同上 ※4176×8594pxのSVG再レイアウト込み</td></tr>
+  </table>
   <ul>
-    <li><b>舞台マップ：1操作あたり 中央値0.0ms / p95 0.1ms / 最大1.7ms</b>（60fpsの予算16.67ms）</li>
-    <li><b>時代設定マップ：中央値0.2ms / p95 0.9ms / 最大2.3ms</b></li>
-    <li><b>ピンへのDOM書き込み＝0回</b>。舞台マップは<b>1操作あたりDOM書き込み1回（ステージのtransformだけ）</b>。
-      時代設定マップは加えて貼りつく道具立て（地層ラベル・年・ミニマップ）に約5回＝これは意図した書き込み</li>
+    <li><b>ピンへのDOM書き込みは全ケースで0回</b>＝パン/ズーム中にReactがピンに触っていない</li>
     <li><b>L0で読み込んだ画像＝0枚</b>／L2まで寄ると17枚に増える（＝寄った人だけが表紙のご褒美をもらう設計どおり）</li>
+    <li>倍率をレイアウトに焼き込んでも<b>予算の1〜16%</b>に収まった＝鮮明さと軽さは両立できた</li>
   </ul>
   <span class="note">⚠️ fps自体は測れていません。検証に使ったブラウザのタブが hidden 状態で
   requestAnimationFrame が止まるため。上は「1フレームでやる仕事の量」の実測で、予算の1〜6%に収まっていることの確認です。
