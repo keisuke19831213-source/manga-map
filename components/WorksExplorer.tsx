@@ -114,17 +114,21 @@ export default function WorksExplorer() {
           const primary = genreById(w.genres[0]);
           const color = primary ? catOf(primary).color : "#94a3b8";
           return (
-            <Link key={w.id} href={`/works/${w.id}`} className="work-card" style={{ borderTopColor: color }}>
-              <div style={{ display: "flex", gap: 12 }}>
-                <Cover src={coverThumb(meta, w.id)} title={w.title} width={58} />
-                <div style={{ minWidth: 0 }}>
-                  <h3>{w.title}</h3>
-                  <div className="meta">
-                    {w.author} · {w.year}年{w.magazine ? ` · ${w.magazine}` : ""}
+            // カード全体を <a> にすると中のジャンル名をリンクにできない（aの入れ子は不可）。
+            // 本体だけをリンクにして、ジャンルのバッジは外に出しジャンルページへ繋ぐ。
+            <div key={w.id} className="work-card" style={{ borderTopColor: color }}>
+              <Link href={`/works/${w.id}`} className="work-card-main">
+                <div style={{ display: "flex", gap: 12 }}>
+                  <Cover src={coverThumb(meta, w.id)} title={w.title} width={58} />
+                  <div style={{ minWidth: 0 }}>
+                    <h3>{w.title}</h3>
+                    <div className="meta">
+                      {w.author} · {w.year}年{w.magazine ? ` · ${w.magazine}` : ""}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <p style={{ marginTop: 10 }}>{w.desc}</p>
+                <p style={{ marginTop: 10 }}>{w.desc}</p>
+              </Link>
               {voices[w.id]?.latest && <MiniBubble post={voices[w.id].latest!} />}
               <div className="badges" style={{ marginTop: 10 }}>
                 {voices[w.id] && (
@@ -135,13 +139,18 @@ export default function WorksExplorer() {
                   if (!g) return null;
                   const c = catOf(g).color;
                   return (
-                    <span key={gid} className="badge" style={{ borderColor: c + "99", color: c }}>
+                    <Link
+                      key={gid}
+                      href={`/g/${gid}`}
+                      className="badge badge-link"
+                      style={{ borderColor: c + "99", color: c }}
+                    >
                       {g.name}
-                    </span>
+                    </Link>
                   );
                 })}
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>

@@ -3,6 +3,9 @@ import { SiteFooter, SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://manga-map.jp"),
+  // 日英の相互参照（英語版は /en を前置きするだけなので機械的に対になる）
+  alternates: { canonical: "/", languages: { ja: "/", en: "/en" } },
   title: "MANGA MAP — マンガの歴史とジャンルの進化マップ",
   description:
     "マンガ100年の系譜を一枚の地図に。ジャンル系統マップ、舞台マップ(世界/日本)、時代設定タイムラインでマンガの歴史を可視化。おすすめ投稿とコマ単位のコメントは吹き出しで。",

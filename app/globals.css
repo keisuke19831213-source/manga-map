@@ -1720,6 +1720,18 @@ main {
   background: var(--panel);
 }
 
+/* ジャンルページへ行けるバッジ（カード本体のリンクとは別の行き先） */
+.work-card-main {
+  display: block;
+  color: inherit;
+}
+
+@media (hover: hover) {
+  .badge-link:hover {
+    background: var(--yellow);
+  }
+}
+
 .filter-row {
   display: flex;
   flex-wrap: wrap;
