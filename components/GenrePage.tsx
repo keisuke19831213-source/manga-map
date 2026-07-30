@@ -20,7 +20,15 @@ import { amazonLink, coverThumb } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useVoicesByWork } from "@/lib/usePosts";
 import { t, lp, type Lang } from "@/lib/i18n";
-import { catBlurb, catName, genreDesc, genreName, hasEnGenre, workTitle } from "@/lib/content-en";
+import {
+  catBlurb,
+  catName,
+  genreDesc,
+  genreName,
+  hasEnGenre,
+  workDesc,
+  workTitle,
+} from "@/lib/content-en";
 
 const EDGE_KEY: Record<EdgeKind, string> = {
   evolution: "edge.evolution",
@@ -172,7 +180,7 @@ export default function GenrePage({ id, lang = "ja" }: { id: string; lang?: Lang
                       {w.author}
                       {w.magazine ? ` / ${w.magazine}` : ""}
                     </div>
-                    <p>{w.desc}</p>
+                    <p>{workDesc(w, lang)}</p>
                     <div className="gw-foot">
                       {voices[w.id] && (
                         <span className="cbadge">

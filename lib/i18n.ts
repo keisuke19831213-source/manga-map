@@ -161,6 +161,28 @@ const UI: Dict = {
   "work.buy": ["Amazonで見る", "View on Amazon"],
   "work.comments": ["件のコメント", "comments"],
   "work.detail": ["作品ページへ", "Open work page"],
+  "work.file": ["作品ファイル", "Work file"],
+  "lib.search": [
+    "🔍 タイトル・作者でしぼり込む(かな・略称OK)",
+    "🔍 Filter by title or author",
+  ],
+  "lib.searchAria": ["作品のしぼり込み検索", "Filter works"],
+  "lib.clear": ["検索をクリア", "Clear search"],
+  "lib.hits": ["件", " found"],
+  "lib.all": ["すべて", "All"],
+  "lib.sort": ["並び順", "Sort"],
+  "lib.sort.year": ["発表年", "By year"],
+  "lib.sort.kana": ["五十音", "A-Z"],
+  "lib.sort.voices": ["語りの多い順", "Most talked about"],
+  "lib.noneQ": [
+    "に合う作品が見つかりません。かな・略称でも検索できます(例: はがれん、こち亀)。",
+    "did not match any work. Try the Japanese title too.",
+  ],
+  "lib.none": ["該当する作品がありません。", "No works match."],
+  "works.lead": [
+    "マンガ史の節目となった代表作コレクション。各作品のページでは、おすすめコメントや「この巻のこのページのこのコマが凄い」というピンポイントの語りを投稿できます。",
+    "A collection of the works that mark the turning points of manga history. On each work's page you can leave a recommendation — or point at one exact panel, on one page, in one volume, and say why it lands.",
+  ],
 };
 
 export function t(key: string, lang: Lang): string {

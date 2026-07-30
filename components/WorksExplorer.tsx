@@ -11,10 +11,12 @@ import { useWorks } from "@/lib/useWorks";
 import { buildDoc, fold, scoreDoc, strip, SEARCH_ALIASES } from "@/lib/search";
 import Cover from "@/components/Cover";
 import MiniBubble from "@/components/MiniBubble";
+import { lp, t, type Lang } from "@/lib/i18n";
+import { catName, workDesc, workTitle } from "@/lib/content-en";
 
 type SortKey = "year" | "kana" | "voices";
 
-export default function WorksExplorer() {
+export default function WorksExplorer({ lang = "ja" }: { lang?: Lang }) {
   const [cat, setCat] = useState<CategoryId | "all">("all");
   const [sort, setSort] = useState<SortKey>("year");
   const sp = useSearchParams();
@@ -34,10 +36,23 @@ export default function WorksExplorer() {
     if (query) {
       const qF = fold(query);
       const qS = strip(query);
-      list = list.filter((w) => scoreDoc(buildDoc(w, w.title, w.author, SEARCH_ALIASES[w.id]), qF, qS) >= 0);
+      list = list.filter(
+        (w) =>
+          scoreDoc(
+            // 英題も検索語に入れる（英語で来た人が Attack on Titan で引ける）
+            buildDoc(w, w.title, w.author, [...(SEARCH_ALIASES[w.id] ?? []), workTitle(w, "en")]),
+            qF,
+            qS
+          ) >= 0
+      );
     }
     const sorted = [...list];
-    if (sort === "kana") sorted.sort((a, b) => a.title.localeCompare(b.title, "ja"));
+    if (sort === "kana")
+      sorted.sort((a, b) =>
+        lang === "en"
+          ? workTitle(a, "en").localeCompare(workTitle(b, "en"), "en")
+          : a.title.localeCompare(b.title, "ja")
+      );
     else if (sort === "voices") sorted.sort((a, b) => (voices[b.id]?.count ?? 0) - (voices[a.id]?.count ?? 0) || a.year - b.year);
     else sorted.sort((a, b) => a.year - b.year);
     return sorted;
@@ -49,17 +64,17 @@ export default function WorksExplorer() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="🔍 タイトル・作者でしぼり込む(かな・略称OK)"
-          aria-label="作品のしぼり込み検索"
+          placeholder={t("lib.search", lang)}
+          aria-label={t("lib.searchAria", lang)}
         />
         {q && (
-          <button className="works-search-clear" aria-label="検索をクリア" onClick={() => setQ("")}>
+          <button className="works-search-clear" aria-label={t("lib.clear", lang)} onClick={() => setQ("")}>
             ×
           </button>
         )}
         {q.trim() && (
           <span className="works-search-count">
-            {works.length}件
+            {lang === "en" ? `${works.length} found` : `${works.length}件`}
           </span>
         )}
       </div>
@@ -69,7 +84,7 @@ export default function WorksExplorer() {
           style={cat === "all" ? { background: "#e7ecf5", borderColor: "#e7ecf5" } : {}}
           onClick={() => setCat("all")}
         >
-          すべて ({allWorks.length})
+          {t("lib.all", lang)} ({allWorks.length})
         </button>
         {CATEGORIES.map((c) => (
           <button
@@ -78,17 +93,17 @@ export default function WorksExplorer() {
             style={cat === c.id ? { background: c.color, borderColor: c.color } : { borderColor: c.color + "88" }}
             onClick={() => setCat(c.id)}
           >
-            {c.name}
+            {catName(c, lang)}
           </button>
         ))}
       </div>
       <div className="sort-row">
-        <span className="sort-label">並び順</span>
+        <span className="sort-label">{t("lib.sort", lang)}</span>
         {(
           [
-            ["year", "発表年"],
-            ["kana", "五十音"],
-            ["voices", "語りの多い順"],
+            ["year", t("lib.sort.year", lang)],
+            ["kana", t("lib.sort.kana", lang)],
+            ["voices", t("lib.sort.voices", lang)],
           ] as [SortKey, string][]
         ).map(([k, label]) => (
           <button key={k} className={`sort-opt ${sort === k ? "on" : ""}`} onClick={() => setSort(k)}>
@@ -102,9 +117,12 @@ export default function WorksExplorer() {
           <div style={{ fontSize: 34 }}>🔍</div>
           <p>
             {q.trim() ? (
-              <>「{q.trim()}」に合う作品が見つかりません。かな・略称でも検索できます(例: はがれん、こち亀)。</>
+              <>
+                {lang === "en" ? `"${q.trim()}" ` : `「${q.trim()}」`}
+                {t("lib.noneQ", lang)}
+              </>
             ) : (
-              <>該当する作品がありません。</>
+              <>{t("lib.none", lang)}</>
             )}
           </p>
         </div>
@@ -117,22 +135,22 @@ export default function WorksExplorer() {
             // カード全体を <a> にすると中のジャンル名をリンクにできない（aの入れ子は不可）。
             // 本体だけをリンクにして、ジャンルのバッジは外に出しジャンルページへ繋ぐ。
             <div key={w.id} className="work-card" style={{ borderTopColor: color }}>
-              <Link href={`/works/${w.id}`} className="work-card-main">
+              <Link href={lp(lang, `/works/${w.id}`)} className="work-card-main">
                 <div style={{ display: "flex", gap: 12 }}>
-                  <Cover src={coverThumb(meta, w.id)} title={w.title} width={58} />
+                  <Cover src={coverThumb(meta, w.id)} title={workTitle(w, lang)} width={58} />
                   <div style={{ minWidth: 0 }}>
-                    <h3>{w.title}</h3>
+                    <h3>{workTitle(w, lang)}</h3>
                     <div className="meta">
                       {w.author} · {w.year}年{w.magazine ? ` · ${w.magazine}` : ""}
                     </div>
                   </div>
                 </div>
-                <p style={{ marginTop: 10 }}>{w.desc}</p>
+                <p style={{ marginTop: 10 }}>{workDesc(w, lang)}</p>
               </Link>
               {voices[w.id]?.latest && <MiniBubble post={voices[w.id].latest!} />}
               <div className="badges" style={{ marginTop: 10 }}>
                 {voices[w.id] && (
-                  <span className="cbadge">💬 読者の声 {voices[w.id].count}</span>
+                  <span className="cbadge">💬 {lang === "en" ? `${voices[w.id].count} voices` : `読者の声 ${voices[w.id].count}`}</span>
                 )}
                 {w.genres.map((gid) => {
                   const g = genreById(gid);
@@ -141,11 +159,11 @@ export default function WorksExplorer() {
                   return (
                     <Link
                       key={gid}
-                      href={`/g/${gid}`}
+                      href={lp(lang, `/g/${gid}`)}
                       className="badge badge-link"
                       style={{ borderColor: c + "99", color: c }}
                     >
-                      {g.name}
+                      {lang === "en" ? g.en : g.name}
                     </Link>
                   );
                 })}

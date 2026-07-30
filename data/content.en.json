@@ -52,97 +52,200 @@
   },
   "spots": {
     "w-versailles": {
-      "place": "France — Paris / Versailles"
+      "place": "France — Paris / Versailles",
+      "notes": {
+        "berubara": "The palace of Versailles on the eve of revolution, and the cobbled streets Oscar rode through"
+      }
     },
     "w-rome": {
-      "place": "Italy — Rome"
+      "place": "Italy — Rome",
+      "notes": {
+        "thermae": "The imperial capital in the 2nd century, and the public baths Lucius designed"
+      }
     },
     "w-arles": {
-      "place": "Southern France — Arles"
+      "place": "Southern France — Arles",
+      "notes": {
+        "kaze_ki": "Late 19th century — the dormitory of Lacombrade Academy is where the story lives"
+      }
     },
     "w-uk": {
-      "place": "United Kingdom"
+      "place": "United Kingdom",
+      "notes": {
+        "poe": "A clan of vampanella travelling through time, setting out from 18th-century Britain"
+      }
     },
     "w-nordlingen": {
-      "place": "Germany — Nördlingen"
+      "place": "Germany — Nördlingen",
+      "notes": {
+        "shingeki": "A real town ringed by a circular wall, often named as the model for the world inside the walls"
+      }
     },
     "w-ny": {
-      "place": "New York"
+      "place": "New York",
+      "notes": {
+        "golgo": "A sniper of the first rank whose workplace is the whole world; the skyscraper shot is a staple"
+      }
     },
     "w-seoul": {
-      "place": "South Korea — Seoul"
+      "place": "South Korea — Seoul",
+      "notes": {
+        "sololeveling": "Seoul, where gates and dungeons have opened — and also the home city of webtoons"
+      }
     },
     "w-tokyo": {
-      "place": "Japan — Tokyo"
+      "place": "Japan — Tokyo",
+      "notes": {
+        "akira": "Neo Tokyo, 2019. A future city built on top of the old one",
+        "tetsuwan": "Tokyo in the 21st century, where robots and people live together — a future we have now passed"
+      }
     },
     "w-china": {
-      "place": "China — Xianyang (ancient China)"
+      "place": "China — Xianyang (ancient China)",
+      "notes": {
+        "kingdom": "China at the end of the Warring States period, as Xin and Ying Zheng set out to unify it"
+      }
     },
     "w-scandinavia": {
-      "place": "Scandinavia — Denmark"
+      "place": "Scandinavia — Denmark",
+      "notes": {
+        "vinland": "The 11th century, the Viking age. Thorfinn's revenge, and his recovery"
+      }
     },
     "w-dusseldorf": {
-      "place": "Germany — Düsseldorf"
+      "place": "Germany — Düsseldorf",
+      "notes": {
+        "monster": "The city of the Eisler Memorial Hospital where Tenma worked; the story spreads across Germany"
+      }
     },
     "w-macedonia": {
-      "place": "Greece — Macedonia"
+      "place": "Greece — Macedonia",
+      "notes": {
+        "historie": "The life of Eumenes, the scribe who served Alexander the Great"
+      }
     },
     "w-grandline": {
-      "place": "The Grand Line (fictional)"
+      "place": "The Grand Line (fictional)",
+      "notes": {
+        "onepiece": "An ocean that appears on no map. The voyage around the world starts here"
+      }
     },
     "w-isekai": {
-      "place": "Another world (off the map)"
+      "place": "Another world (off the map)",
+      "notes": {
+        "tensura": "Reborn off the edge of the map — the Jura Forest of sword and sorcery"
+      }
     },
     "j-kozanji": {
-      "place": "Kyoto — Kozan-ji"
+      "place": "Kyoto — Kozan-ji",
+      "notes": {
+        "chojugiga": "The temple that holds the Choju-jinbutsu-giga scrolls: where you can meet Japan's oldest manga"
+      }
     },
     "j-otaru": {
-      "place": "Hokkaido — Otaru / Sapporo"
+      "place": "Hokkaido — Otaru / Sapporo",
+      "notes": {
+        "goldenkamuy": "Hokkaido in the late Meiji years. Gold, Ainu culture, hunting and food"
+      }
     },
     "j-tokachi": {
-      "place": "Hokkaido — Tokachi"
+      "place": "Hokkaido — Tokachi",
+      "notes": {
+        "ginsaji": "Ooezo Agricultural High School. Vast fields, livestock, and lessons in eating"
+      }
     },
     "j-okutama": {
-      "place": "Tokyo — Okutama (Mt. Kumotori)"
+      "place": "Tokyo — Okutama (Mt. Kumotori)",
+      "notes": {
+        "kimetsu": "Tanjiro's home is Mt. Kumotori; the story opens in Taisho-era Tokyo Prefecture"
+      }
     },
     "j-saitama": {
-      "place": "Saitama"
+      "place": "Saitama",
+      "notes": {
+        "tondesaitama": "Saitama residents strike back against their Tokyo oppressors — affectionate hometown comedy",
+        "crayon": "The Nohara family of Kasukabe. Shin-chan is the city's official parenting-support character"
+      }
     },
     "j-gunma": {
-      "place": "Gunma — Mt. Haruna (\"Akina\")"
+      "place": "Gunma — Mt. Haruna (\"Akina\")",
+      "notes": {
+        "initiald": "The pass down Akina that the Hachi-Roku takes; modelled on the winding roads of Mt. Haruna"
+      }
     },
     "j-sendai": {
-      "place": "Miyagi — Sendai"
+      "place": "Miyagi — Sendai",
+      "notes": {
+        "bluegiant": "The city where Dai kept playing tenor sax on the banks of the Hirose River"
+      }
     },
     "j-omi": {
-      "place": "Shiga — Omi Jingu"
+      "place": "Shiga — Omi Jingu",
+      "notes": {
+        "chihaya": "The sacred ground of competitive karuta, home of the Master and Queen title matches"
+      }
     },
     "j-tokyo-center": {
-      "place": "Tokyo — central wards"
+      "place": "Tokyo — central wards",
+      "notes": {
+        "deathnote": "Police HQ and L's task force — the stage for Light Yagami's war of wits",
+        "sailor": "Set in Azabu-Juban; a real shopping street with a trace of Sailor Moon about it",
+        "oishinbo": "The Tozai Shimbun. Many of the restaurants are modelled on real ones in Tsukiji and Ginza",
+        "shima": "Hatsushiba Electric's head office. Salaryman Tokyo of the Showa years",
+        "conan": "Beika Town. Probably the highest crime rate in Japan",
+        "rurouni": "The Kamiya dojo in Tokyo, 1878",
+        "azumanga": "The everyday life of a Tokyo high school that could be anywhere"
+      }
     },
     "j-shitamachi": {
-      "place": "Tokyo — the old downtown"
+      "place": "Tokyo — the old downtown",
+      "notes": {
+        "ashita": "The doss houses of San'ya and Namida Bridge — where Joe got back on his feet",
+        "kyojin": "Training with the major-league ball harness in a row house, with his father Ittetsu",
+        "wani": "A hundred ordinary days in a Tokyo that could be anywhere"
+      }
     },
     "j-chofu": {
-      "place": "Tokyo — Chofu / Nerima"
+      "place": "Tokyo — Chofu / Nerima",
+      "notes": {
+        "urusei": "Tomobiki Town is modelled on the suburbs west of Tokyo; Mizuki's Chofu is close by"
+      }
     },
     "j-shonan": {
-      "place": "Kanagawa — Shonan"
+      "place": "Kanagawa — Shonan",
+      "notes": {
+        "slam": "The Shohoku basketball team. The Enoshima line crossing became a landmark for fans worldwide"
+      }
     },
     "j-shimizu": {
-      "place": "Shizuoka — Shimizu"
+      "place": "Shizuoka — Shimizu",
+      "notes": {
+        "chibimaruko": "Shimizu in 1974, and the walk to school with Maruko and Tama-chan"
+      }
     },
     "j-osaka": {
-      "place": "Osaka — the old downtown"
+      "place": "Osaka — the old downtown",
+      "notes": {
+        "chie": "The offal restaurant Chie runs. A working-class city with Kansai warmth"
+      }
     },
     "j-sakaiminato": {
-      "place": "Tottori — Sakaiminato"
+      "place": "Tottori — Sakaiminato",
+      "notes": {
+        "gegege": "Shigeru Mizuki's hometown; Mizuki Shigeru Road holds 177 bronze yokai"
+      }
     },
     "j-hakata": {
-      "place": "Fukuoka — Hakata"
+      "place": "Fukuoka — Hakata",
+      "notes": {
+        "cookingpapa": "The Araiwa family dinner table — Hakata, and over 1,500 recipes you can actually cook"
+      }
     },
     "j-goto": {
-      "place": "Nagasaki — Goto Islands"
+      "place": "Nagasaki — Goto Islands",
+      "notes": {
+        "barakamon": "The island the calligrapher Handa moved to. Dialect, the sea, and children"
+      }
     }
   },
   "genres": {
@@ -288,6 +391,1217 @@
       "desc": "A Crocodile That Lives 100 Days, born on Twitter, became a social phenomenon. Short one-to-four-page pieces made for sharing, and an unusually short distance between artist and reader."
     }
   },
-  "works": {},
-  "timeline": {}
+  "works": {
+    "chojugiga": {
+      "title": "Choju-jinbutsu-giga (Frolicking Animals)",
+      "desc": "Four scrolls drawn in ink line alone, in which rabbits and frogs wrestle and play in the water. The living line and the exaggerated animal acting have earned it the name of Japan's oldest manga. It is in fact the work of several hands, and has neither panels nor dialogue — but as a high point of making story and comedy out of pictures alone, it belongs here."
+    },
+    "hokusai": {
+      "title": "Hokusai Manga",
+      "desc": "Around 4,000 sketches Hokusai published as a drawing manual for his students. Figures, plants and animals, yokai, and the offhand gestures of ordinary townspeople — and it is this book that spread the word manga. It has no story and no panels, so it is a different thing from manga today, but it stands for a culture in which ordinary people enjoyed pictures."
+    },
+    "norakuro": {
+      "title": "Norakuro",
+      "desc": "The stray dog Kurokichi works his way up through the army. The biggest hit of the prewar years, and the first manga to be merchandised as a character."
+    },
+    "shintakarajima": {
+      "title": "New Treasure Island",
+      "desc": "Cinematic, fast-moving panel work that hit postwar boys hard and opened the age of story manga. A landmark."
+    },
+    "tetsuwan": {
+      "title": "Astro Boy",
+      "desc": "A monument of science fiction about robots and humans living together. In 1963 it became Japan's first weekly TV anime series, and the starting point of the media mix."
+    },
+    "ribon_kishi": {
+      "title": "Princess Knight",
+      "desc": "The adventures of Princess Sapphire, raised as a boy. It laid out the shape of story manga for girls, and its Takarazuka-like world flowed into the shojo manga that followed."
+    },
+    "kamui": {
+      "title": "The Legend of Kamui",
+      "desc": "A sweeping gekiga about the rigid class system of the Edo period. The magazine Garo was founded so this could run. A bible for the student-movement generation."
+    },
+    "gegege": {
+      "title": "GeGeGe no Kitaro",
+      "desc": "The cornerstone of yokai manga, developed out of the kamishibai serial Kitaro of the Graveyard. Much of what Japanese people picture when they hear yokai was made here."
+    },
+    "kyojin": {
+      "title": "Star of the Giants",
+      "desc": "A baseball manga that bets everything on a father-and-son destiny and an impossible pitch. It defined the sports-and-guts genre itself."
+    },
+    "ashita": {
+      "title": "Tomorrow's Joe",
+      "desc": "A boxing gekiga following Joe Yabuki, a boy out of the doss houses, until he burns out. When Toru Rikiishi died, a real funeral was held for him."
+    },
+    "neji": {
+      "title": "Neji-shiki (Screw Style)",
+      "desc": "A 23-page short story that proceeds by the logic of a dream. It is what made manga a subject for art criticism, and remains the summit of alternative manga."
+    },
+    "golgo": {
+      "title": "Golgo 13",
+      "desc": "The work of Duke Togo, a sniper of the first rank. It holds the world record for the most volumes of a single manga, and is the high point of gekiga."
+    },
+    "devilman": {
+      "title": "Devilman",
+      "desc": "Human malice drawn on an apocalyptic scale, pushing past what boys' manga was thought able to say. The ancestor of later dark fantasy."
+    },
+    "poe": {
+      "title": "The Poe Clan",
+      "desc": "Edgar, a vampanella boy who lives forever. A cycle of stories about time and solitude, generally counted as shojo manga's literary summit."
+    },
+    "berubara": {
+      "title": "The Rose of Versailles",
+      "desc": "The life of Oscar, a woman living as a man, set against the French Revolution. It became a social phenomenon and one of the Takarazuka Revue's signature works."
+    },
+    "blackjack": {
+      "title": "Black Jack",
+      "desc": "An unlicensed genius surgeon asking what a life is worth — the origin of medical manga, and the major work of Tezuka's later years."
+    },
+    "kaze_ki": {
+      "title": "Kaze to Ki no Uta (The Poem of Wind and Trees)",
+      "desc": "A story of love between boys at a French boarding school in the 19th century. Nine years in the planning, and the source of what became BL."
+    },
+    "garasu": {
+      "title": "Glass Mask",
+      "desc": "The cornerstone of theatre manga, following the growth of the prodigy actress Maya Kitajima. A long-running series that produced one legend after another."
+    },
+    "urusei": {
+      "title": "Urusei Yatsura",
+      "desc": "A screwball romantic comedy between the alien Lum and the incorrigible Ataru. Takahashi's method of blending science fiction, gags and romance shaped everything after it."
+    },
+    "touch": {
+      "title": "Touch",
+      "desc": "Twin brothers and the girl next door, Minami. It swapped the heat of sports-and-guts for monologue and empty space — the emblem of Shonen Sunday in the 1980s."
+    },
+    "nausicaa": {
+      "title": "Nausicaa of the Valley of the Wind",
+      "desc": "A thousand years after a vast industrial civilisation fell, in a far future menaced by the Sea of Decay and its insects. The seven volumes go well past the film, and make an epic full of questions about life and civilisation that good and evil cannot settle."
+    },
+    "hokuto": {
+      "title": "Fist of the North Star",
+      "desc": "Kenshiro inherits an assassination art passed to one heir per generation, in a wasteland at the end of the world. Gekiga's bodies fused with Jump's battles."
+    },
+    "oishinbo": {
+      "title": "Oishinbo",
+      "desc": "Ultimate versus Supreme, menu against menu. It brought both connoisseurship and drama to food, and established gourmet manga as a genre."
+    },
+    "shima": {
+      "title": "Section Chief Kosaku Shima",
+      "desc": "The byword for salaryman manga: climbing the ladder inside a major electronics maker. Its hero has since been president and chairman, and is still going."
+    },
+    "dragonball": {
+      "title": "Dragon Ball",
+      "desc": "From a hunt for seven balls to the summit of the battle manga. One of the largest pop icons of the 20th century, felt across boys' manga, American comics and games alike."
+    },
+    "tomie": {
+      "title": "Tomie",
+      "desc": "Tomie, a beautiful girl who multiplies however often she is killed. Born in a girls' horror magazine, it is the representative horror manga with a cult following worldwide."
+    },
+    "sailor": {
+      "title": "Sailor Moon",
+      "desc": "In the name of the Moon, I'll punish you. It created the template for the transforming heroine team and rewrote girls' culture around the world."
+    },
+    "kaiji": {
+      "title": "Kaiji: Ultimate Survivor",
+      "desc": "Restricted rock-paper-scissors; walking the steel beam. A young man in debt stakes his life on gambling — the byword for psychological warfare at the limit."
+    },
+    "azumanga": {
+      "title": "Azumanga Daioh",
+      "desc": "The unremarkable everyday life of high-school girls, in four panels. The starting point of the slice-of-life genre."
+    },
+    "darling": {
+      "title": "My Darling is a Foreigner",
+      "desc": "Daily life with her foreign husband Tony; over a million copies sold. The book that lit the comic-essay boom."
+    },
+    "shingeki": {
+      "title": "Attack on Titan",
+      "desc": "A hopeless war between the humans inside the walls and the titans outside. A story of foreshadowing and structure that changed the landscape of 2010s manga."
+    },
+    "onepunch": {
+      "title": "One Punch Man",
+      "desc": "The troubles of a hero who can beat any enemy in one punch. From a personal website to a social phenomenon — the emblem of web-born manga."
+    },
+    "tensura": {
+      "title": "That Time I Got Reincarnated as a Slime",
+      "desc": "An office worker stabbed by a stranger is reborn as a slime. The biggest hit among the web-novel adaptations."
+    },
+    "kimetsu": {
+      "title": "Demon Slayer: Kimetsu no Yaiba",
+      "desc": "The story of Tanjiro, whose family was killed by demons. Taisho design, Japanese motifs and the uncanny, multiplied by the anime, produced a historic boom."
+    },
+    "chainsaw": {
+      "title": "Chainsaw Man",
+      "desc": "Denji, a boy fused with the chainsaw devil. Cinematic quotation and an amoral momentum keep pushing at what Jump is supposed to be."
+    },
+    "sololeveling": {
+      "title": "Solo Leveling",
+      "desc": "A Korean webtoon in which the weakest hunter levels up alone. A huge hit that stands for vertical-scroll full colour opening up the Japanese market."
+    },
+    "wani": {
+      "title": "A Crocodile That Lives 100 Days",
+      "desc": "A hundred-day countdown to a death, posted one page a day. An experiment in which the publishing format itself — social media — became part of the story."
+    },
+    "chie": {
+      "title": "Jarinko Chie",
+      "desc": "Chie, a grade-schooler running an offal restaurant in working-class Osaka. A Kansai-dialect comedy of human warmth that stood out sharply in a seinen magazine."
+    },
+    "tondesaitama": {
+      "title": "Tonde Saitama",
+      "desc": "Let Saitama people eat the grass by the roadside! Affectionate hometown mockery that broke out all over again when it was filmed 30 years later."
+    },
+    "cookingpapa": {
+      "title": "Cooking Papa",
+      "desc": "Kazumi Araiwa, a Hakata trading-company father who happens to be a fine cook. A long-running food manga, loved for recipes you can actually use."
+    },
+    "chibimaruko": {
+      "title": "Chibi Maruko-chan",
+      "desc": "The author's own girlhood in Shimizu, Shizuoka, in 1974. It brought the sensibility of the essay into a girls' magazine, and became a national institution."
+    },
+    "conan": {
+      "title": "Detective Conan",
+      "desc": "Shinichi Kudo, a high-school detective whose body has shrunk. A long-running mystery that widened the audience for the battle-of-wits manga to everyone."
+    },
+    "rurouni": {
+      "title": "Rurouni Kenshin",
+      "desc": "Tokyo, 1878. Kenshin Himura, a former assassin sworn never to kill again. The high point of historical setting crossed with a Jump battle manga."
+    },
+    "barakamon": {
+      "title": "Barakamon",
+      "desc": "A young calligrapher moves to the Goto Islands after failing in the city, and life among the islanders. A regional hit that began as a web serial."
+    },
+    "ginsaji": {
+      "title": "Silver Spoon",
+      "desc": "Hachiken flees an academic high school for an agricultural one in Hokkaido. A coming-of-age story that faces food and life head-on, and opened up a new kind of school manga."
+    },
+    "sazae": {
+      "title": "Sazae-san",
+      "desc": "The cornerstone of the newspaper four-panel strip, centred on the Isono family. It became the very image of the postwar Japanese household, and then a national anime."
+    },
+    "tetsujin28": {
+      "title": "Tetsujin 28-go",
+      "desc": "A giant robot worked by remote control, and the boy Shotaro Kaneda. With Astro Boy, the origin of the giant-robot manga."
+    },
+    "babil": {
+      "title": "Babel II",
+      "desc": "Koichi, who inherits the power of a superhuman from ancient Babylon, fights Yomi's bid for world conquest with three servants at his side. It drew telekinesis and telepathy as techniques, and became the template for psychic battle manga."
+    },
+    "osomatsu": {
+      "title": "Osomatsu-kun",
+      "desc": "A classic of gag manga, with sextuplets, Iyami and Chibita running riot. Its catchphrase entered the language, and it established the character-driven gag."
+    },
+    "hinotori": {
+      "title": "Phoenix",
+      "desc": "Tezuka's life's work, drawing life and rebirth on a vast scale. Past and future chapters alternate, and the thought of the god of manga is concentrated in it."
+    },
+    "doraemon": {
+      "title": "Doraemon",
+      "desc": "A cat-shaped robot from the future, and the gadgets he lends Nobita. The summit of children's manga, loved worldwide as a national character."
+    },
+    "ginga999": {
+      "title": "Galaxy Express 999",
+      "desc": "Tetsuro and Maetel travel the galaxy in search of a mechanical body. Lyrical science fiction, an episode at a time, and the emblem of the 1970s anime boom."
+    },
+    "kochikame": {
+      "title": "KochiKame: Tokyo Beat Cops",
+      "desc": "The chaos around Kankichi Ryotsu, an outrageous downtown policeman. Forty years and 200 volumes run to completion — a record-holding long-lived gag manga."
+    },
+    "drslump": {
+      "title": "Dr. Slump",
+      "desc": "Bottomlessly cheerful gags with an inventor and the robot girl Arale. Toriyama's drawing and taste laid the ground for Jump in the 1980s."
+    },
+    "kinnikuman": {
+      "title": "Kinnikuman",
+      "desc": "Gags and pro-wrestling battles following the growth of a hopeless superhuman. Its cast of odd superhumans and their eraser figures became a social phenomenon."
+    },
+    "captsubasa": {
+      "title": "Captain Tsubasa",
+      "desc": "The ball is my friend. Tsubasa Ozora's football story, which influenced top professionals abroad and drove football's popularity in Japan."
+    },
+    "seiya": {
+      "title": "Saint Seiya",
+      "desc": "Boys in sacred cloth fight for the goddess Athena. A stylised beauty drawn from Greek myth and the constellations — and a merchandising hit."
+    },
+    "jojo1": {
+      "title": "JoJo's Bizarre Adventure Part 1: Phantom Blood",
+      "desc": "England, the 19th century. The beginning of the grudge between Jonathan Joestar and Dio, who means to take everything from him. A prologue of stone masks, Ripple, and the Joestar destiny."
+    },
+    "jojo2": {
+      "title": "JoJo's Bizarre Adventure Part 2: Battle Tendency",
+      "desc": "The eve of the Second World War. The freewheeling second-generation Joseph takes on the superhuman Pillar Men with Ripple. Tension and comedy side by side, in the part that settled the series' popularity."
+    },
+    "jojo3": {
+      "title": "JoJo's Bizarre Adventure Part 3: Stardust Crusaders",
+      "desc": "From Japan to Egypt, to strike down the revived DIO. It invented the Stand, and with it changed how boys' manga fights."
+    },
+    "jojo4": {
+      "title": "JoJo's Bizarre Adventure Part 4: Diamond is Unbreakable",
+      "desc": "A serial killer, Yoshikage Kira, hidden in the ordinary life of the fictional town of Morioh. Stand battles brought down into a neighbourhood mystery — the part many fans love best."
+    },
+    "jojo5": {
+      "title": "JoJo's Bizarre Adventure Part 5: Golden Wind",
+      "desc": "Italy. Giorno and his companions climb toward the top of a gang. A story of fate that resolves in Gold Experience Requiem, a Stand that controls time."
+    },
+    "jojo6": {
+      "title": "JoJo's Bizarre Adventure Part 6: Stone Ocean",
+      "desc": "A prison in Florida. Jolyne, wrongly imprisoned, reaches the end of DIO's grudge. The part that closes the destiny running through Parts 1 to 6."
+    },
+    "jojo7": {
+      "title": "JoJo's Bizarre Adventure Part 7: Steel Ball Run",
+      "desc": "America, 1890, and a race across the continent. A competition for the parts of a corpse, and a reset of the whole world of the series. Many call it the best, with Araki's drawing and structure at full maturity."
+    },
+    "jojo8": {
+      "title": "JoJo's Bizarre Adventure Part 8: JoJolion",
+      "desc": "Morioh after the earthquake. A mystery about the identity of Josuke, a man with no memory — another Morioh, and a curse that has to be undone."
+    },
+    "jojo9": {
+      "title": "JoJo's Bizarre Adventure Part 9: The JOJOLands",
+      "desc": "Hawaii, present day. The bizarre adventure of Jodio, a boy who wants to be rich. The current part, still running."
+    },
+    "cityhunter": {
+      "title": "City Hunter",
+      "desc": "The hard-boiled comedy of Ryo Saeba, Shinjuku's crack sweeper. Adult glamour and gags in alternation brought seinen readers in too."
+    },
+    "yuyu": {
+      "title": "Yu Yu Hakusho",
+      "desc": "The delinquent Yusuke Urameshi becomes a spirit detective. Spirit-energy battles and a memorable cast carried Jump through the early 1990s."
+    },
+    "yugioh": {
+      "title": "Yu-Gi-Oh!",
+      "desc": "Games of darkness and card duels. The card game inside the story became a real worldwide product — a monument of the media mix."
+    },
+    "hikaru": {
+      "title": "Hikaru no Go",
+      "desc": "The boy Hikaru and Sai, a ghost from the Heian court, take on the world of Go. It turned an unglamorous subject into fights you could not look away from, and set off a Go boom among children."
+    },
+    "naruto": {
+      "title": "Naruto",
+      "desc": "The hopeless ninja Naruto grows through his bonds with others. Ninjutsu battles and the theme of wanting to be recognised made it a worldwide hit."
+    },
+    "prince_tennis": {
+      "title": "The Prince of Tennis",
+      "desc": "The prodigy Ryoma Echizen and middle-school tennis. Escalating special moves and beloved characters opened sports manga to a new readership."
+    },
+    "eyeshield": {
+      "title": "Eyeshield 21",
+      "desc": "The quick-footped Sena Kobayakawa takes on American football. An unusual sports manga that carried a minor sport on sheer drawing and strategy."
+    },
+    "gintama": {
+      "title": "Gintama",
+      "desc": "The odd-jobs man Gintoki Sakata, in an Edo the aliens have arrived in. The gap between all-out crude comedy and genuine seriousness earned it a fervent following."
+    },
+    "masaru": {
+      "title": "Sexy Commando Gaiden: Sugoiyo!! Masaru-san",
+      "desc": "Masaru and his cheerful club devote themselves to a mysterious martial art, Sexy Commando. Its surreal timing, cutting every thread of logic, was a gag revolution in 1990s Jump."
+    },
+    "jaguar": {
+      "title": "Pyu to Fuku! Jaguar",
+      "desc": "A slack-limbed gag manga about being dragged around by Jaguar, a man who has given his life to the recorder. Ten years of run on the slow-burning wrongness of its dialogue — Usuta's gag form perfected."
+    },
+    "kurobas": {
+      "title": "Kuroko's Basketball",
+      "desc": "Kuroko, the shadowy sixth man, and the Generation of Miracles playing basketball. Presentation borrowed from ability battles brought fresh air to sports manga."
+    },
+    "haikyu": {
+      "title": "Haikyu!!",
+      "desc": "The small Shoyo Hinata takes on high-school volleyball. Precise match drawing and a large ensemble made it the representative sports manga of the 2010s."
+    },
+    "hero_aca": {
+      "title": "My Hero Academia",
+      "desc": "In a world where everyone has a Quirk, the quirkless Izuku Midoriya sets out to be the greatest hero. An American-comics sensibility won it a worldwide audience."
+    },
+    "promised": {
+      "title": "The Promised Neverland",
+      "desc": "Children use their wits against the truth hidden inside an orphanage that calls itself a farm. A much-discussed work fusing battles of wits with a dark world."
+    },
+    "jujutsu": {
+      "title": "Jujutsu Kaisen",
+      "desc": "Sorcerers fighting curses to the death. Cursed spirits born of negative feeling, plus a contemporary sense of staging, made it the defining Jump hit of the Reiwa years."
+    },
+    "nigeue": {
+      "title": "The Elusive Samurai",
+      "desc": "Hojo Tokiyuki, a boy who loses everything when the Kamakura shogunate falls, aims for the top armed only with his one talent: running away. Yusei Matsui turned the Nanboku-cho period, long thought unglamorous, into a battlefield for boys' manga."
+    },
+    "ellen": {
+      "title": "Left-handed Ellen",
+      "desc": "Koichi Asakura, a designer at an ad agency, and Ellen Yamagishi, a genius painter. Written for everyone who did not turn out to be a genius, it follows people making peace with envy and carrying on working — a web-born ensemble piece about creators."
+    },
+    "fma": {
+      "title": "Fullmetal Alchemist",
+      "desc": "Two brothers who lost their bodies to alchemy, on the road. The theme of equivalent exchange and tightly repaid foreshadowing make it one of the most complete works a monthly boys' magazine has produced."
+    },
+    "dai": {
+      "title": "Dragon Quest: The Adventure of Dai",
+      "desc": "The adventure of the hero Dai, set in the world of the Dragon Quest games. Still loved as the finished form of the mainline fantasy battle manga."
+    },
+    "ranma": {
+      "title": "Ranma 1/2",
+      "desc": "A martial-arts romantic comedy around Ranma, a boy who becomes a girl when splashed with water. Takahashi's signature work, with an enormous following at home and abroad."
+    },
+    "inuyasha": {
+      "title": "Inuyasha",
+      "desc": "Kagome, a modern girl who slips into the Warring States period, and the half-demon Inuyasha. A long work fusing yokai with romance, and a landmark of the 1990s and 2000s."
+    },
+    "maison": {
+      "title": "Maison Ikkoku",
+      "desc": "The maddeningly slow romance between Kyoko, who manages an old apartment building, and Godai, a student retaking his exams. The cornerstone of seinen romantic comedy."
+    },
+    "ushiotora": {
+      "title": "Ushio and Tora",
+      "desc": "The mismatched pair of the boy Ushio and the yokai Tora take on great demons. Fierce friendship and forceful drawing make it a masterpiece of the yokai battle manga."
+    },
+    "major": {
+      "title": "Major",
+      "desc": "Goro Honda's life in baseball, from childhood to the majors. The representative long-form sports story following one player's whole career."
+    },
+    "kindaichi": {
+      "title": "The Kindaichi Case Files",
+      "desc": "Hajime, grandson of a great detective, takes on hard cases. It brought locked rooms and logic puzzles to a boys' magazine and set off a boom."
+    },
+    "ippo": {
+      "title": "Hajime no Ippo",
+      "desc": "Ippo Makunouchi, once bullied, grows up through boxing. Careful drawing of matches and of training has kept it loved for decades."
+    },
+    "tokyorev": {
+      "title": "Tokyo Revengers",
+      "desc": "Time-leaping into the past to save his girlfriend and his best friend, through gang warfare. Delinquents plus time travel made it a phenomenon."
+    },
+    "bluelock": {
+      "title": "Blue Lock",
+      "desc": "A ruthless project to raise the world's most selfish striker. Values that overturn the usual team-first sports story won over a new generation."
+    },
+    "frieren": {
+      "title": "Frieren: Beyond Journey's End",
+      "desc": "Frieren, a long-lived elf mage, living in the world after the demon king has fallen. A quiet story of death, time and understanding other people — the story of what comes after the adventure."
+    },
+    "berserk": {
+      "title": "Berserk",
+      "desc": "The dark medieval fantasy of the swordsman Guts, his revenge and his causality. Ferocious detail and a weighty story make it the summit of dark fantasy."
+    },
+    "ghost": {
+      "title": "Ghost in the Shell",
+      "desc": "Motoko Kusanagi and her public-security unit in a cyberised society. A worldwide cyberpunk classic questioning the borders of information, body and consciousness."
+    },
+    "twentieth": {
+      "title": "20th Century Boys",
+      "desc": "A book of prophecy made up in childhood turns out to connect to a real conspiracy. Nostalgia for boyhood and an enormous mystery kept readers gripped."
+    },
+    "yawara": {
+      "title": "Yawara!",
+      "desc": "The daily life and competitions of Yawara Inokuma, a judo prodigy. A light-footed seinen sports romance that caught the air of the bubble years."
+    },
+    "vagabond": {
+      "title": "Vagabond",
+      "desc": "Based on Eiji Yoshikawa's Musashi, on a swordsman's life and what strength is for. Overwhelming brushwork lifted period gekiga to a new height."
+    },
+    "hyouge": {
+      "title": "Hyouge Mono",
+      "desc": "The life of Furuta Oribe, a warlord who tried to survive the Warring States not by arms but by suki — tea and beauty. Comic in his helplessness before great lords and famous tea vessels, and abnormal in his attachment to beauty, it brought aesthetics into historical manga as a subject."
+    },
+    "kingdom": {
+      "title": "Kingdom",
+      "desc": "Ancient China at the end of the Warring States period, where the servant boy Xin sets out to become a great general. A vast war chronicle and ensemble drama, and one of the biggest hits a seinen magazine has had."
+    },
+    "vinland": {
+      "title": "Vinland Saga",
+      "desc": "11th-century Scandinavia, where the young Thorfinn, living for revenge, slowly turns into a true warrior. A Viking epic grounded in history."
+    },
+    "planetes": {
+      "title": "Planetes",
+      "desc": "Near-future science fiction about the people who collect debris in orbit. A lyrical masterpiece that draws both the reality of space development and the inner life quietly."
+    },
+    "uchukyodai": {
+      "title": "Space Brothers",
+      "desc": "Two brothers who want to be astronauts. Dreams and setbacks drawn with adult realism, and admired by people actually working in space."
+    },
+    "goldenkamuy": {
+      "title": "Golden Kamuy",
+      "desc": "Hokkaido in the late Meiji years, where an ex-soldier and an Ainu girl chase a hoard of gold. An adventure like no other, packed with Ainu culture, hunting, food and comedy."
+    },
+    "tokyoghoul": {
+      "title": "Tokyo Ghoul",
+      "desc": "The torment of Kaneki, a young man who becomes a ghoul, a species that eats people. The space between human and monster, drawn with an aesthete's line."
+    },
+    "kaguya": {
+      "title": "Kaguya-sama: Love Is War",
+      "desc": "The student council president and vice-president, both brilliant, wage a war of wits in which confessing first means losing. The defining romantic comedy of the Reiwa years."
+    },
+    "sangatsu": {
+      "title": "March Comes in Like a Lion",
+      "desc": "Rei Kiriyama, a lonely young shogi professional, recovering through the game and through other people. Delicate psychological drawing lifts shogi into human drama."
+    },
+    "ooku": {
+      "title": "Ooku: The Inner Chambers",
+      "desc": "An alternate history in which the roles of the sexes are reversed and the shogun is a woman. Widely praised for its careful period research and its thinking about gender."
+    },
+    "kinou": {
+      "title": "What Did You Eat Yesterday?",
+      "desc": "The daily life and the dinner table of a middle-aged gay couple, drawn plainly. Loved by a wide readership for its usable recipes and its life-sized living."
+    },
+    "uzumaki": {
+      "title": "Uzumaki",
+      "desc": "Junji Ito's signature work, on the strangeness that grips a town possessed by the spiral. A worldwide cult following for its unreasonable, beautiful images of fear."
+    },
+    "dorohedoro": {
+      "title": "Dorohedoro",
+      "desc": "A chaotic world where sorcerers and the residents of the Hole cross paths. Detailed, deformed world-building and black comedy have earned it devoted fans."
+    },
+    "mob": {
+      "title": "Mob Psycho 100",
+      "desc": "The growth of Mob, an unremarkable boy with enormous psychic power. A popular web-born work by ONE, the author of One Punch Man."
+    },
+    "ace_nerae": {
+      "title": "Aim for the Ace!",
+      "desc": "The ordinary girl Hiromi Oka throws herself into tennis under a hard coach. It fused sports-and-guts with shojo manga and shaped much of what followed."
+    },
+    "candy": {
+      "title": "Candy Candy",
+      "desc": "A sweeping romance following the eventful life of Candy, an orphan girl. One of the defining shojo manga of the 1970s, and enormously popular."
+    },
+    "hanadan": {
+      "title": "Boys Over Flowers",
+      "desc": "A love story between the working-class Tsukushi and F4, a group of rich heirs. One of the best-selling shojo manga of all time."
+    },
+    "nana": {
+      "title": "Nana",
+      "desc": "Love, dreams and friendship between two women who share the name Nana. A landmark of josei manga, with a charismatic following built on music and life-sized youth."
+    },
+    "fruits": {
+      "title": "Fruits Basket",
+      "desc": "The Soma family, under the curse of the zodiac, and the girl Tohru. A careful account of hurt hearts recovering, and one of shojo manga's biggest sellers."
+    },
+    "ccs": {
+      "title": "Cardcaptor Sakura",
+      "desc": "The story of Sakura Kinomoto, a magical girl collecting cards. Sweetness and a wardrobe of costumes made it a new classic of the magical-girl form."
+    },
+    "kimitodoke": {
+      "title": "Kimi ni Todoke: From Me to You",
+      "desc": "The first love and friendships of Sawako, a girl everyone misreads. Its purity of feeling made it a defining shojo manga of the 2000s."
+    },
+    "chihaya": {
+      "title": "Chihayafuru",
+      "desc": "Chihaya and her friends staking their youth on competitive karuta. Shojo manga fused with sports-and-guts, and the cause of a karuta boom."
+    },
+    "nodame": {
+      "title": "Nodame Cantabile",
+      "desc": "A classical-music romantic comedy between the unruly pianist Nodame and Chiaki, who wants to conduct. Set in a music college, it drove a boom in classical music."
+    },
+    "hachikuro": {
+      "title": "Honey and Clover",
+      "desc": "The unrequited loves and youth of art-college students, drawn freshly. Its balance of ache and humour is where the author's later work begins."
+    },
+    "crayon": {
+      "title": "Crayon Shin-chan",
+      "desc": "The crude, precocious gags of the five-year-old Shinnosuke. A national anime and the standard-bearer of everyday gag manga, loved across generations."
+    },
+    "bobobo": {
+      "title": "Bobobo-bo Bo-bobo",
+      "desc": "The absurdist gags of Bobobo, who fights with nose-hair techniques. High tension beyond all reason, and a cult following."
+    },
+    "hiwa": {
+      "title": "Gag Manga Biyori",
+      "desc": "Slack-limbed short gags built on historical figures and the like. Its particular rhythm and surrealism earned it an anime too."
+    },
+    "yotsuba": {
+      "title": "Yotsuba&!",
+      "desc": "Yotsuba, a girl made entirely of curiosity, and the unremarkable days of the people around her. The high point of slice-of-life, by the author of Azumanga Daioh."
+    },
+    "keion": {
+      "title": "K-On!",
+      "desc": "Four-panel strips about the easy days of the girls in a light-music club. The anime made it a phenomenon and created the slice-of-life-plus-band boom."
+    },
+    "yurucamp": {
+      "title": "Yuru Camp",
+      "desc": "Girls camping gently outdoors in winter. Careful landscape drawing and a restful air made it the spark for a camping boom."
+    },
+    "bakabon": {
+      "title": "Genius Bakabon",
+      "desc": "This is fine, as it is. The destructive nonsense of Bakabon's papa, and the representative work of Akatsuka's comedy, familiar across generations."
+    },
+    "gakideka": {
+      "title": "Gaki Deka",
+      "desc": "The crude, extreme gags of Komawari-kun, a boy policeman. His death-sentence pose came to stand for the gag revolution of the 1970s."
+    },
+    "macaroni": {
+      "title": "Makaroni Horenso",
+      "desc": "Frenzied comedy packed with high tension and parody. A legendary work that shaped the speed of the gag manga that followed."
+    },
+    "kimenzu": {
+      "title": "High School! Kimengumi",
+      "desc": "School gags with the five distinct members of the Kimengumi. A favourite that carried Jump's comedy line through the 1980s."
+    },
+    "cobra": {
+      "title": "Cobra",
+      "desc": "The exploits of the space pirate Cobra and his Psychogun. An early Japanese space opera in the American-comics mould, and very popular."
+    },
+    "dokaben": {
+      "title": "Dokaben",
+      "desc": "A high-school baseball ensemble centred on Taro Yamada. Precise match drawing built an era of the baseball manga across a long run."
+    },
+    "captain_chiba": {
+      "title": "Captain",
+      "desc": "Middle-school baseball, in which ordinary players become strong through work. An honest sports story with no flash, still highly regarded."
+    },
+    "ring": {
+      "title": "Ring ni Kakero",
+      "desc": "Boxing with finishing blows that detonate. It brought superhuman staging into sports-and-guts, and became the template for the author's later work and for shonen battles."
+    },
+    "rookies": {
+      "title": "Rookies",
+      "desc": "A hot-blooded teacher rebuilds a baseball team full of delinquents. Sweat, tears and youth won it a wide following."
+    },
+    "hoshin": {
+      "title": "Hoshin Engi",
+      "desc": "Immortal battles adapted boldly from the Chinese classics. Stylish drawing and a reading of its own earned it a cult following."
+    },
+    "reborn": {
+      "title": "Reborn!",
+      "desc": "Tsuna, a hopeless middle-schooler, is dragged into training as a mafia boss. Its turn from comedy into full battle manga made it popular."
+    },
+    "toriko": {
+      "title": "Toriko",
+      "desc": "The gourmet hunter Toriko hunts for ultimate ingredients. A boisterous world fusing food with battle."
+    },
+    "ansatsu": {
+      "title": "Assassination Classroom",
+      "desc": "A school story about assassinating Koro-sensei, a mysterious creature who has announced he will destroy the earth. An unusual work built on teaching and growth."
+    },
+    "souma": {
+      "title": "Food Wars!: Shokugeki no Soma",
+      "desc": "Soma Yukihira takes on shokugeki, cooking duels. Battle manga's heat poured into cooking, in a popular Jump food series."
+    },
+    "dgray": {
+      "title": "D.Gray-man",
+      "desc": "Exorcists fighting the demons called AKUMA. Gothic, detailed world-building and a beloved cast won it its readers."
+    },
+    "kaiju8": {
+      "title": "Kaiju No. 8",
+      "desc": "A middle-aged man who gains the power of a kaiju fights in the defence force. A new-generation hit, popular at home and abroad at once, from a web serial."
+    },
+    "oshinoko": {
+      "title": "Oshi no Ko",
+      "desc": "A man reborn as an idol's child takes on the dark side of show business. Reincarnation plus entertainment plus suspense made it a phenomenon."
+    },
+    "sakamoto": {
+      "title": "Sakamoto Days",
+      "desc": "Sakamoto, a legendary retired hitman, fights to protect his family. Popular for its refined action staging."
+    },
+    "dandadan": {
+      "title": "Dandadan",
+      "desc": "A youth battle manga where the occult and aliens collide. Overwhelming drawing and pace made it a much-discussed web-born hit."
+    },
+    "h2": {
+      "title": "H2",
+      "desc": "Baseball and a four-way tangle between childhood friends. Adachi's summing-up of the youth-baseball romance."
+    },
+    "kyoukara": {
+      "title": "From Today, It's My Turn!!",
+      "desc": "Delinquent gags about two boys who debut as thugs after transferring schools. Well-timed comedy and fights have kept it loved."
+    },
+    "diamond": {
+      "title": "Ace of Diamond",
+      "desc": "Eijun Sawamura, a pitcher growing up in a famous baseball club. A serious baseball manga that takes the tension of fighting for a position seriously."
+    },
+    "nanatsu": {
+      "title": "The Seven Deadly Sins",
+      "desc": "The adventures of the legendary knights called the Seven Deadly Sins. A mainline fantasy battle manga, and a worldwide hit."
+    },
+    "gotoubun": {
+      "title": "The Quintessential Quintuplets",
+      "desc": "A boy tutoring quintuplets, and where his love ends up. Readers were gripped by the question of which one he chooses."
+    },
+    "ajin": {
+      "title": "Ajin: Demi-Human",
+      "desc": "The struggle around the ajin, a new kind of human that cannot die. Cold-blooded battles of wits and action made it a seinen hit."
+    },
+    "initiald": {
+      "title": "Initial D",
+      "desc": "A street-racing manga about attacking mountain passes. It produced a drifting boom and became the emblem of street-racing culture."
+    },
+    "mushishi": {
+      "title": "Mushishi",
+      "desc": "A fantasy about the relationship between mushi and people. A cycle of short stories highly praised for its still, poetic world."
+    },
+    "blueperiod": {
+      "title": "Blue Period",
+      "desc": "Yatora, who does everything competently, is struck by a single painting and enters the world of art-school entrance exams. It faces the pain and the joy of betting your life on what you love, and turned art into a youth sport."
+    },
+    "eizouken": {
+      "title": "Keep Your Hands Off Eizouken!",
+      "desc": "Asakusa the setting obsessive, Mizusaki the charismatic reader-model, and Kanamori who handles the money, take on making anime to build the strongest world. The imagined images erupt straight onto the page, and the pleasure of making things comes through whole."
+    },
+    "thermae": {
+      "title": "Thermae Romae",
+      "desc": "Lucius, a bath engineer of ancient Rome, keeps slipping forward into modern Japanese baths. Flattened by the flat-faced tribe's technology, he takes each idea home — a comparative-culture comedy that does history and civilisation entirely through bathing."
+    },
+    "historie": {
+      "title": "Historie",
+      "desc": "The life of Eumenes, a scribe of ancient Greece. A meticulous historical epic by Hitoshi Iwaaki, the author of Parasyte."
+    },
+    "baki": {
+      "title": "Grappler Baki",
+      "desc": "The death matches of Baki Hanma, a fighter in search of being strongest. Excessive anatomy and a fighting theory of its own have earned it a cult following."
+    },
+    "akagi": {
+      "title": "Akagi",
+      "desc": "The mahjong and the manner of living of the prodigy Shigeru Akagi. A philosophy of games played with your life on the table, at the summit of mahjong gekiga."
+    },
+    "ten": {
+      "title": "Ten",
+      "desc": "How men live, told through mahjong. The death of Shigeru Akagi in the later chapters, and the conversations around it, are among gekiga's finest scenes."
+    },
+    "kintaro": {
+      "title": "Salaryman Kintaro",
+      "desc": "A former biker-gang leader turned salaryman moves a company by speaking plainly and acting. The standard-bearer of the satisfying business manga."
+    },
+    "pluto": {
+      "title": "Pluto",
+      "desc": "Naoki Urasawa's remake of The Greatest Robot on Earth from Tezuka's Astro Boy. A weighty masterpiece on robots and war."
+    },
+    "kodoku": {
+      "title": "The Solitary Gourmet",
+      "desc": "A story in which a middle-aged man simply eats alone. No showy expertise, no incident — it opened new ground on the richness of just eating."
+    },
+    "shinya": {
+      "title": "Midnight Diner",
+      "desc": "An ensemble of human warmth around the people who gather at a small diner open only late at night. A neighbourhood drama told one dish at a time."
+    },
+    "beck": {
+      "title": "Beck",
+      "desc": "Koyuki, an unremarkable middle-schooler, meets the prodigy guitarist Ryusuke and joins the band BECK. It made readers believe in sound they could not hear, and brought the heat of Western rock into a Japanese boys' magazine."
+    },
+    "bluegiant": {
+      "title": "Blue Giant",
+      "desc": "A boy who means to become the best jazz player in the world. Highly praised for performance scenes that let you hear sound through drawing."
+    },
+    "kusuriya": {
+      "title": "The Apothecary Diaries",
+      "desc": "Maomao, a girl who solves incidents in the rear palace with her knowledge of medicine. A huge hit as a Chinese-style mystery in adaptation."
+    },
+    "animal_doctor": {
+      "title": "Animal Doctor",
+      "desc": "A slack-limbed comedy set in a Hokkaido veterinary faculty. An unusual entry for a girls' magazine, and the cause of a Siberian husky boom."
+    },
+    "patalliro": {
+      "title": "Patalliro!",
+      "desc": "The gags Patalliro, the eternally young king, sets off, and his beautiful spies. Known as a long-running comedy in a girls' magazine and a forerunner of BL."
+    },
+    "yona": {
+      "title": "Yona of the Dawn",
+      "desc": "The growth and adventures of Princess Yona, driven from her country. A fantasy epic that widened what shojo manga could hold."
+    },
+    "basara": {
+      "title": "Basara",
+      "desc": "In a Japan after civilisation has fallen, Sarasa plays the child of destiny in place of her twin brother, and leads a revolution. An epic that brought sturdy war chronicle and nation-building into shojo manga."
+    },
+    "7seeds": {
+      "title": "7Seeds",
+      "desc": "Young people wake in a Japan after a meteor strike, and have to survive. Sixteen years and 35 volumes of apocalyptic science fiction inside the shojo form, and a Shogakukan Manga Award."
+    },
+    "mystery_nakare": {
+      "title": "Don't Call It Mystery",
+      "desc": "Totono Kuno, a university student who keeps getting caught up in things, unpicks incidents and people's assumptions not by deduction but by asking back. An unusual work that turns conversation itself into the detective story."
+    },
+    "ouran": {
+      "title": "Ouran High School Host Club",
+      "desc": "Haruhi, a girl caught up in the host club of an elite school. The standard-bearer of the reverse-harem comedy."
+    },
+    "tarareba": {
+      "title": "Tokyo Tarareba Girls",
+      "desc": "The love lives and the panic of women around thirty, drawn severely and comically at once. Life-sized recognition won it an overwhelming female readership."
+    },
+    "sekaiichi": {
+      "title": "The World's Greatest First Love",
+      "desc": "A popular working-adult BL set in an editorial department. A representative series of commercial BL's expansion."
+    },
+    "lucky": {
+      "title": "Lucky Star",
+      "desc": "Easygoing four-panel strips about otaku high-school girls. The anime produced a pilgrimage boom and came to stand for slice-of-life culture."
+    },
+    "saint_oniisan": {
+      "title": "Saint Young Men",
+      "desc": "An easygoing comedy in which Buddha and Jesus share a flat down here on earth. Its light touch with religion made it popular."
+    },
+    "nichijou": {
+      "title": "Nichijou: My Ordinary Life",
+      "desc": "Gags in which a flat everyday suddenly collapses into surrealism. Its particular timing and absurdity have devoted fans."
+    },
+    "relife": {
+      "title": "ReLIFE",
+      "desc": "A young man not in work or education takes a pill and returns to high school to do it again. An early hit from the vertical-scroll full-colour apps."
+    },
+    "rezero": {
+      "title": "Re:Zero - Starting Life in Another World",
+      "desc": "Subaru struggles in a hopeless other world armed with return by death, which rewinds time whenever he dies. One of the defining works to come out of the web-novel sites."
+    },
+    "overlord": {
+      "title": "Overlord",
+      "desc": "A man left behind in a game world as a skeletal overlord, and his conquest. The standard-bearer of the too-strong-protagonist other-world story."
+    },
+    "tatenoyusha": {
+      "title": "The Rising of the Shield Hero",
+      "desc": "A hero given nothing but a shield he cannot attack with, betrayed, and taking his revenge. The work that lit the exile-and-revenge branch of web novels."
+    },
+    "mushoku": {
+      "title": "Mushoku Tensei: Jobless Reincarnation",
+      "desc": "A recluse restarts life in another world from infancy. A reincarnation chronicle often called the monument of the web-novel form."
+    },
+    "konosuba": {
+      "title": "KonoSuba: God's Blessing on This Wonderful World!",
+      "desc": "Other-world comedy with a set of useless goddesses. The standard slack comedy parodying the web-novel genre itself."
+    },
+    "madoka": {
+      "title": "Puella Magi Madoka Magica",
+      "desc": "A shocking work that inverts the magical girl's wish and despair. Cruelty behind a sweet drawing style rewrote what a magical girl could be."
+    },
+    "precure": {
+      "title": "Futari wa Pretty Cure",
+      "desc": "Two middle-schoolers who fight with their fists. The transforming heroines at the origin of the long-running Pretty Cure series."
+    },
+    "naniwa": {
+      "title": "Naniwa Kinyudo",
+      "desc": "Human greed and the loopholes in the law, seen from the floor of a back-street lending firm. Financial gekiga that recorded the reality of the years the bubble burst."
+    },
+    "investorz": {
+      "title": "Investor Z",
+      "desc": "Middle-schoolers running their school's endowment in an investment club. An informational manga that teaches money and economics through story."
+    },
+    "dragonzakura": {
+      "title": "Dragon Zakura",
+      "desc": "A strategy drama about getting into the University of Tokyo from a failing high school. The byword for the study-method manga."
+    },
+    "ginto": {
+      "title": "Gin to Kin",
+      "desc": "A psychological contest over large sums in the underworld. The origin point of Fukumoto's gambling gekiga, leading to Akagi and Kaiji."
+    },
+    "tetsuya": {
+      "title": "Tetsuya: Legend of a Mahjong Genius",
+      "desc": "Tetsuya, a mahjong drifter crossing the burnt-out postwar cities. A gambler's chronicle that records both the heat of the game and the smell of the Showa years."
+    },
+    "kakegurui": {
+      "title": "Kakegurui: Compulsive Gambler",
+      "desc": "A crazed transfer student arrives at a school where gambling decides everything. A Reiwa hit that goes all in on the pleasure of gambling and on facial acting."
+    },
+    "utsurun": {
+      "title": "Utsurun Desu",
+      "desc": "Absurd laughter with no thread of logic. The book that drove the absurdist gag boom of the 1990s."
+    },
+    "bonobono": {
+      "title": "Bonobono",
+      "desc": "Gentle, philosophical four-panel strips about the otter child Bonobono and his friends in the forest. A long-running work where comfort and absurdity live together."
+    },
+    "lychee": {
+      "title": "Litchi Hikari Club",
+      "desc": "Aestheticism and violence around Litchi, a machine built by a group of boys. A cult subculture manga adapted from underground theatre."
+    },
+    "shojotsubaki": {
+      "title": "Shojo Tsubaki (Mr. Arashi's Amazing Freak Show)",
+      "desc": "The suffering of Midori, a girl sold to a freak show. Ero-guro and Taisho romanticism crossing — a cornerstone of underground manga."
+    },
+    "kaminotou": {
+      "title": "Tower of God",
+      "desc": "A boy climbing a tower to have his wish granted. A worldwide hit Korean webtoon, and the work that spread vertical scrolling globally."
+    },
+    "megami": {
+      "title": "True Beauty",
+      "desc": "The love life and self-acceptance of a girl who becomes a goddess through makeup. A representative hit of the vertical-scroll shojo manga."
+    },
+    "otakoi": {
+      "title": "Wotakoi: Love Is Hard for Otaku",
+      "desc": "The awkward adult romance of two otaku. A Reiwa romantic comedy that started on pixiv, went round on social media and was then published."
+    },
+    "baptism": {
+      "title": "Baptism",
+      "desc": "A mother obsessed with her own beauty tries to take her daughter's body. The representative Umezu horror, which brought trauma-grade fear into girls' manga."
+    },
+    "kobochan": {
+      "title": "Kobo-chan",
+      "desc": "A newspaper four-panel standard about the kindergartener Kobo and his family. A national work read across generations."
+    },
+    "jungle": {
+      "title": "Jungle Emperor Leo",
+      "desc": "The story of three generations of Leo, a white lion. An early high point of the long-form story manga, and the origin of colour anime in Japan."
+    },
+    "akko": {
+      "title": "Himitsu no Akko-chan",
+      "desc": "Akko, a girl who can become anything through her mirror. One of the ancestors of the magical-girl form, and Akatsuka's hit in a girls' magazine."
+    },
+    "akairo": {
+      "title": "Red Colored Elegy",
+      "desc": "A young couple living poorly together, and parting. Lyrical line work that stands for Garo's poetic realism."
+    },
+    "toma": {
+      "title": "The Heart of Thomas",
+      "desc": "A story of the soul, around a boy's death at a German boarding school. The cornerstone of the Year 24 Group's writing on boys' love and interiority."
+    },
+    "domu": {
+      "title": "Domu: A Child's Dream",
+      "desc": "An old man and a girl fight with psychic power in a housing estate. Meticulous drawing and quiet destruction renewed Japanese science-fiction manga."
+    },
+    "sangokushi": {
+      "title": "Sangokushi (Records of the Three Kingdoms)",
+      "desc": "From the upheavals at the end of the Later Han through the three kingdoms to Jin's unification. Sixty volumes based on Eiji Yoshikawa's version, and the work that settled how Japanese readers picture the Three Kingdoms."
+    },
+    "akira": {
+      "desc": "Psychic power and a collapsed Tokyo drawn with overwhelming skill. The cyberpunk monument that turned MANGA into a word the world uses."
+    },
+    "slam": {
+      "desc": "The delinquent Hanamichi Sakuragi discovers basketball. It updated the genes of sports-and-guts with realism and set off a basketball boom in Japan."
+    },
+    "onepiece": {
+      "desc": "Luffy's voyage to become King of the Pirates. Holder of the world record for the most copies of a comic by a single author, and Jump's mainline in its present form."
+    },
+    "deathnote": {
+      "desc": "Light Yagami, a genius who picks up a notebook that kills whoever's name is written in it, against L. It opened new ground for boys' manga with tension and no fighting at all."
+    },
+    "hxh": {
+      "desc": "Gon sets out to become a Hunter and find his absent father Ging. With the meticulous rule design of Nen and fights decided by cunning rather than force, it keeps raising the bar for battle manga."
+    },
+    "bleach": {
+      "desc": "Ichigo Kurosaki fights after gaining the power of a Soul Reaper. Refined page composition and character design made it a flagship of 2000s Jump."
+    },
+    "drstone": {
+      "desc": "Senku rebuilds a world where humanity has turned to stone, using science. A new angle — winning through science — brought intellectual excitement to a boys' magazine."
+    },
+    "spyfamily": {
+      "desc": "A spy, a telepath and an assassin play at being a family. A web serial that became an enormous hit across every age group."
+    },
+    "gto": {
+      "desc": "Eikichi Onizuka, an ex-biker turned unorthodox teacher, rebuilds a classroom that has fallen apart. A satisfying school drama with a following across generations."
+    },
+    "fairytail": {
+      "desc": "The adventures of the wizards' guild Fairy Tail. Bonds between companions and mainline magic battles won it a worldwide readership."
+    },
+    "monster": {
+      "desc": "A boy the genius surgeon Tenma saved becomes a serial killer. A weighty human drama and suspense set across Germany."
+    }
+  },
+  "timeline": {
+    "japan:chojugiga": {
+      "label": "Late Heian period",
+      "note": "Rabbits and frogs wrestling, drawn in ink line alone"
+    },
+    "japan:hokusai": {
+      "label": "Late Edo (Bunka era)",
+      "note": "Some 4,000 sketches by Hokusai — the picture book that spread the word manga"
+    },
+    "japan:nigeue": {
+      "label": "Fall of the Kamakura shogunate",
+      "note": "Hojo Tokiyuki, having lost everything, makes his comeback by running away"
+    },
+    "japan:vagabond": {
+      "label": "c.1600, just after Sekigahara",
+      "note": "Miyamoto Musashi's pursuit of being unmatched"
+    },
+    "japan:kamui": {
+      "label": "Early Edo",
+      "note": "A sweeping gekiga about the ninja Kamui and a society of fixed rank"
+    },
+    "japan:ooku": {
+      "label": "Mid Edo",
+      "note": "The inner chambers of Edo Castle, with the sexes reversed"
+    },
+    "japan:rurouni": {
+      "label": "1878 (Meiji 11)",
+      "note": "A wanderer carrying his past as an assassin"
+    },
+    "japan:goldenkamuy": {
+      "label": "Late Meiji",
+      "note": "Chasing gold across Hokkaido. Ainu culture and hunting"
+    },
+    "japan:kimetsu": {
+      "label": "Taisho era",
+      "note": "Demons, and the swordsmen who hunt them"
+    },
+    "japan:norakuro": {
+      "label": "Early Showa",
+      "note": "Norakuro climbs the ranks in an army of dogs"
+    },
+    "japan:gegege": {
+      "label": "Showa 30s (1955-64)",
+      "note": "When yokai still lived in the hills and back alleys"
+    },
+    "japan:kyojin": {
+      "label": "Showa 40s (1965-74)",
+      "note": "Baseball and a father-and-son bond during the growth years"
+    },
+    "japan:ashita": {
+      "label": "Showa 40s (1965-74)",
+      "note": "The doss houses of San'ya and Namida Bridge"
+    },
+    "japan:chibimaruko": {
+      "label": "1974",
+      "note": "The everyday life of a grade-schooler in Shimizu, Shizuoka"
+    },
+    "japan:chie": {
+      "label": "Showa 50s (1975-84)",
+      "note": "An offal restaurant in working-class Osaka"
+    },
+    "japan:urusei": {
+      "label": "Late Showa",
+      "note": "Tomobiki Town, carrying on as normal even with aliens about"
+    },
+    "japan:touch": {
+      "label": "Late Showa",
+      "note": "Koshien, and one endless summer with the girl next door"
+    },
+    "japan:oishinbo": {
+      "label": "Just before the bubble",
+      "note": "Ultimate vs. Supreme. Tokyo in the gourmet boom"
+    },
+    "japan:slam": {
+      "label": "The 1990s",
+      "note": "High-school basketball in Shonan, the best summer there is"
+    },
+    "japan:sailor": {
+      "label": "The 1990s",
+      "note": "Sailor-suited soldiers in Azabu-Juban"
+    },
+    "japan:conan": {
+      "label": "The present (Heisei)",
+      "note": "Beika Town, where the present has lasted 30 years"
+    },
+    "japan:kaiji": {
+      "label": "The Heisei slump",
+      "note": "Debt and underground labour after the bubble burst"
+    },
+    "japan:chainsaw": {
+      "label": "1997",
+      "note": "Devils, and the public-safety hunters who fight them"
+    },
+    "japan:twentieth": {
+      "label": "Turn of the millennium",
+      "note": "The conspiracy of Friend, and memories of boyhood"
+    },
+    "japan:jojo4": {
+      "label": "The fictional town of Morioh",
+      "note": "Part 4. A serial killer, Yoshikage Kira, hiding inside ordinary life"
+    },
+    "japan:azumanga": {
+      "label": "The 2000s",
+      "note": "High-school girls, and nothing much happening"
+    },
+    "japan:jojo8": {
+      "label": "Morioh after the earthquake",
+      "note": "Part 8. The mystery of Josuke, a man who has lost his memory"
+    },
+    "japan:tetsuwan": {
+      "label": "2003",
+      "note": "Astro Boy is born on 7 April 2003 — a future that has since passed"
+    },
+    "japan:deathnote": {
+      "label": "The 2000s",
+      "note": "Six years in the life of a genius who picked up a notebook"
+    },
+    "japan:barakamon": {
+      "label": "The 2010s",
+      "note": "Calligraphy and a slower life on the Goto Islands"
+    },
+    "japan:wani": {
+      "label": "2019",
+      "note": "Tokyo in the age of social media, across 100 unremarkable days"
+    },
+    "japan:akira": {
+      "label": "2019 (in-story)",
+      "note": "Neo Tokyo on the eve of an Olympics, drawn as the near future"
+    },
+    "asia:hoshin": {
+      "label": "11th century BCE",
+      "note": "The Shang-Zhou revolution, and the immortals' Hoshin plan"
+    },
+    "asia:kingdom": {
+      "label": "3rd century BCE",
+      "note": "King Zheng of Qin's war to unify China"
+    },
+    "asia:sangokushi": {
+      "label": "2nd-3rd century (late Han to Three Kingdoms)",
+      "note": "Liu Bei, Cao Cao and Sun Quan, and the realm split three ways"
+    },
+    "asia:kusuriya": {
+      "label": "A Chinese-style dynasty (modelled on Tang)",
+      "note": "Maomao solves the rear palace's mysteries with pharmacology"
+    },
+    "asia:sololeveling": {
+      "label": "The present",
+      "note": "Seoul today, after the gates opened"
+    },
+    "europe:historie": {
+      "label": "4th century BCE",
+      "note": "A scribe living through the age of Alexander the Great"
+    },
+    "europe:thermae": {
+      "label": "The reign of Hadrian",
+      "note": "A Roman bath engineer keeps surfacing in modern Japanese baths"
+    },
+    "europe:vinland": {
+      "label": "11th century",
+      "note": "Scandinavia and England at the height of the Viking age"
+    },
+    "europe:berubara": {
+      "label": "The French Revolution",
+      "note": "The rose of Versailles, and the fate of Oscar"
+    },
+    "europe:poe": {
+      "label": "Late 18th century onward",
+      "note": "Two centuries of travel by a family that lives forever"
+    },
+    "europe:jojo1": {
+      "label": "19th-century England",
+      "note": "Part 1. The stone mask, and the beginning of Dio's grudge"
+    },
+    "europe:kaze_ki": {
+      "label": "Late 19th century",
+      "note": "A boarding school in Arles, southern France"
+    },
+    "europe:monster": {
+      "label": "After the Cold War",
+      "note": "A chain of murders across Germany just after reunification"
+    },
+    "europe:jojo5": {
+      "label": "Italy, present day",
+      "note": "Part 5. Giorno rising through a gang"
+    },
+    "world:jojo7": {
+      "label": "America, late 19th century",
+      "note": "Part 7. A race across the continent for the Saint's Corpse"
+    },
+    "world:jojo2": {
+      "label": "Eve of the Second World War",
+      "note": "Part 2. The Pillar Men, and the fight with Ripple"
+    },
+    "world:golgo": {
+      "label": "Cold War to present",
+      "note": "A sniper whose workplace is anywhere on earth"
+    },
+    "world:jojo3": {
+      "label": "Japan to Egypt",
+      "note": "Part 3. The journey to reach DIO, and the birth of the Stand"
+    },
+    "world:major": {
+      "label": "The present",
+      "note": "From Little League to the majors"
+    },
+    "world:jojo6": {
+      "label": "Florida",
+      "note": "Part 6. DIO's grudge comes to an end in prison"
+    },
+    "world:onepunch": {
+      "label": "The present (a fictional city)",
+      "note": "Making a living as a hero in a city full of monsters"
+    },
+    "world:jojo9": {
+      "label": "Hawaii, present day",
+      "note": "Part 9. A boy who dreams of being rich"
+    },
+    "future:ghost": {
+      "label": "2029",
+      "note": "A near-future Japan deep into cybernetics"
+    },
+    "future:pluto": {
+      "label": "The near future",
+      "note": "The scars left by a war between robots and humans"
+    },
+    "future:planetes": {
+      "label": "The 2070s",
+      "note": "Everyday life aboard a space-debris collection ship"
+    },
+    "future:ginga999": {
+      "label": "The far future",
+      "note": "A journey by galactic railway in search of a mechanical body"
+    },
+    "future:cobra": {
+      "label": "The far future",
+      "note": "The space pirate Cobra and his Psychogun"
+    },
+    "future:nausicaa": {
+      "label": "Far future, after the Seven Days of Fire",
+      "note": "A thousand years after industrial civilisation fell, an earth covered by the Sea of Decay"
+    },
+    "fantasy:hokuto": {
+      "label": "199X (a world at its end)",
+      "note": "A wasteland wrapped in nuclear fire"
+    },
+    "fantasy:dragonball": {
+      "label": "Age 7XX",
+      "note": "An earth with both dinosaurs and capsules"
+    },
+    "fantasy:onepiece": {
+      "label": "The Great Pirate Era",
+      "note": "East along the Grand Line"
+    },
+    "fantasy:shingeki": {
+      "label": "The world inside the walls",
+      "note": "Three walls, and the rule of the titans"
+    },
+    "fantasy:fma": {
+      "label": "Amestris",
+      "note": "Another world, where alchemy became a science"
+    },
+    "fantasy:berserk": {
+      "label": "A dark medieval world",
+      "note": "A story of the sword, of causality, and of the Apostles"
+    },
+    "fantasy:frieren": {
+      "label": "After the demon king fell",
+      "note": "A long-lived elf's journey toward understanding people"
+    },
+    "fantasy:tensura": {
+      "label": "The other world she was reborn into",
+      "note": "A slime builds a nation in the Jura Forest"
+    }
+  },
+  "mags": {
+    "週刊少年ジャンプ": "Weekly Shonen Jump",
+    "週刊少年マガジン": "Weekly Shonen Magazine",
+    "週刊少年サンデー": "Weekly Shonen Sunday",
+    "モーニング": "Morning",
+    "週刊少年チャンピオン": "Weekly Shonen Champion",
+    "花とゆめ": "Hana to Yume",
+    "ビッグコミックスピリッツ": "Big Comic Spirits",
+    "週刊ヤングジャンプ": "Weekly Young Jump",
+    "なかよし": "Nakayoshi",
+    "少年ジャンプ+": "Shonen Jump+",
+    "ガロ": "Garo",
+    "ウルトラジャンプ": "Ultra Jump",
+    "ビッグコミックオリジナル": "Big Comic Original",
+    "月刊アフタヌーン": "Monthly Afternoon",
+    "少年": "Shonen",
+    "ビッグコミック": "Big Comic",
+    "別冊少女コミック": "Bessatsu Shojo Comic",
+    "週刊マーガレット": "Weekly Margaret",
+    "週刊少女コミック": "Weekly Shojo Comic",
+    "週刊ヤングマガジン": "Weekly Young Magazine",
+    "月刊コミック電撃大王": "Monthly Comic Dengeki Daioh",
+    "漫画アクション": "Manga Action",
+    "りぼん": "Ribon",
+    "Kiss": "Kiss",
+    "月刊コミックフラッパー": "Monthly Comic Flapper",
+    "少年倶楽部": "Shonen Club",
+    "少女クラブ": "Shojo Club",
+    "ヤングマガジン": "Young Magazine",
+    "月刊ハロウィン": "Monthly Halloween",
+    "別冊少年マガジン": "Bessatsu Shonen Magazine",
+    "個人サイト": "a personal website",
+    "月刊少年シリウス": "Monthly Shonen Sirius",
+    "ピッコマ": "Piccoma",
+    "Twitter(X)": "Twitter (X)",
+    "COM": "COM",
+    "週刊少年キング": "Weekly Shonen King",
+    "月刊少年ガンガン": "Monthly Shonen Gangan",
+    "マーガレット": "Margaret",
+    "別冊マーガレット": "Bessatsu Margaret",
+    "LaLa": "LaLa",
+    "月刊flowers": "Monthly Flowers",
+    "裏サンデー": "Ura Sunday",
+    "まんがタイムきらら": "Manga Time Kirara",
+    "月刊少年ジャンプ": "Monthly Shonen Jump",
+    "ヤングアニマル": "Young Animal",
+    "近代麻雀": "Kindai Mahjong",
+    "月刊少年マガジン": "Monthly Shonen Magazine",
+    "comico": "comico",
+    "LINEマンガ": "LINE Manga",
+    "webtoon": "webtoon",
+    "読売新聞": "Yomiuri Shimbun",
+    "漫画少年": "Manga Shonen",
+    "青林堂": "Seirindo",
+    "少女コミック": "Shojo Comic"
+  }
 }

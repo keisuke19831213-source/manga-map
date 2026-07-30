@@ -1777,7 +1777,8 @@ main {
 }
 
 .work-hero::before {
-  content: "作品ファイル";
+  /* ラベルは属性から取る（日英で差し替えられるように） */
+  content: attr(data-label);
   position: absolute;
   top: -14px;
   left: 18px;

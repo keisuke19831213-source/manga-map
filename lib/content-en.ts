@@ -8,6 +8,7 @@ import type { Lang } from "@/lib/i18n";
 
 type Bag = Record<string, string | undefined>;
 type EnFile = {
+  mags?: Record<string, string>;
   cats?: Record<string, Bag>;
   regions?: Record<string, Bag>;
   genres?: Record<string, Bag>;
@@ -44,6 +45,11 @@ export function genreName(g: GenreNode, lang: Lang): string {
 
 export function genreDesc(g: GenreNode, lang: Lang): string {
   return lang === "en" ? pick(en.genres?.[g.id]?.desc, g.desc) : g.desc;
+}
+
+/** 掲載誌の名前。よく出る誌だけ英名を持ち、それ以外は日本語のまま */
+export function magazineName(mag: string, lang: Lang): string {
+  return lang === "en" ? pick(en.mags?.[mag], mag) : mag;
 }
 
 export function workTitle(w: Work, lang: Lang): string {
