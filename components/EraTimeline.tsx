@@ -1,701 +1,790 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+// ============ 時代設定マップ（縦時間×横地域帯・2026-07-30 大工事） ============
+// 横時間から縦時間へ回転した。効く理由:
+//   ・作品は近現代の日本に密集する。縦時間なら密集は縦に伸びるだけで、
+//     スクロールという一番安い操作が吸収してくれる
+//   ・モバイルの縦年表と骨格が同じになる（同じ一枚を指で泳げる）
+//   ・音楽マップ/アニメマップと同じ「縦時間×横帯＋LOD＋束」に合流する
+// dodge（横ずらし）は廃止。近接作品は束にまとめ、タップでズームしてほどく。
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { TIMELINE, TL_REGIONS, workById, type TimelineEntry } from "@/lib/data";
 import { amazonLink, coverSrc, coverThumb } from "@/lib/affiliate";
 import { useMeta } from "@/lib/useMeta";
 import { useVoicesByWork } from "@/lib/usePosts";
+import type { Post } from "@/lib/posts";
 import { AmazonButton } from "@/components/Cover";
-import Bubble, { PostMeta } from "@/components/Bubble";
 import MiniBubble from "@/components/MiniBubble";
+import { useMapCamera, type Cam } from "@/lib/useMapCamera";
+import { bundleByScreen } from "@/lib/cluster";
+import { t, lp, type Lang } from "@/lib/i18n";
+import { regionName, tlLabel, tlNote, workTitle } from "@/lib/content-en";
 
-/* ================= 時間スケール =================
- * 紀元前1100年〜2400年(架空ゾーン含む)をピースワイズ線形で圧縮。
- * 古代は詰めて、作品が密集する近現代に幅を割く。 */
-const TL_W = 3000; // 論理幅
+/* ============ 時間スケール（縦） ============
+ * 紀元前1100年〜2400年をピースワイズ線形で圧縮。古代は詰めて、
+ * 作品が密集する近現代に幅を割く（横時間版から継承した配分）。 */
+const TL_H = 3400;
 const STOPS: [number, number][] = [
   [-1100, 0],
-  [0, 0.08],
-  [1000, 0.15],
-  [1600, 0.22],
-  [1850, 0.32],
-  [1900, 0.42],
-  [1950, 0.54],
-  [2000, 0.66],
-  [2050, 0.74],
-  [2100, 0.79],
-  [2400, 1.0],
+  [0, 0.075],
+  [1000, 0.145],
+  [1600, 0.215],
+  [1850, 0.315],
+  [1900, 0.415],
+  [1950, 0.535],
+  [2000, 0.655],
+  [2050, 0.735],
+  [2100, 0.785],
+  [2400, 1],
 ];
 
-function tlX(year: number): number {
+function tlY(year: number): number {
   const y = Math.max(STOPS[0][0], Math.min(2400, year));
   for (let i = 1; i < STOPS.length; i++) {
     if (y <= STOPS[i][0]) {
       const [y0, f0] = STOPS[i - 1];
       const [y1, f1] = STOPS[i];
-      return (f0 + ((y - y0) / (y1 - y0)) * (f1 - f0)) * TL_W;
+      return (f0 + ((y - y0) / (y1 - y0)) * (f1 - f0)) * TL_H;
     }
   }
-  return TL_W;
+  return TL_H;
 }
 
-const TICKS: { year: number; label: string }[] = [
-  { year: -1000, label: "BC1000" },
-  { year: -500, label: "BC500" },
-  { year: 0, label: "紀元" },
-  { year: 500, label: "500" },
-  { year: 1000, label: "1000" },
-  { year: 1500, label: "1500" },
-  { year: 1700, label: "1700" },
-  { year: 1800, label: "1800" },
-  { year: 1850, label: "1850" },
-  { year: 1900, label: "1900" },
-  { year: 1950, label: "1950" },
-  { year: 2000, label: "2000" },
-  { year: 2050, label: "2050" },
-  { year: 2100, label: "2100" },
-];
-
-// 各トラックに添える歴史イベント(時代の道しるべ)
-const EVENTS: { region: string; year: number; label: string }[] = [
-  { region: "japan", year: 1603, label: "江戸幕府成立" },
-  { region: "japan", year: 1868, label: "明治維新" },
-  { region: "japan", year: 1923, label: "関東大震災" },
-  { region: "japan", year: 1945, label: "終戦" },
-  { region: "japan", year: 1964, label: "東京五輪" },
-  { region: "japan", year: 1991, label: "バブル崩壊" },
-  { region: "japan", year: 2011, label: "東日本大震災" },
-  { region: "asia", year: -221, label: "秦が中華統一" },
-  { region: "asia", year: 618, label: "唐の建国" },
-  { region: "asia", year: 1912, label: "清の滅亡" },
-  { region: "europe", year: -334, label: "アレクサンドロス東征" },
-  { region: "europe", year: 793, label: "ヴァイキング時代はじまる" },
-  { region: "europe", year: 1789, label: "フランス革命" },
-  { region: "europe", year: 1914, label: "第一次世界大戦" },
-  { region: "europe", year: 1989, label: "ベルリンの壁崩壊" },
-  { region: "world", year: 1776, label: "アメリカ独立" },
-  { region: "world", year: 1929, label: "世界恐慌" },
-  { region: "world", year: 1969, label: "人類、月に立つ" },
-];
-
-// 日本トラックの時代帯
-const JP_ERAS: { from: number; to: number; name: string }[] = [
-  { from: 1603, to: 1868, name: "江戸" },
-  { from: 1868, to: 1912, name: "明治" },
-  { from: 1912, to: 1926, name: "大正" },
-  { from: 1926, to: 1989, name: "昭和" },
-  { from: 1989, to: 2019, name: "平成" },
-  { from: 2019, to: 2100, name: "令和" },
-];
-
-const AXIS_H = 46;
-const TRACK_PAD = 22; // トラック内の上下の余白
-const MIN_ABOVE = 32; // 中心線の上に最低限あける(地域ラベル用)
-const MIN_TH = 96; // トラックの最小高さ
-const FANTASY_X = tlX(2125);
-
-function useWidth(ref: React.RefObject<HTMLDivElement | null>): number {
-  const [w, setW] = useState(0); // 実測まで0(誤った幅で初期ズームしない)
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setW(el.clientWidth));
-    ro.observe(el);
-    setW(el.clientWidth);
-    return () => ro.disconnect();
-  }, [ref]);
-  return w;
-}
-
-// トラック内のレーン割り当て + 横ずらし(dodge)。
-// 密集地帯でも書影が重ならないよう、レーンに空きが無ければ最小間隔まで右へずらす。
-// dispX が書影の表示位置、true位置(x)へは引き出し線でつなぐ。
-function assignLanes(
-  entries: { e: TimelineEntry; x: number }[],
-  minGap: number
-): Map<string, { lane: number; dispX: number }> {
-  const N = 4; // 上近/下近/上遠/下遠
-  const lastX: number[] = new Array(N).fill(-Infinity);
-  const result = new Map<string, { lane: number; dispX: number }>();
-  const sorted = [...entries].sort((a, b) => a.x - b.x);
-  for (const item of sorted) {
-    // そのまま置けるレーン(重ならない)を優先
-    let lane = lastX.findIndex((lx) => item.x - lx >= minGap);
-    let dispX = item.x;
-    if (lane === -1) {
-      // どのレーンも詰まっている → 最も空いているレーンへ右ずらしで配置
-      lane = lastX.indexOf(Math.min(...lastX));
-      dispX = lastX[lane] + minGap;
+/** 逆変換（画面のどこが何年か = 年インジケータ用） */
+function yToYear(py: number): number {
+  const f = Math.max(0, Math.min(1, py / TL_H));
+  for (let i = 1; i < STOPS.length; i++) {
+    if (f <= STOPS[i][1]) {
+      const [y0, f0] = STOPS[i - 1];
+      const [y1, f1] = STOPS[i];
+      return Math.round(y0 + ((f - f0) / (f1 - f0)) * (y1 - y0));
     }
-    lastX[lane] = dispX;
-    result.set(item.e.workId, { lane, dispX });
   }
-  return result;
+  return 2400;
 }
 
-export default function EraTimeline() {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const cw = useWidth(wrapRef);
+// ---- 地域帯（左から右）。cols = 帯の中の列数（作品数に応じた幅） ----
+const COL_W = 118;
+const BAND_DEF: { id: string; cols: number }[] = [
+  { id: "japan", cols: 4 },
+  { id: "asia", cols: 2 },
+  { id: "europe", cols: 2 },
+  { id: "world", cols: 2 },
+  { id: "future", cols: 2 },
+  { id: "fantasy", cols: 2 },
+];
+
+const BANDS = (() => {
+  let x = 0;
+  return BAND_DEF.map((b) => {
+    const w = b.cols * COL_W;
+    const out = { ...b, x0: x, w, cx: x + w / 2 };
+    x += w;
+    return out;
+  });
+})();
+const WORLD_W = BANDS[BANDS.length - 1].x0 + BANDS[BANDS.length - 1].w;
+
+// ---- 時代の地層（左端に貼りつく時間の目盛り） ----
+const STRATA: { from: number; to: number; ja: string; en: string }[] = [
+  { from: -1100, to: 0, ja: "紀元前", en: "BCE" },
+  { from: 0, to: 1185, ja: "古代", en: "Antiquity" },
+  { from: 1185, to: 1600, ja: "中世", en: "Middle Ages" },
+  { from: 1600, to: 1868, ja: "江戸", en: "Edo" },
+  { from: 1868, to: 1926, ja: "明治・大正", en: "Meiji–Taisho" },
+  { from: 1926, to: 1989, ja: "昭和", en: "Showa" },
+  { from: 1989, to: 2019, ja: "平成", en: "Heisei" },
+  { from: 2019, to: 2100, ja: "令和〜近未来", en: "Reiwa & near future" },
+  { from: 2100, to: 2400, ja: "時間軸の外", en: "Outside time" },
+];
+
+const FANTASY_Y = tlY(2125);
+
+// 年の目盛り
+const TICKS = [-1000, -500, 0, 500, 1000, 1500, 1700, 1800, 1900, 1950, 2000, 2050, 2100];
+
+// 歴史イベント（時代の道しるべ）。帯ごとに横線で置く
+const EVENTS: { region: string; year: number; ja: string; en: string }[] = [
+  { region: "japan", year: 1603, ja: "江戸幕府成立", en: "Edo shogunate founded" },
+  { region: "japan", year: 1868, ja: "明治維新", en: "Meiji Restoration" },
+  { region: "japan", year: 1923, ja: "関東大震災", en: "Great Kanto Earthquake" },
+  { region: "japan", year: 1945, ja: "終戦", en: "End of the war" },
+  { region: "japan", year: 1964, ja: "東京五輪", en: "Tokyo Olympics" },
+  { region: "japan", year: 1991, ja: "バブル崩壊", en: "The bubble bursts" },
+  { region: "japan", year: 2011, ja: "東日本大震災", en: "Great East Japan Earthquake" },
+  { region: "asia", year: -221, ja: "秦が中華統一", en: "Qin unifies China" },
+  { region: "asia", year: 618, ja: "唐の建国", en: "Tang dynasty founded" },
+  { region: "asia", year: 1912, ja: "清の滅亡", en: "Fall of the Qing" },
+  { region: "europe", year: -334, ja: "アレクサンドロス東征", en: "Alexander marches east" },
+  { region: "europe", year: 793, ja: "ヴァイキング時代はじまる", en: "The Viking age begins" },
+  { region: "europe", year: 1789, ja: "フランス革命", en: "French Revolution" },
+  { region: "europe", year: 1914, ja: "第一次世界大戦", en: "First World War" },
+  { region: "europe", year: 1989, ja: "ベルリンの壁崩壊", en: "The Berlin Wall falls" },
+  { region: "world", year: 1776, ja: "アメリカ独立", en: "American independence" },
+  { region: "world", year: 1929, ja: "世界恐慌", en: "The Great Depression" },
+  { region: "world", year: 1969, ja: "人類、月に立つ", en: "Humans walk on the Moon" },
+];
+
+// LODごとのピンの画面上サイズ（CSSの .mapstage[data-lod] と対）
+const PIN: Record<number, { w: number; h: number }> = {
+  0: { w: 26, h: 26 },
+  1: { w: 40, h: 54 },
+  2: { w: 62, h: 84 },
+};
+
+/** 帯の中の列を決める（起動時に1回だけ・実行中は動かさない） */
+function assignColumns(): Map<string, { x: number; y: number; band: (typeof BANDS)[number] }> {
+  const out = new Map<string, { x: number; y: number; band: (typeof BANDS)[number] }>();
+  const MIN_GAP = 92; // これ以上近いと同じ列には置かない（ワールド単位）
+  for (const band of BANDS) {
+    const rows = TIMELINE.filter((e) => e.region === band.id)
+      .map((e) => ({ e, y: tlY(e.year) }))
+      .sort((a, b) => a.y - b.y);
+    const lastY: number[] = new Array(band.cols).fill(-Infinity);
+    for (const r of rows) {
+      let col = lastY.findIndex((ly) => r.y - ly >= MIN_GAP);
+      if (col === -1) {
+        // どの列も詰まっている → いちばん古い列へ（重なりは束が吸収する）
+        col = lastY.indexOf(Math.min(...lastY));
+      }
+      lastY[col] = r.y;
+      out.set(`${r.e.region}:${r.e.workId}`, {
+        x: band.x0 + (col + 0.5) * (band.w / band.cols),
+        y: r.y,
+        band,
+      });
+    }
+  }
+  return out;
+}
+
+const LAYOUT = assignColumns();
+const keyOf = (e: TimelineEntry) => `${e.region}:${e.workId}`;
+
+// 貼りつく道具立ての厚み（camera の inset と対にする）
+const STICK_TOP = 28;
+const STICK_LEFT = 86;
+
+function labelWidth(s: string): number {
+  let px = 12;
+  for (const ch of s) px += /[\x20-\x7e]/.test(ch) ? 6 : 11;
+  return px;
+}
+
+export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
   const meta = useMeta();
   const voices = useVoicesByWork();
-  const [view, setView] = useState<{ tx: number; ty: number; k: number } | null>(null);
   const [selected, setSelected] = useState<TimelineEntry | null>(null);
+  const [filter, setFilter] = useState<string | null>(null);
+  const [introOpen, setIntroOpen] = useState(true);
+  const [camK, setCamK] = useState(0);
   const [voiceIdx, setVoiceIdx] = useState(0);
-  const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
+  const pendingFly = useRef<string | null>(null);
 
-  const isMobile = cw < 700;
-  const kFit = cw / TL_W;
+  // 貼りつく道具立て（毎フレームDOMを直接書く＝Reactを通らない）
+  const strataRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const bandRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const strataHostRef = useRef<HTMLDivElement | null>(null);
+  const bandHostRef = useRef<HTMLDivElement | null>(null);
+  const yearRef = useRef<HTMLSpanElement | null>(null);
+  const mmRef = useRef<HTMLDivElement | null>(null);
+  const lastYear = useRef<number>(NaN);
 
-  // 初期表示: PCは全期間フィット、モバイルは作品が密集する近現代へズーム
-  useEffect(() => {
-    if (cw > 0 && !view) {
-      if (cw < 700) {
-        const k0 = cw / (TL_W * 0.72);
-        setView({ tx: -tlX(1790) * k0, ty: 0, k: k0 });
-      } else {
-        setView({ tx: 0, ty: 0, k: cw / TL_W });
+  const onFrame = useCallback((cam: Cam) => {
+    const { tx, ty, k } = cam;
+    // 時代の地層ラベル: 画面上端に貼りつく（iOSのセクション見出しと同じ挙動）。
+    // 帯が画面をまたいでいるときだけ上端へ寄せ、そうでなければ本来の位置に置く。
+    const vpH = strataHostRef.current?.clientHeight ?? 9999;
+    STRATA.forEach((s, i) => {
+      const el = strataRefs.current[i];
+      if (!el) return;
+      const top = tlY(s.from) * k + ty;
+      const bottom = tlY(s.to) * k + ty;
+      if (bottom < STICK_TOP || top > vpH) {
+        el.style.opacity = "0";
+        return;
       }
+      el.style.opacity = "1";
+      const y = top < STICK_TOP ? Math.min(STICK_TOP, bottom - 30) : top;
+      el.style.transform = `translateY(${y}px)`;
+    });
+    // 地域帯の名前: 画面左端に貼りつく（横パンで迷子にならない）
+    const vpW = bandHostRef.current?.clientWidth ?? 9999;
+    BANDS.forEach((b, i) => {
+      const el = bandRefs.current[i];
+      if (!el) return;
+      const x0 = b.x0 * k + tx;
+      const x1 = (b.x0 + b.w) * k + tx;
+      const wpx = el.offsetWidth || 60;
+      if (x1 <= STICK_LEFT || x0 >= vpW) {
+        el.style.opacity = "0";
+        return;
+      }
+      el.style.opacity = "1";
+      const x = x0 < STICK_LEFT ? Math.min(STICK_LEFT, x1 - wpx) : x0;
+      el.style.transform = `translateX(${x}px)`;
+    });
+    // 年インジケータ（整数年が変わったときだけ書く）
+    const yr = yToYear((-ty + 46) / k);
+    if (yr !== lastYear.current && yearRef.current) {
+      lastYear.current = yr;
+      yearRef.current.textContent = yr < 0 ? `BC${-yr}` : `${yr}`;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cw]);
-
-  const k = view?.k ?? kFit;
-  const tx = view?.tx ?? 0;
-  const ty = view?.ty ?? 0;
-
-  // ドラッグ/ピンチ中の更新をフレーム毎1回に間引く(モバイルの描画詰まり対策)
-  const viewRef = useRef(view);
-  useEffect(() => {
-    viewRef.current = view;
-  }, [view]);
-  const pendingView = useRef<{ tx: number; ty: number; k: number } | null>(null);
-  const rafId = useRef(0);
-  const pushView = (fn: (v: { tx: number; ty: number; k: number }) => { tx: number; ty: number; k: number }) => {
-    const base = pendingView.current ?? viewRef.current ?? { tx: 0, ty: 0, k: kFit };
-    pendingView.current = fn(base);
-    if (!rafId.current) {
-      rafId.current = requestAnimationFrame(() => {
-        rafId.current = 0;
-        if (pendingView.current) {
-          setView(pendingView.current);
-          pendingView.current = null;
-        }
-      });
+    // ミニマップの現在位置
+    const mm = mmRef.current;
+    if (mm) {
+      const host = mm.parentElement;
+      const H = host?.clientHeight ?? 0;
+      const vhpx = host?.clientHeight ?? 0;
+      const total = TL_H * k;
+      mm.style.top = `${Math.max(0, (-ty / total) * H)}px`;
+      mm.style.height = `${Math.max(6, Math.min(H, ((vhpx || 1) / total) * H))}px`;
     }
-  };
-  const X = (year: number) => tlX(year) * k + tx;
-
-  // ズームに連動して書影も拡大
-  const s = Math.min(2.7, Math.max(1, Math.pow(k / (kFit || 1e-6), 0.55)));
-  const coverW = Math.round((isMobile ? 46 : 36) * s);
-  const coverH = Math.round((isMobile ? 66 : 52) * s);
-  const showYears = s > 1.3;
-
-  // 物語内年代のコンパクト表示
-  const yearChip = (e: TimelineEntry): string => {
-    if (e.region === "fantasy") return "時間外";
-    return e.year < 0 ? `BC${-e.year}` : `${e.year}`;
-  };
-
-  // ホイールズーム(横方向)
-  useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const rect = el.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      pushView((cur) => {
-        const kMin = (el.clientWidth / TL_W) * 0.9;
-        const nk = Math.min(kMin * 60, Math.max(kMin, cur.k * Math.exp(-e.deltaY * 0.0016)));
-        return { k: nk, ty: cur.ty, tx: mx - ((mx - cur.tx) * nk) / cur.k };
-      });
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
-  const zoomBy = (factor: number) => {
-    const mx = cw / 2;
-    setView((v) => {
-      const cur = v ?? { tx: 0, ty: 0, k: kFit };
-      const kMin = kFit * 0.9;
-      const nk = Math.min(kMin * 60, Math.max(kMin, cur.k * factor));
-      return { k: nk, ty: cur.ty, tx: mx - ((mx - cur.tx) * nk) / cur.k };
-    });
-  };
+  const onSettle = useCallback((cam: Cam) => setCamK(cam.k), []);
 
-  const pointers = useRef(new Map<number, { x: number; y: number }>());
-  const pinchDist = useRef<number | null>(null);
+  const cam = useMapCamera({
+    worldW: WORLD_W,
+    worldH: TL_H,
+    fitAxis: "width",
+    minR: 0.26,
+    maxR: 9,
+    lodAt: [0.92, 1.75],
+    slack: 0.18,
+    // 左=時代の地層カラム / 右=ミニマップ / 上=地域帯バー を避ける
+    inset: { left: 86, right: 28, top: 28 },
+    home: { r: 1, cx: WORLD_W / 2, cy: tlY(1935) },
+    onFrame,
+    onSettle,
+  });
 
-  const captured = useRef(false);
-  const captureNow = (e: React.PointerEvent) => {
-    // キャプチャはドラッグ開始後にだけ取得(pointerdownで取得するとclickが書影に届かない)
-    if (captured.current) return;
-    try {
-      (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
-      captured.current = true;
-    } catch {}
-  };
-
-  const onPointerDown = (e: React.PointerEvent) => {
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pointers.current.size === 1) {
-      const vc = pendingView.current ?? viewRef.current ?? { tx: 0, ty: 0, k: kFit };
-      drag.current = { x: e.clientX, y: e.clientY, tx: vc.tx, ty: vc.ty, moved: false };
-    } else {
-      captureNow(e); // ピンチは即キャプチャ
-      drag.current = null;
-      pinchDist.current = null;
-    }
-  };
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!pointers.current.has(e.pointerId)) return;
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    const pts = [...pointers.current.values()];
-    if (pts.length >= 2) {
-      // ピンチで時間軸をズーム(2本指の中点基準)
-      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      const rect = wrapRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const mx = (pts[0].x + pts[1].x) / 2 - rect.left;
-      if (pinchDist.current) {
-        const factor = d / pinchDist.current;
-        pushView((cur) => {
-          const kMin = kFit * 0.9;
-          const nk = Math.min(kMin * 60, Math.max(kMin, cur.k * factor));
-          return { k: nk, ty: cur.ty, tx: mx - ((mx - cur.tx) * nk) / cur.k };
-        });
-      }
-      pinchDist.current = d;
-      return;
-    }
-    const d0 = drag.current;
-    if (!d0) return;
-    const dx = e.clientX - d0.x;
-    const dy = e.clientY - d0.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) {
-      d0.moved = true;
-      captureNow(e);
-    }
-    const ntx = d0.tx + dx;
-    const nty = Math.max(minTy, Math.min(0, d0.ty + dy));
-    pushView((cur) => ({ k: cur.k, tx: ntx, ty: nty }));
-  };
-  const onPointerUp = (e: React.PointerEvent) => {
-    pointers.current.delete(e.pointerId);
-    pinchDist.current = null;
-    drag.current = null;
-    if (pointers.current.size === 0) captured.current = false;
-  };
-
-  // 書影1枚分の実際の描画高さ。書影 + カードの枠線と余白(8px) + 年チップ(16px)。
-  // ここが実寸とずれると、吹き出しと引き出し線が書影を指さなくなる
-  const CARD_CHROME = 8;
-  const boxH = coverH + CARD_CHROME + (showYears ? 16 : 0);
-  const labelPad = s > 1.6 ? 20 : 0; // 下レーンは作品名ラベルのぶんだけ余分に要る
-  const laneOffset = (lane: number): { above: boolean; dist: number } => {
-    // 0:上近 1:下近 2:上遠 3:下遠 (書影サイズに追従)
-    const above = lane % 2 === 0;
-    const dist = lane < 2 ? 13 : 13 + coverH * 0.72 + 14;
-    return { above, dist };
-  };
-
-  // 地域ごとのエントリ + レーン + トラックの実寸
-  // レーンはtxに依存しない座標(tlX*k)で計算 → パン中は再計算不要。
-  // トラック高さは固定値ではなく「実際に使われたレーンの張り出し」から逆算する。
-  // 固定152pxだと2段レーンの書影(上に最大116px、ズーム時は280px超)がはみ出し、
-  // 先頭の日本トラックが軸バーに切られていた
-  const tracks = useMemo(() => {
-    let y = AXIS_H;
-    return TL_REGIONS.map((region) => {
-      const entries = TIMELINE.filter((e) => e.region === region.id).map((e) => ({ e, x: tlX(e.year) * k }));
-      const lanes = assignLanes(entries, coverW + 6);
-      // このトラックが中心線の上下それぞれに必要とする高さ
-      let aboveExt = MIN_ABOVE; // 地域ラベルのぶんは最低限あける
-      let belowExt = 0;
-      for (const { e } of entries) {
-        const la = lanes.get(e.workId);
-        if (!la) continue;
-        const { above, dist } = laneOffset(la.lane);
-        const ext = dist + boxH + (above ? 0 : labelPad);
-        if (above) aboveExt = Math.max(aboveExt, ext);
-        else belowExt = Math.max(belowExt, ext);
-      }
-      const th = Math.max(MIN_TH, aboveExt + belowExt + TRACK_PAD);
-      const top = y;
-      const cy = top + TRACK_PAD / 2 + aboveExt;
-      y += th;
-      return { region, entries, lanes, th, top, cy };
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [k, coverW, coverH, showYears, s]);
-
-  const H = tracks[tracks.length - 1].top + tracks[tracks.length - 1].th; // コンテンツ全体の高さ
-  const VH = Math.min(H, isMobile ? 500 : 660); // 表示枠(はみ出す分は縦ドラッグで移動)
-  const minTy = Math.min(0, VH - H);
-
-  // コメントのある作品(吹き出しローテーション)
-  const voiceEntries = useMemo(() => TIMELINE.filter((e) => voices[e.workId]?.latest), [voices]);
+  // ---- URL（?w=workId）----
   useEffect(() => {
-    if (voiceEntries.length < 2) return;
-    const t = setInterval(() => setVoiceIdx((i) => (i + 1) % voiceEntries.length), 6500);
-    return () => clearInterval(t);
-  }, [voiceEntries.length]);
-  const bubbleEntry =
-    selected && voices[selected.workId]?.latest ? selected : voiceEntries.length > 0 ? voiceEntries[voiceIdx % voiceEntries.length] : null;
+    const q = new URLSearchParams(location.search);
+    const w = q.get("w");
+    if (w) {
+      const e = TIMELINE.find((x) => x.workId === w);
+      if (e) {
+        setSelected(e);
+        setIntroOpen(false);
+        pendingFly.current = keyOf(e);
+      }
+    }
+    const r = q.get("region");
+    if (r && TL_REGIONS.some((x) => x.id === r)) setFilter(r);
+  }, []);
 
-  // 吹き出しの位置。「その年の中心線上」ではなく、実際に描かれている書影
-  // (重なり回避で横にずらしたdispX + レーンの上下)にぴったり合わせる
-  const BUBBLE_W = 244;
-  const bubbleLayout = (() => {
-    if (!bubbleEntry) return null;
-    const post = voices[bubbleEntry.workId]?.latest;
-    if (!post) return null;
-    const tr = tracks.find((t) => t.region.id === bubbleEntry.region);
-    const la = tr?.lanes.get(bubbleEntry.workId);
-    if (!tr || !la) return null;
-    const { above, dist } = laneOffset(la.lane);
-    const cx = la.dispX + tx; // 書影の中心X(画面座標)
-    const cy = tr.cy + ty;
-    const coverTop = above ? cy - dist - boxH : cy + dist;
-    const coverBottom = coverTop + boxH;
-    if (cx < -30 || cx > cw + 30 || coverBottom < 0 || coverTop > VH) return null;
-    // 書影のあるレーン側に出す。枠外にはみ出すなら反対側へ
-    let placeAbove = above;
-    if (placeAbove && coverTop - 12 < AXIS_H + 84) placeAbove = false;
-    if (!placeAbove && coverBottom + 96 > VH) placeAbove = true;
-    const top = placeAbove ? coverTop - 9 : coverBottom + 9;
-    const left = Math.max(4, Math.min(cw - BUBBLE_W - 4, cx - 26));
-    const wk = workById(bubbleEntry.workId);
-    return {
-      post,
-      top,
-      left,
-      tailX: Math.max(12, Math.min(BUBBLE_W - 14, cx - left)),
-      placeAbove,
-      cover: coverThumb(meta, bubbleEntry.workId),
-      title: wk?.title,
-      workId: bubbleEntry.workId,
-    };
-  })();
+  useEffect(() => {
+    const q = new URLSearchParams();
+    if (filter) q.set("region", filter);
+    if (selected) q.set("w", selected.workId);
+    const qs = q.toString();
+    history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : ""));
+  }, [selected, filter]);
 
-  // 可動コンテンツをメモ化: パン(tx/ty)では再構築せず、ズーム(k)時のみ再計算。
-  // パン中はコンテナのtransform(GPU)だけが動くので、モバイルでも滑らか
-  const tlContent = useMemo(() => {
-    return (
-      <>
-        {/* 架空ゾーンの背景 */}
-        <div style={{ position: "absolute", left: FANTASY_X * k, top: 0, width: Math.max(0, (TL_W - FANTASY_X) * k), height: H, background: "repeating-linear-gradient(-45deg, rgba(219,39,119,0.05), rgba(219,39,119,0.05) 8px, transparent 8px, transparent 16px)", borderLeft: "2px dashed #db277788", pointerEvents: "none" }} />
-        {tracks.map(({ region, entries, lanes, th, top, cy }) => {
+  useEffect(() => {
+    const key = pendingFly.current;
+    if (!key || !cam.fitK) return;
+    pendingFly.current = null;
+    const pos = LAYOUT.get(key);
+    if (pos) cam.flyTo(pos.x, pos.y, 2.4, cam.vw > 860 ? -140 : 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cam.fitK]);
+
+  // ---- 下地（パン/ズームで作り直さない静的SVG）----
+  const chrome = useMemo(
+    () => (
+      <svg
+        width={WORLD_W}
+        height={TL_H}
+        viewBox={`0 0 ${WORLD_W} ${TL_H}`}
+        style={{ position: "absolute", left: 0, top: 0, display: "block" }}
+        aria-hidden
+      >
+        {/* 時代の地層（一段ごとに地色を変える） */}
+        {STRATA.map((s, i) => (
+          <rect
+            key={s.ja}
+            x={0}
+            y={tlY(s.from)}
+            width={WORLD_W}
+            height={tlY(s.to) - tlY(s.from)}
+            fill={i % 2 === 0 ? "rgba(23,19,16,0.045)" : "transparent"}
+          />
+        ))}
+        {/* 地域帯 */}
+        {BANDS.map((b) => {
+          const reg = TL_REGIONS.find((r) => r.id === b.id);
           return (
-            <div key={region.id}>
-              {/* 日本トラックの時代帯 */}
-              {region.id === "japan" &&
-                JP_ERAS.map((era) => {
-                  const x0 = tlX(era.from) * k;
-                  const x1 = tlX(era.to) * k;
-                  return (
-                    <div key={era.name} style={{ position: "absolute", left: x0, top: top + 2, width: x1 - x0, height: th - 4, background: "rgba(212,61,46,0.055)", borderLeft: "1px solid rgba(212,61,46,0.3)", pointerEvents: "none" }}>
-                      {x1 - x0 > 34 && (
-                        <span style={{ position: "absolute", top: 2, left: 4, fontSize: 10, fontWeight: 900, color: "rgba(212,61,46,0.65)" }}>{era.name}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              {/* 歴史イベント(道しるべ) */}
-              {EVENTS.filter((ev) => ev.region === region.id).map((ev) => {
-                const ex = tlX(ev.year) * k;
-                return (
-                  <div key={ev.label} style={{ position: "absolute", left: ex, top: cy, zIndex: 1, pointerEvents: "none" }}>
-                    <div style={{ position: "absolute", left: -4, top: -4, width: 8, height: 8, background: "#fff", border: `2px solid ${region.color}`, transform: "rotate(45deg)" }} />
-                    <div style={{ position: "absolute", left: 7, top: 4, fontSize: 9.5, fontWeight: 700, color: "rgba(23,19,16,0.55)", whiteSpace: "nowrap" }}>
-                      {ev.label}
-                    </div>
-                  </div>
-                );
-              })}
-              {/* 作品(書影 + 引き出し線)。dispX=表示位置, x=本来の年 */}
-              {entries.map(({ e, x }) => {
-                const wk = workById(e.workId);
-                if (!wk) return null;
-                const la = lanes.get(e.workId) ?? { lane: 0, dispX: x };
-                const dispX = la.dispX;
-                const { above, dist } = laneOffset(la.lane);
-                const cover = s > 1.7 ? coverSrc(meta, wk.id) : coverThumb(meta, wk.id);
-                const active = selected?.workId === e.workId && selected.region === e.region;
-                const pinTop = above ? cy - dist - boxH : cy + dist;
-                const edgeY = above ? cy - dist : cy + dist; // 書影の内側エッジのY
-                const lx = Math.min(x, dispX);
-                const lw = Math.abs(dispX - x);
-                return (
-                  <div key={e.workId}>
-                    {/* 引き出し線: 本来の年から縦、書影エッジで横に折れてL字に */}
-                    <div style={{ position: "absolute", left: x - 0.75, top: Math.min(cy, edgeY), width: 1.5, height: dist, background: region.color, opacity: 0.75, pointerEvents: "none" }} />
-                    {lw > 1 && (
-                      <div style={{ position: "absolute", left: lx, top: edgeY - 0.75, width: lw, height: 1.5, background: region.color, opacity: 0.75, pointerEvents: "none" }} />
-                    )}
-                    <div style={{ position: "absolute", left: x - 3.5, top: cy - 3.5, width: 7, height: 7, borderRadius: "50%", background: region.color, border: "1.5px solid var(--ink)", pointerEvents: "none" }} />
-                    <div
-                      className={`map-pin ${active ? "on" : ""}`}
-                      style={{ left: dispX, top: pinTop + boxH, zIndex: active ? 8 : 5 }}
-                      onClick={(ev) => {
-                        ev.stopPropagation();
-                        if (drag.current?.moved) return;
-                        setSelected(active ? null : e);
-                      }}
-                      title={`${wk.title} — ${e.label}`}
-                    >
-                      {showYears && (
-                        <div className="tl-year" style={{ borderColor: region.color, color: region.color }}>
-                          {yearChip(e)}
-                        </div>
-                      )}
-                      <div className="map-pin-card">
-                        {cover ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={cover} alt={wk.title} loading="lazy" style={{ width: coverW, height: coverH }} />
-                        ) : (
-                          <span className="ph" style={{ width: coverW, height: coverH, fontSize: 13 + s * 3 }}>📖</span>
-                        )}
-                      </div>
-                      <div className={`map-pin-label ${s > 1.6 ? "show" : ""}`} style={{ bottom: -18 }}>{wk.title}</div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <g key={b.id}>
+              <rect x={b.x0} y={0} width={b.w} height={TL_H} fill={`${reg?.color ?? "#000"}0d`} />
+              <line
+                x1={b.x0}
+                y1={0}
+                x2={b.x0}
+                y2={TL_H}
+                stroke="rgba(23,19,16,0.22)"
+                strokeWidth={1}
+                style={{ vectorEffect: "non-scaling-stroke" }}
+              />
+            </g>
           );
         })}
-      </>
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tracks, k, H, coverW, coverH, boxH, s, showYears, meta, selected]);
-
-  // ミニマップの分布ドット(完全に静的)
-  const mmDots = useMemo(
-    () =>
-      TIMELINE.map((e) => {
-        const region = TL_REGIONS.find((r) => r.id === e.region);
-        return (
-          <span
-            key={`${e.region}-${e.workId}`}
-            style={{ position: "absolute", left: `${(tlX(e.year) / TL_W) * 100}%`, top: `${18 + TL_REGIONS.findIndex((r) => r.id === e.region) * 11}%`, width: 5, height: 5, marginLeft: -2.5, borderRadius: "50%", background: region?.color }}
+        {/* 時代の境界線 */}
+        {STRATA.map((s) => (
+          <line
+            key={`d${s.from}`}
+            x1={0}
+            y1={tlY(s.from)}
+            x2={WORLD_W}
+            y2={tlY(s.from)}
+            stroke="rgba(23,19,16,0.28)"
+            strokeWidth={1.5}
+            style={{ vectorEffect: "non-scaling-stroke" }}
           />
-        );
-      }),
+        ))}
+        {/* 年の目盛り */}
+        {TICKS.map((y) => (
+          <line
+            key={y}
+            x1={0}
+            y1={tlY(y)}
+            x2={WORLD_W}
+            y2={tlY(y)}
+            stroke="rgba(23,19,16,0.1)"
+            strokeWidth={1}
+            style={{ vectorEffect: "non-scaling-stroke" }}
+          />
+        ))}
+        {/* 架空ゾーン */}
+        <defs>
+          <pattern id="fzone" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+            <rect width="14" height="14" fill="rgba(219,39,119,0.05)" />
+            <rect width="7" height="14" fill="rgba(219,39,119,0.11)" />
+          </pattern>
+        </defs>
+        <rect x={0} y={FANTASY_Y} width={WORLD_W} height={TL_H - FANTASY_Y} fill="url(#fzone)" />
+        <line
+          x1={0}
+          y1={FANTASY_Y}
+          x2={WORLD_W}
+          y2={FANTASY_Y}
+          stroke="#db2777"
+          strokeWidth={2}
+          strokeDasharray="7 5"
+          style={{ vectorEffect: "non-scaling-stroke" }}
+        />
+        {/* 歴史イベント（帯の中だけを横切る細線） */}
+        {EVENTS.map((ev) => {
+          const b = BANDS.find((x) => x.id === ev.region);
+          if (!b) return null;
+          const reg = TL_REGIONS.find((r) => r.id === ev.region);
+          return (
+            <line
+              key={`${ev.region}${ev.year}`}
+              x1={b.x0 + 2}
+              y1={tlY(ev.year)}
+              x2={b.x0 + b.w - 2}
+              y2={tlY(ev.year)}
+              stroke={reg?.color ?? "#000"}
+              strokeWidth={1.2}
+              strokeDasharray="4 3"
+              opacity={0.65}
+              style={{ vectorEffect: "non-scaling-stroke" }}
+            />
+          );
+        })}
+      </svg>
+    ),
     []
   );
 
+  // ---- 束 ----
+  const lod = cam.lod;
+  const placed = useMemo(
+    () =>
+      TIMELINE.filter((e) => !filter || e.region === filter)
+        .map((e) => {
+          const pos = LAYOUT.get(keyOf(e));
+          return pos ? { item: e, wx: pos.x, wy: pos.y } : null;
+        })
+        .filter(Boolean) as { item: TimelineEntry; wx: number; wy: number }[],
+    [filter]
+  );
+
+  const selKey = selected ? keyOf(selected) : null;
+  const bundles = useMemo(() => {
+    const k = camK || cam.fitK;
+    const mine = placed.filter((p) => keyOf(p.item) === selKey);
+    const rest = placed.filter((p) => keyOf(p.item) !== selKey);
+    const out = bundleByScreen(rest, k, PIN[lod].w, PIN[lod].h, lod > 0);
+    for (const m of mine) out.push({ wx: m.wx, wy: m.wy, members: [m] });
+    return out;
+  }, [placed, camK, cam.fitK, lod, selKey]);
+
+  // 作品名ラベル（L2のみ・重なるものは間引く）
+  const nameKeep = useMemo(() => {
+    if (lod < 2) return new Set<unknown>();
+    const k = camK || cam.fitK;
+    const rects: { x0: number; x1: number; y0: number; y1: number }[] = [];
+    const keep = new Set<unknown>();
+    const rows = bundles
+      .map((b) => {
+        const head = b.members[0].item;
+        const wk = workById(head.workId);
+        return { b, text: wk ? workTitle(wk, lang) : "", weight: b.members.length };
+      })
+      .sort((a, z) => z.weight - a.weight);
+    for (const r of rows) {
+      const cx = r.b.wx * k;
+      const cy = r.b.wy * k + 10;
+      const hw = labelWidth(r.text) / 2;
+      const rect = { x0: cx - hw, x1: cx + hw, y0: cy - 9, y1: cy + 9 };
+      if (!rects.some((o) => rect.x0 < o.x1 && rect.x1 > o.x0 && rect.y0 < o.y1 && rect.y1 > o.y0)) {
+        rects.push(rect);
+        keep.add(r.b);
+      }
+    }
+    return keep;
+  }, [bundles, camK, cam.fitK, lod, lang]);
+
+  // ---- 読者の声 ----
+  const voiceRows = useMemo(() => {
+    const out: { e: TimelineEntry; post: Post }[] = [];
+    for (const e of TIMELINE) {
+      const v = voices[e.workId]?.latest;
+      if (v) out.push({ e, post: v });
+    }
+    return out;
+  }, [voices]);
+
+  useEffect(() => {
+    if (voiceRows.length < 2) return;
+    const timer = setInterval(() => setVoiceIdx((i) => (i + 1) % voiceRows.length), 7000);
+    return () => clearInterval(timer);
+  }, [voiceRows.length]);
+  const voice = voiceRows.length > 0 ? voiceRows[voiceIdx % voiceRows.length] : null;
+
+  const pick = (e: TimelineEntry) => {
+    setSelected(e);
+    setIntroOpen(false);
+    const pos = LAYOUT.get(keyOf(e));
+    if (pos) {
+      const r = Math.max(2.2, (camK || cam.fitK) / (cam.fitK || 1));
+      cam.flyTo(pos.x, pos.y, r, cam.vw > 860 ? -140 : 0);
+    }
+  };
+
+  const unbundle = (b: { wx: number; wy: number }) => {
+    const r = (camK || cam.fitK) / (cam.fitK || 1);
+    cam.flyTo(b.wx, b.wy, Math.min(9, r * 2.4));
+  };
+
   const selWork = selected ? workById(selected.workId) : null;
-  const selPosts = selected ? (voices[selected.workId]?.count ? voices[selected.workId] : null) : null;
+  const selRegion = selected ? TL_REGIONS.find((r) => r.id === selected.region) : null;
 
   return (
-    <>
-      <div className="filter-row" style={{ marginBottom: 14 }}>
-        <span style={{ fontSize: 11.5, color: "var(--ink-soft)", alignSelf: "center", fontWeight: 700 }}>
-          ドラッグで縦横に移動 / ホイール・ボタンで時間軸をズーム / 書影クリックで詳細
-        </span>
-      </div>
+    <div className="mapstage-root">
+      <div
+        ref={cam.containerRef}
+        className="mapstage-vp paper"
+        {...cam.bind}
+        onPointerDown={(e) => {
+          setIntroOpen(false);
+          cam.bind.onPointerDown(e);
+        }}
+        role="application"
+        aria-label={t("eras.title", lang)}
+      >
+        <div ref={cam.stageRef} className="mapstage" style={{ width: WORLD_W, height: TL_H }}>
+          {chrome}
 
-      <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
-        {/* ===== タイムライン本体 ===== */}
-        <div style={{ flex: "1 1 560px", minWidth: 340 }}>
-          <div
-            ref={wrapRef}
-            className="atlas-wrap"
-            style={{
-              position: "relative",
-              overflow: "hidden",
-              height: VH,
-              cursor: drag.current ? "grabbing" : "grab",
-              touchAction: "none",
-              backgroundColor: "#f6f1e4",
-              backgroundImage: "radial-gradient(rgba(23,19,16,0.055) 1px, transparent 1.3px)",
-              backgroundSize: "10px 10px",
-            }}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerLeave={onPointerUp}
-            onPointerCancel={onPointerUp}
-            onDoubleClick={() => zoomBy(1.7)}
-          >
-            {/* 年代軸(定規バー) */}
-            <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: AXIS_H, background: "#fffdf4", borderBottom: "2.5px solid var(--ink)", zIndex: 9, pointerEvents: "none" }} />
-            {TICKS.map((t) => {
-              const x = X(t.year);
-              if (x < -40 || x > cw + 40) return null;
-              return (
-                <div key={t.year} style={{ position: "absolute", left: x, top: 0, height: VH, pointerEvents: "none" }}>
-                  <div style={{ position: "absolute", top: AXIS_H, width: 1.5, height: VH - AXIS_H, background: "rgba(23,19,16,0.09)" }} />
-                  <div style={{ position: "absolute", top: AXIS_H - 12, width: 2, height: 12, background: "var(--ink)", zIndex: 10 }} />
-                  <div style={{ position: "absolute", top: 8, left: 5, fontSize: 11.5, fontWeight: 900, color: "var(--ink)", zIndex: 10, fontFamily: "var(--font-base)" }}>{t.label}</div>
-                </div>
-              );
-            })}
-            {/* 架空ゾーンラベル */}
-            <div style={{ position: "absolute", left: FANTASY_X * k + tx + 10, top: 12, fontSize: 11, fontWeight: 900, color: "#db2777", zIndex: 10, pointerEvents: "none", whiteSpace: "nowrap" }}>
-              ⟵ここから先は時間軸の外(架空・異世界)
-            </div>
-
-            {/* トラックの帯・中心線・地域ラベル(横幅いっぱい・縦のみ追従) */}
-            {tracks.map(({ region, th, top: t0, cy: c0 }) => {
-              const top = t0 + ty;
-              const cy = c0 + ty;
-              if (top > VH || top + th < 0) return null;
-              return (
-                <div key={region.id}>
-                  <div style={{ position: "absolute", left: 0, right: 0, top, height: th, background: `${region.color}09`, borderTop: "1.5px solid rgba(23,19,16,0.16)", pointerEvents: "none" }} />
-                  <div style={{ position: "absolute", left: 0, right: 0, top: cy - 1, height: 2, background: region.color, opacity: 0.5, pointerEvents: "none" }} />
-                  <div style={{ position: "absolute", left: 10, top: top + 8, zIndex: 1, background: region.color, color: "#fff", border: "2px solid var(--ink)", boxShadow: "2px 2px 0 var(--ink)", fontSize: 12, fontWeight: 900, padding: "2px 10px", pointerEvents: "none" }}>
-                    {region.name}
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* 可動コンテンツ(時代帯・イベント・作品)。パン中はGPU変形のみで動く */}
-            <div style={{ position: "absolute", left: 0, top: 0, width: 0, height: 0, transform: `translate3d(${tx}px, ${ty}px, 0)`, willChange: "transform" }}>
-              {tlContent}
-            </div>
-
-            {/* コメント吹き出し(しっぽが該当作品の書影を指す) */}
-            {bubbleLayout && (
-              <div
-                className={`map-voice ${bubbleLayout.placeAbove ? "above" : "below"}`}
-                style={{ left: bubbleLayout.left, top: bubbleLayout.top, ["--tail-x" as string]: `${bubbleLayout.tailX}px` }}
-              >
-                <MiniBubble
-                  post={bubbleLayout.post}
-                  cover={bubbleLayout.cover}
-                  title={bubbleLayout.title}
-                  href={`/works/${bubbleLayout.workId}`}
-                />
+          {/* 歴史イベントのラベル（逆スケールで文字サイズ一定） */}
+          {EVENTS.map((ev) => {
+            const b = BANDS.find((x) => x.id === ev.region);
+            if (!b || (filter && filter !== ev.region)) return null;
+            const reg = TL_REGIONS.find((r) => r.id === ev.region);
+            return (
+              <div key={`el-${ev.region}${ev.year}`} className="ev" style={{ left: b.x0, top: tlY(ev.year) }}>
+                <span className="ev-in" style={{ color: reg?.color }}>
+                  {ev.year < 0 ? `BC${-ev.year}` : ev.year} {lang === "en" ? ev.en : ev.ja}
+                </span>
               </div>
-            )}
+            );
+          })}
 
-            {/* ズームコントロール */}
-            <div style={{ position: "absolute", right: 10, bottom: 10, display: "flex", flexDirection: "column", gap: 6, zIndex: 10 }}>
-              <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 17 }} onClick={(e) => { e.stopPropagation(); zoomBy(1.5); }} onPointerDown={(e) => e.stopPropagation()}>＋</button>
-              <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 17 }} onClick={(e) => { e.stopPropagation(); zoomBy(1 / 1.5); }} onPointerDown={(e) => e.stopPropagation()}>－</button>
-              <button className="chip" style={{ width: 38, height: 38, padding: 0, fontSize: 10 }} onClick={(e) => { e.stopPropagation(); setView({ tx: 0, ty: 0, k: kFit }); }} onPointerDown={(e) => e.stopPropagation()}>全体</button>
-            </div>
-          </div>
-
-          {/* ミニマップ(全期間ナビ: クリック/ドラッグで移動) */}
-          <div
-            className="tl-minimap"
-            onPointerDown={(e) => {
-              const bar = e.currentTarget.getBoundingClientRect();
-              const jump = (clientX: number) => {
-                const fx = Math.max(0, Math.min(1, (clientX - bar.left) / bar.width));
-                setView((v) => {
-                  const cur = v ?? { tx: 0, ty: 0, k: kFit };
-                  return { ...cur, tx: cw / 2 - fx * TL_W * cur.k };
-                });
-              };
-              jump(e.clientX);
-              const move = (ev: PointerEvent) => jump(ev.clientX);
-              const up = () => {
-                window.removeEventListener("pointermove", move);
-                window.removeEventListener("pointerup", up);
-              };
-              window.addEventListener("pointermove", move);
-              window.addEventListener("pointerup", up);
-            }}
-          >
-            {/* 架空ゾーン */}
-            <div
-              style={{
-                position: "absolute",
-                left: `${(FANTASY_X / TL_W) * 100}%`,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                background: "repeating-linear-gradient(-45deg, rgba(219,39,119,0.12), rgba(219,39,119,0.12) 4px, transparent 4px, transparent 8px)",
-              }}
-            />
-            {/* 作品の分布ドット */}
-            {mmDots}
-            {/* 現在の表示範囲 */}
-            <div
-              style={{
-                position: "absolute",
-                left: `${Math.max(0, ((-tx) / (TL_W * k)) * 100)}%`,
-                width: `${Math.min(100, (cw / (TL_W * k)) * 100)}%`,
-                top: 0,
-                bottom: 0,
-                border: "2px solid var(--accent)",
-                background: "rgba(227,59,46,0.09)",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
+          {/* 作品ピン */}
+          {bundles.map((b) => {
+            const many = b.members.length > 1;
+            const head = b.members[0].item;
+            const wk = workById(head.workId);
+            const reg = TL_REGIONS.find((r) => r.id === head.region);
+            const cover =
+              lod === 0 || !wk ? null : lod > 1 ? coverSrc(meta, wk.id) : coverThumb(meta, wk.id);
+            const isOn = b.members.some((m) => keyOf(m.item) === selKey);
+            const title = wk ? workTitle(wk, lang) : "";
+            const showName = nameKeep.has(b) || isOn;
+            const yearChip =
+              head.region === "fantasy"
+                ? t("eras.fantasyChip", lang)
+                : head.year < 0
+                  ? `BC${-head.year}`
+                  : `${head.year}`;
+            return (
+              <div
+                key={b.members.map((m) => keyOf(m.item)).join("+")}
+                className={`mp ${many ? "multi" : ""} ${isOn ? "on" : ""} ${showName ? "" : "noname"}`}
+                style={{ left: b.wx, top: b.wy, ["--pin" as string]: reg?.color }}
+              >
+                <div
+                  className="mp-in"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (cam.didDrag()) return;
+                    if (many) unbundle(b);
+                    else pick(head);
+                  }}
+                  title={`${title} — ${tlLabel(head, lang)}`}
+                >
+                  <span className="mp-year" style={{ borderColor: reg?.color, color: reg?.color }}>
+                    {yearChip}
+                  </span>
+                  <div className="mp-body">
+                    {cover ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={cover} alt={title} loading="lazy" />
+                    ) : lod > 0 ? (
+                      <span style={{ fontSize: 15 }}>📖</span>
+                    ) : null}
+                    <span className="mp-n">{many ? b.members.length : ""}</span>
+                    {many && lod > 0 && <span className="mp-cnt">{b.members.length}</span>}
+                  </div>
+                  <i className="mp-tip" />
+                  <b className="mp-name">{many ? `${title} ほか` : title}</b>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* ===== サイドパネル ===== */}
-        <aside style={{ flex: "0 1 320px", minWidth: 280 }}>
-          {selected && selWork ? (
-            <div className="spot-popup sheet-m">
-              <button className="sheet-close" onClick={() => setSelected(null)} aria-label="閉じる">×</button>
-              <h3>
-                🕰️ {selected.label}
-                <span style={{ display: "block", fontSize: 11, color: TL_REGIONS.find((r) => r.id === selected.region)?.color, marginTop: 2 }}>
-                  {TL_REGIONS.find((r) => r.id === selected.region)?.name}のタイムライン
-                </span>
-              </h3>
-              <div className="sw" style={{ display: "flex", gap: 10 }}>
-                <div style={{ flex: "0 0 56px" }}>
-                  {coverThumb(meta, selWork.id) ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={coverThumb(meta, selWork.id)!} alt={selWork.title} style={{ width: 56, height: 80, objectFit: "cover", border: "2px solid #171310", boxShadow: "2px 2px 0 #171310" }} />
-                  ) : (
-                    <div style={{ width: 56, height: 80, border: "2px solid #171310", display: "flex", alignItems: "center", justifyContent: "center", background: "#f1e9d6" }}>📖</div>
-                  )}
-                </div>
-                <div style={{ minWidth: 0 }}>
-                  <Link href={`/works/${selWork.id}`}>
-                    <span className="t">
-                      {selWork.title}
-                      <span style={{ fontWeight: 400, fontSize: 11, color: "#4a4238" }}> ({selWork.year}年発表)</span>
-                    </span>
-                  </Link>
-                  <span className="n">{selected.note}</span>
-                  {amazonLink(meta, selWork.id) && (
-                    <div style={{ marginTop: 6 }}>
-                      <AmazonButton href={amazonLink(meta, selWork.id)} small />
-                    </div>
-                  )}
-                </div>
+        {/* ---- 時代の地層（左端に貼りつく） ---- */}
+        <div className="era-strata" ref={strataHostRef}>
+          <div className="es-head">
+            <span className="es-year" ref={yearRef}>
+              —
+            </span>
+          </div>
+          {STRATA.map((s, i) => (
+            <div
+              key={s.ja}
+              className="es-row"
+              ref={(el) => {
+                strataRefs.current[i] = el;
+              }}
+            >
+              {lang === "en" ? s.en : s.ja}
+            </div>
+          ))}
+        </div>
+
+        {/* ---- 地域帯の名前（上端に貼りつく） ---- */}
+        <div className="era-bandbar" ref={bandHostRef}>
+          {BANDS.map((b, i) => {
+            const reg = TL_REGIONS.find((r) => r.id === b.id);
+            return (
+              <div
+                key={b.id}
+                className={`eb-name ${filter && filter !== b.id ? "dim" : ""}`}
+                style={{ background: reg?.color }}
+                ref={(el) => {
+                  bandRefs.current[i] = el;
+                }}
+                onClick={() => setFilter(filter === b.id ? null : b.id)}
+                role="button"
+              >
+                {reg ? regionName(reg, lang) : b.id}
               </div>
-              {selPosts?.latest && (
-                <div style={{ marginTop: 14 }}>
-                  <div style={{ fontSize: 11.5, fontWeight: 900, marginBottom: 4 }}>💬 読者の声</div>
-                  <Bubble
-                    text={selPosts.latest.text}
-                    bubble={selPosts.latest.bubble}
-                    font={selPosts.latest.font}
-                    user={selPosts.latest.user}
-                    meta={<PostMeta type={selPosts.latest.type} date="" />}
-                  />
-                </div>
-              )}
-            </div>
+            );
+          })}
+        </div>
+
+        {/* ---- ミニマップ（全期間ナビ） ---- */}
+        <div
+          className="era-mm"
+          onPointerDown={(e) => {
+            const bar = e.currentTarget.getBoundingClientRect();
+            const jump = (clientY: number) => {
+              const f = Math.max(0, Math.min(1, (clientY - bar.top) / bar.height));
+              cam.flyTo(cam.getCam().k ? (-cam.getCam().tx + cam.vw / 2) / cam.getCam().k : WORLD_W / 2, f * TL_H);
+            };
+            jump(e.clientY);
+            const move = (ev: PointerEvent) => jump(ev.clientY);
+            const up = () => {
+              window.removeEventListener("pointermove", move);
+              window.removeEventListener("pointerup", up);
+            };
+            window.addEventListener("pointermove", move);
+            window.addEventListener("pointerup", up);
+          }}
+        >
+          {TIMELINE.map((e) => {
+            const reg = TL_REGIONS.find((r) => r.id === e.region);
+            const bi = BANDS.findIndex((b) => b.id === e.region);
+            return (
+              <span
+                key={keyOf(e)}
+                style={{
+                  top: `${(tlY(e.year) / TL_H) * 100}%`,
+                  left: `${12 + bi * 13}%`,
+                  background: reg?.color,
+                }}
+              />
+            );
+          })}
+          <div
+            className="era-mm-hatch"
+            style={{ top: `${(FANTASY_Y / TL_H) * 100}%` }}
+          />
+          <div className="era-mm-vp" ref={mmRef} />
+        </div>
+
+        {/* ---- 見出し ---- */}
+        {introOpen && (
+          <div className="map-intro eras">
+            <button className="sheet-close" onClick={() => setIntroOpen(false)} aria-label={t("close", lang)}>
+              ×
+            </button>
+            <span className="en">{t("eras.en", lang)}</span>
+            <h1>{t("eras.title", lang)}</h1>
+            <p>{t("eras.welcomeBody", lang)}</p>
+          </div>
+        )}
+
+        {/* ---- 道具立て ---- */}
+        {/* 絞り込みは上端の帯の名前をタップして行う（下にチップを並べると地図を食う） */}
+        <div className="map-toolbar">
+          {filter ? (
+            <button
+              className="chip active"
+              style={{
+                background: TL_REGIONS.find((r) => r.id === filter)?.color,
+                borderColor: TL_REGIONS.find((r) => r.id === filter)?.color,
+                color: "#fff",
+              }}
+              onClick={() => setFilter(null)}
+            >
+              {regionName(TL_REGIONS.find((r) => r.id === filter)!, lang)}
+              {lang === "ja" ? "だけ表示中" : " only"} ×
+            </button>
           ) : (
-            <div className="spot-popup" style={{ background: "#fdf6d8" }}>
-              <h3>物語の中の時代で旅する</h3>
-              <p style={{ fontSize: 13, lineHeight: 1.9, margin: 0 }}>
-                紀元前の中国からヴァイキングの北欧、大正の東京、そして時間軸の外の異世界まで。
-                <strong>発表年ではなく「物語の舞台の年代」</strong>で全人類史にマンガをマッピングしました。
-                地域ごとのタイムラインから引き出し線で書影がつながっています。
-                ズームすると密集した近現代もくっきり見えます。
-              </p>
-            </div>
+            <span className="map-hint">{t("eras.hintFilter", lang)}</span>
           )}
-        </aside>
+        </div>
+
+        <div className="map-ctl">
+          <button onClick={() => cam.zoomBy(1.6)} aria-label={t("cam.zoomIn", lang)}>
+            ＋
+          </button>
+          <button onClick={() => cam.zoomBy(1 / 1.6)} aria-label={t("cam.zoomOut", lang)}>
+            －
+          </button>
+          <button className="wide" onClick={() => cam.fit()}>
+            {t("cam.whole", lang)}
+          </button>
+          <button className="wide" onClick={() => cam.home()}>
+            {t("cam.home", lang)}
+          </button>
+        </div>
+
+        {/* ---- 読者の声 ---- */}
+        {voice && !selected && (
+          <div className="map-voicebar">
+            <MiniBubble
+              post={voice.post}
+              cover={coverThumb(meta, voice.e.workId)}
+              title={workById(voice.e.workId) ? workTitle(workById(voice.e.workId)!, lang) : undefined}
+              href={lp(lang, `/works/${voice.e.workId}`)}
+            />
+          </div>
+        )}
+
+        {/* ---- 詳細シート ---- */}
+        {selected && selWork && (
+          <aside className="map-sheet">
+            <button className="sheet-close" onClick={() => setSelected(null)} aria-label={t("close", lang)}>
+              ×
+            </button>
+            <h3>
+              🕰️ {tlLabel(selected, lang)}
+              <span className="sub" style={{ color: selRegion?.color }}>
+                {selRegion ? regionName(selRegion, lang) : ""}
+                {t("eras.timelineOf", lang)}
+              </span>
+            </h3>
+            <div className="sw" style={{ display: "flex", gap: 10 }}>
+              <div style={{ flex: "0 0 56px" }}>
+                {coverThumb(meta, selWork.id) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={coverThumb(meta, selWork.id)!}
+                    alt={workTitle(selWork, lang)}
+                    style={{
+                      width: 56,
+                      height: 80,
+                      objectFit: "cover",
+                      border: "2px solid #171310",
+                      boxShadow: "2px 2px 0 #171310",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 56,
+                      height: 80,
+                      border: "2px solid #171310",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#f1e9d6",
+                    }}
+                  >
+                    📖
+                  </div>
+                )}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <Link href={lp(lang, `/works/${selWork.id}`)}>
+                  <span className="t">
+                    {workTitle(selWork, lang)}
+                    <span style={{ fontWeight: 400, fontSize: 11, color: "#4a4238" }}>
+                      {" "}
+                      ({selWork.year}
+                      {lang === "ja" ? t("eras.published", lang) : ""})
+                    </span>
+                  </span>
+                </Link>
+                <span className="n">{tlNote(selected, lang)}</span>
+                {amazonLink(meta, selWork.id) && (
+                  <div style={{ marginTop: 6 }}>
+                    <AmazonButton href={amazonLink(meta, selWork.id)} small />
+                  </div>
+                )}
+              </div>
+            </div>
+            {voices[selWork.id]?.latest && (
+              <div style={{ marginTop: 14 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 900, marginBottom: 4 }}>
+                  💬 {t("eras.voices", lang)}
+                </div>
+                <MiniBubble post={voices[selWork.id].latest!} />
+              </div>
+            )}
+          </aside>
+        )}
       </div>
-    </>
+    </div>
   );
 }

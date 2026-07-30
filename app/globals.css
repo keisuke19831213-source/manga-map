@@ -3312,3 +3312,1200 @@ main {
   line-height: 1.6;
   margin-top: 2px;
 }
+
+/* ==========================================================================
+   全画面マップステージ（舞台マップ / 時代設定マップ 共通・2026-07-30 大工事）
+
+   性能の設計:
+   ・パン/ズーム中に動くのは .mapstage の transform ただ1つ
+   ・ピンはステージ内のワールド座標に置き、--inv-k で逆スケールして
+     画面上の大きさを一定に保つ（Reactの再レンダーは起きない）
+   ・LOD は .mapstage[data-lod] を書き替えるだけ。見た目の切替はCSSの仕事
+   ========================================================================== */
+
+.mapstage-root {
+  position: relative;
+  height: calc(100vh - var(--header-h)); /* dvh未対応ブラウザ用 */
+  height: calc(100dvh - var(--header-h));
+  overflow: hidden;
+}
+
+.mapstage-vp {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  background-color: #eef3f6;
+  background-image: radial-gradient(rgba(23, 19, 16, 0.075) 1.2px, transparent 1.5px);
+  background-size: 11px 11px;
+}
+
+.mapstage-vp.paper {
+  background-color: #f6f1e4;
+  background-image: radial-gradient(rgba(23, 19, 16, 0.06) 1px, transparent 1.3px);
+  background-size: 10px 10px;
+}
+
+.mapstage-vp.grabbing {
+  cursor: grabbing;
+}
+
+.mapstage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  --inv-k: 1;
+}
+
+/* ---- ピン（ワールド座標に置き、逆スケールで画面上一定サイズ） ---- */
+.mp {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.mp-in {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  /* bottom-center をワールド座標にぴったり合わせる（§計算はtransform-originと対） */
+  transform: translate(-50%, 0) scale(var(--inv-k));
+  transform-origin: 50% 100%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.mp-body {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  background: #fff;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  overflow: hidden;
+  transition: width 0.2s ease-out, height 0.2s ease-out, border-radius 0.2s ease-out,
+    background-color 0.2s ease-out;
+}
+
+.mp-body img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: mpFade 0.2s ease-out;
+}
+
+@keyframes mpFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mp-n {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--ink);
+  transition: opacity 0.18s ease-out;
+}
+
+.mp-tip {
+  display: block;
+  width: 0;
+  height: 0;
+  margin: -1px auto 0;
+  border: 5px solid transparent;
+  border-top: 8px solid var(--ink);
+  transition: opacity 0.2s;
+}
+
+.mp-name {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(100% + 2px);
+  white-space: nowrap;
+  font-size: 10.5px;
+  font-weight: 900;
+  color: var(--ink);
+  background: rgba(255, 253, 244, 0.9);
+  border-radius: 3px;
+  padding: 0 5px;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+  pointer-events: none;
+}
+
+.mp-year {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 900;
+  border: 1.5px solid;
+  border-radius: 3px;
+  background: #fffdf4;
+  padding: 0 4px;
+  margin: 0 auto 2px;
+  width: fit-content;
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+
+/* LOD 0 — 点と数字（画像は読み込まない） */
+.mapstage[data-lod="0"] .mp-body {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+}
+.mapstage[data-lod="0"] .mp.multi .mp-body {
+  width: 28px;
+  height: 28px;
+  background: var(--accent);
+}
+.mapstage[data-lod="0"] .mp.multi .mp-n {
+  color: #fff;
+}
+.mapstage[data-lod="0"] .mp-tip {
+  opacity: 0;
+}
+
+/* LOD 1 — 小書影 */
+.mapstage[data-lod="1"] .mp-body {
+  width: 34px;
+  height: 48px;
+}
+.mapstage[data-lod="1"] .mp-n {
+  opacity: 0;
+  position: absolute;
+}
+
+/* LOD 2 — 大書影＋名前 */
+.mapstage[data-lod="2"] .mp-body {
+  width: 54px;
+  height: 76px;
+}
+.mapstage[data-lod="2"] .mp-n {
+  opacity: 0;
+  position: absolute;
+}
+.mapstage[data-lod="2"] .mp-name,
+.mapstage[data-lod="2"] .mp-year {
+  opacity: 1;
+}
+
+/* 選択中 */
+.mp.on {
+  z-index: 6;
+}
+.mp.on .mp-body {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+.mp.on .mp-name {
+  opacity: 1;
+  background: var(--yellow);
+}
+
+@media (hover: hover) {
+  .mp-in:hover {
+    z-index: 7;
+  }
+  .mp-in:hover .mp-name {
+    opacity: 1;
+  }
+  .mp-in:hover .mp-body {
+    box-shadow: 3px 3px 0 var(--accent);
+  }
+}
+
+/* 束（複数が重なっている）の後ろに紙を重ねて見せる */
+.mp.multi .mp-body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: 3px -3px 0 -1px #fff, 3px -3px 0 var(--ink);
+  pointer-events: none;
+}
+.mapstage[data-lod="0"] .mp.multi .mp-body::after {
+  display: none;
+}
+
+.mp-cnt {
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  line-height: 14px;
+  padding: 0 3px;
+  z-index: 2;
+}
+.mapstage[data-lod="0"] .mp-cnt {
+  display: none;
+}
+
+/* ---- 画面に固定される道具立て（フローティングUI） ---- */
+.map-intro {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  z-index: 14;
+  max-width: 340px;
+  background: var(--yellow);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  padding: 12px 34px 13px 15px;
+  animation: introIn 0.3s ease-out;
+}
+
+@keyframes introIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.map-intro .en {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+}
+
+.map-intro h1 {
+  font-family: var(--font-title);
+  font-size: 21px;
+  margin: 1px 0 5px;
+  line-height: 1.2;
+}
+
+.map-intro p {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+.map-toolbar {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 12;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: calc(100% - 90px);
+}
+
+.map-hint {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--ink-soft);
+  background: rgba(255, 253, 244, 0.9);
+  border: 1.5px solid rgba(23, 19, 16, 0.25);
+  border-radius: 4px;
+  padding: 3px 9px;
+  pointer-events: none;
+}
+
+.map-ctl {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.map-ctl button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 17px;
+  font-weight: 900;
+  font-family: var(--font-base);
+  background: #fff;
+  border: 2.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-ctl button:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.map-ctl button.wide {
+  font-size: 10.5px;
+}
+
+/* ---- 詳細シート（PC=右からスライドイン / モバイル=ボトムシート） ---- */
+.map-sheet {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  bottom: 14px;
+  width: 348px;
+  max-width: calc(100% - 28px);
+  z-index: 20;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--panel);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow);
+  padding: 14px 16px 18px;
+  animation: sheetIn 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.map-sheet h3 {
+  font-family: var(--font-title);
+  font-size: 17px;
+  margin: 0 26px 10px 0;
+  line-height: 1.3;
+}
+
+.map-sheet .sub {
+  display: block;
+  font-family: var(--font-base);
+  font-size: 11px;
+  font-weight: 900;
+  margin-top: 3px;
+}
+
+/* 一覧チップ（畳める） */
+.map-list {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 16;
+  width: 348px;
+  max-width: calc(100% - 28px);
+  max-height: calc(100% - 76px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(255, 253, 244, 0.96);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  padding: 10px 12px 12px;
+}
+
+.map-list h4 {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  margin: 10px 0 5px;
+}
+
+.map-list h4:first-child {
+  margin-top: 0;
+}
+
+.map-list .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.map-list button {
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-base);
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  box-shadow: 1.5px 1.5px 0 var(--ink);
+  padding: 2px 8px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.map-list button.on {
+  background: var(--yellow);
+}
+
+.map-list button b {
+  color: var(--accent);
+  margin-left: 3px;
+}
+
+.map-toggle {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  z-index: 15;
+  font-size: 11px;
+  font-weight: 900;
+  font-family: var(--font-base);
+  background: #fff;
+  border: 2.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  border-radius: 999px;
+  padding: 5px 14px;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+/* ---- オリエンテーション（いまどこ・いつを常に見せる） ---- */
+.map-orient {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 11;
+  display: flex;
+  gap: 0;
+  pointer-events: none;
+}
+
+.map-orient span {
+  font-size: 11.5px;
+  font-weight: 900;
+  color: #fff;
+  background: var(--ink);
+  padding: 4px 12px;
+}
+
+.map-orient span.band {
+  background: var(--accent);
+}
+
+/* ---- コメント吹き出しの置き場（地図を覆わない専用の帯） ---- */
+.map-voicebar {
+  position: absolute;
+  left: 14px;
+  bottom: 62px;
+  z-index: 12;
+  width: 290px;
+  max-width: calc(100% - 28px);
+  pointer-events: auto;
+}
+
+@media (max-width: 760px) {
+  .map-intro {
+    left: 10px;
+    top: 10px;
+    right: 10px;
+    max-width: none;
+    padding: 10px 32px 11px 12px;
+  }
+
+  .map-intro h1 {
+    font-size: 18px;
+  }
+
+  .map-intro p {
+    font-size: 11px;
+  }
+
+  /* シートはボトムシートに */
+  .map-sheet {
+    right: 0;
+    left: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    max-height: 64%;
+    border-width: 3px 0 0;
+    box-shadow: 0 -6px 18px rgba(23, 19, 16, 0.22);
+    padding: 12px 14px calc(18px + env(safe-area-inset-bottom));
+    animation: sheetUp 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes sheetUp {
+    from {
+      opacity: 0.4;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .map-list {
+    right: 0;
+    left: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    max-height: 58%;
+    border-width: 3px 0 0;
+    padding: 10px 12px calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .map-toggle {
+    right: 10px;
+    top: auto;
+    bottom: 66px;
+  }
+
+  .map-ctl {
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .map-ctl button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .map-toolbar {
+    left: 10px;
+    bottom: 10px;
+    max-width: calc(100% - 74px);
+  }
+
+  .map-voicebar {
+    display: none;
+  }
+
+  /* タッチはホバーが無いので、L2の名前は常に出す */
+  .mapstage[data-lod="2"] .mp-name {
+    opacity: 1;
+  }
+}
+
+/* ---- ステージの調整（地図ごとの好み） ---- */
+/* 地点名を常に出す（舞台マップ: 地名そのものが読み物なので隠さない） */
+.mapstage.names-on .mp-name {
+  opacity: 1;
+}
+
+/* LOD0 の点は「中心が地点」（書影のように下端ではない） */
+.mapstage[data-lod="0"] .mp-body {
+  transform: translateY(50%);
+  background: var(--pin, var(--accent));
+}
+.mapstage[data-lod="0"] .mp-tip {
+  display: none;
+}
+.mapstage[data-lod="0"] .mp:not(.multi) .mp-body {
+  width: 15px;
+  height: 15px;
+}
+.mapstage[data-lod="0"] .mp:not(.multi) .mp-n {
+  display: none;
+}
+.mapstage[data-lod="0"] .mp.multi .mp-body {
+  background: var(--pin, var(--accent));
+}
+.mapstage[data-lod="0"] .mp-name {
+  top: calc(100% + 9px);
+}
+.mapstage[data-lod="0"] .mp.on .mp-body {
+  box-shadow: 0 0 0 3px var(--yellow), 2px 2px 0 var(--ink);
+}
+
+/* ラベルが重なるピンは名前を隠す（ホバー/選択時だけ出す） */
+.mapstage .mp.noname .mp-name {
+  opacity: 0;
+}
+@media (hover: hover) {
+  .mapstage .mp.noname .mp-in:hover .mp-name {
+    opacity: 1;
+    z-index: 3;
+  }
+}
+.mapstage .mp.noname.on .mp-name {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   時代設定マップ（縦時間×横地域帯）の貼りつく道具立て
+   ========================================================================== */
+
+/* 左端に貼りつく時代の地層 */
+.era-strata {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 84px;
+  z-index: 11;
+  pointer-events: none;
+  overflow: hidden;
+  background: linear-gradient(90deg, rgba(255, 253, 244, 0.94) 72%, rgba(255, 253, 244, 0));
+  border-right: 1.5px solid rgba(23, 19, 16, 0.18);
+}
+
+.era-strata .es-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 26px;
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.era-strata .es-year {
+  font-size: 12px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.era-strata .es-row {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 78px;
+  padding: 4px 6px 0 8px;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--ink);
+  line-height: 1.25;
+  will-change: transform;
+}
+
+/* 上端に貼りつく地域帯の名前 */
+.era-bandbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 26px;
+  z-index: 12;
+  overflow: hidden;
+}
+
+.era-bandbar .eb-name {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 11.5px;
+  font-weight: 900;
+  color: #fff;
+  padding: 4px 11px 5px;
+  border-right: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  will-change: transform;
+  transition: opacity 0.15s;
+}
+
+.era-bandbar .eb-name.dim {
+  opacity: 0.34 !important;
+}
+
+/* 歴史イベントのラベル（下地の中・文字サイズは一定） */
+.ev {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ev .ev-in {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: scale(var(--inv-k));
+  transform-origin: 0 0;
+  white-space: nowrap;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 4px 0 5px;
+  background: rgba(255, 253, 244, 0.72);
+  border-radius: 3px;
+}
+
+/* 縦ミニマップ */
+.era-mm {
+  position: absolute;
+  right: 0;
+  top: 26px;
+  bottom: 0;
+  width: 26px;
+  z-index: 11;
+  background: rgba(255, 253, 244, 0.9);
+  border-left: 2px solid var(--ink);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.era-mm > span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 50%;
+}
+
+.era-mm-hatch {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(219, 39, 119, 0.16),
+    rgba(219, 39, 119, 0.16) 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  pointer-events: none;
+}
+
+.era-mm-vp {
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  border: 2px solid var(--accent);
+  background: rgba(227, 59, 46, 0.12);
+  pointer-events: none;
+}
+
+/* 時代設定マップの見出しは地層カラムを避ける */
+.map-intro.eras {
+  left: 96px;
+}
+
+@media (max-width: 760px) {
+  .era-strata {
+    width: 64px;
+  }
+
+  .era-strata .es-row {
+    width: 60px;
+    font-size: 10px;
+  }
+
+  .era-mm {
+    width: 18px;
+  }
+
+  .map-intro.eras {
+    left: 72px;
+    right: 26px;
+  }
+
+  .era-bandbar .eb-name {
+    font-size: 10.5px;
+    padding: 4px 8px 5px;
+  }
+}
+
+/* ==========================================================================
+   ジャンルページ（/g/<id>）— 腰を据えて読む部屋
+   ========================================================================== */
+
+.genre-page {
+  max-width: 860px;
+}
+
+.gp-head {
+  background: var(--panel);
+  border: 3px solid var(--ink);
+  border-top: 10px solid var(--ink);
+  box-shadow: var(--shadow);
+  padding: 16px 20px 18px;
+  margin-bottom: 26px;
+  position: relative;
+}
+
+.gp-back {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 900;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+
+.gp-back:hover {
+  color: var(--accent);
+}
+
+.gp-cat {
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.gp-head h1 {
+  font-family: var(--font-title);
+  font-size: 30px;
+  margin: 3px 0 2px;
+  line-height: 1.2;
+}
+
+.gp-en {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.gp-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.gp-meta b {
+  color: var(--ink);
+}
+
+.gp-onmap {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 12.5px;
+  font-weight: 900;
+  background: var(--yellow);
+  border: 2.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 5px 14px;
+}
+
+.gp-onmap:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.gp-sec {
+  margin-bottom: 30px;
+}
+
+.gp-sec > h2 {
+  display: inline-block;
+  font-family: var(--font-base);
+  font-size: 15px;
+  font-weight: 900;
+  background: var(--ink);
+  color: #fff;
+  padding: 4px 14px;
+  margin: 0 0 12px;
+}
+
+.gp-sec > h3 {
+  font-size: 12.5px;
+  font-weight: 900;
+  color: var(--ink-soft);
+  margin: 14px 0 7px;
+}
+
+.gp-desc {
+  font-size: 14.5px;
+  line-height: 2;
+  margin: 0;
+}
+
+.gp-note {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.gp-untranslated {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--accent);
+  background: #fff;
+  border: 1.5px dashed var(--accent);
+  padding: 5px 10px;
+  margin: 0 0 10px;
+}
+
+.gp-blurb {
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--ink-soft);
+  border-left: 5px solid var(--ink);
+  padding-left: 12px;
+  margin: 14px 0 0;
+  font-weight: 700;
+}
+
+/* つながりのチップ */
+.gp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.gchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 4px 13px;
+  font-size: 12.5px;
+  font-weight: 800;
+  box-shadow: 2px 2px 0 rgba(23, 19, 16, 0.2);
+}
+
+.gchip:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.gchip-mark {
+  font-size: 10px;
+  letter-spacing: -1px;
+}
+
+.gchip-kind {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/* 代表作 */
+.gp-works {
+  display: grid;
+  gap: 14px;
+}
+
+.gw {
+  display: flex;
+  gap: 13px;
+  background: var(--panel);
+  border: 2.5px solid var(--ink);
+  box-shadow: var(--shadow-sm);
+  padding: 13px 15px;
+}
+
+.gw-cover {
+  flex: 0 0 58px;
+}
+
+.gw-cover img,
+.gw-cover .ph {
+  display: block;
+  width: 58px;
+  height: 82px;
+  object-fit: cover;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.gw-cover .ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(45deg, #f1e9d6, #f1e9d6 5px, #e7ddc4 5px, #e7ddc4 10px);
+}
+
+.gw-body {
+  min-width: 0;
+}
+
+.gw-title {
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.gw-title:hover {
+  color: var(--accent);
+}
+
+.gw-title .y {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.gw-au {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  margin: 2px 0 5px;
+}
+
+.gw-body p {
+  font-size: 12.5px;
+  line-height: 1.85;
+  margin: 0;
+}
+
+.gw-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.gw-az {
+  font-size: 11.5px;
+  font-weight: 900;
+  background: #ff9900;
+  border: 2px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 2px 10px;
+  color: var(--ink);
+}
+
+/* 帯を歩く */
+.gp-walk {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.gp-walk li {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.gp-walk li a,
+.gp-walk li > span {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 2px solid var(--ink);
+  background: #fff;
+  margin: 2px 0;
+}
+
+.gp-walk li a:hover {
+  background: var(--yellow);
+}
+
+.gp-walk li > span {
+  color: #fff;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.gp-walk .arrow {
+  display: block;
+  font-style: normal;
+  color: var(--ink-soft);
+  font-size: 11px;
+  padding-left: 14px;
+  line-height: 1.1;
+}
+
+.gp-about .gp-note {
+  margin: 0;
+}
+
+/* マップのパネルからジャンルページへ */
+.genre-more {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 900;
+  background: var(--yellow);
+  border: 2.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 4px 12px;
+  color: var(--ink);
+}
+
+@media (max-width: 760px) {
+  .gp-head h1 {
+    font-size: 24px;
+  }
+
+  .gp-desc {
+    font-size: 13.5px;
+  }
+}
+
+/* ---- ヘッダー右側の道具立て（検索＋言語切替） ---- */
+.site-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  flex: 0 1 280px;
+  min-width: 150px;
+}
+
+.site-tools .searchbox {
+  margin-left: 0;
+  flex: 1 1 auto;
+}
+
+.lang-switch {
+  flex: 0 0 auto;
+  font-size: 11.5px;
+  font-weight: 900;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 4px 11px;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.lang-switch:hover {
+  background: var(--yellow);
+}
+
+.site-footer {
+  border-top: 4px solid var(--ink);
+  background: #ffffff;
+  padding: 20px 20px 22px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  text-align: center;
+  line-height: 1.9;
+}
+
+@media (max-width: 760px) {
+  .site-tools {
+    order: 1;
+    flex: 1 1 140px;
+    gap: 7px;
+  }
+
+  .lang-switch {
+    padding: 4px 9px;
+    font-size: 11px;
+  }
+}

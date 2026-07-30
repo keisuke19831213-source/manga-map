@@ -87,6 +87,29 @@ export default function MangaMap() {
     }
   }, []);
 
+  // ?g=<id> で開いたら、そのノードを選んで画面中央に着地させる
+  // （ジャンルページの「系統図のこの場所へ」の着地点。共有URLにもなる）
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const id = new URLSearchParams(location.search).get("g");
+    if (!id) return;
+    const g = genreById(id);
+    if (!g) return;
+    setSelected(id);
+    const k = el.clientWidth < 700 ? 0.62 : 1;
+    const { x, y } = nodePos(g);
+    // PCはパネルに隠れないよう左寄りに置く
+    const offX = el.clientWidth >= 700 ? -170 : 0;
+    setView({ k, tx: el.clientWidth / 2 + offX - x * k, ty: el.clientHeight / 2 - y * k });
+  }, []);
+
+  // 選択をURLに残す（発射台思想の継承）
+  useEffect(() => {
+    const q = selected ? `?g=${selected}` : "";
+    history.replaceState(null, "", location.pathname + q);
+  }, [selected]);
+
   // ホイールズーム(カーソル位置基準)。preventDefaultのためpassive:falseで登録
   useEffect(() => {
     const el = wrapRef.current;
@@ -461,6 +484,11 @@ export default function MangaMap() {
           <h2 style={{ margin: "4px 0 2px", fontSize: 22, fontFamily: "var(--font-base)", fontWeight: 900 }}>{selectedGenre.name}</h2>
           <div style={{ fontSize: 12, color: "#6b6257", fontWeight: 700, marginBottom: 12 }}>{selectedGenre.en}</div>
           <p style={{ fontSize: 13, lineHeight: 1.9, color: "#4a4238" }}>{selectedGenre.desc}</p>
+
+          {/* 腰を据えて読む部屋へ（マップ＝泳ぐ入口 / ジャンルページ＝読み物） */}
+          <Link href={`/g/${selectedGenre.id}`} className="genre-more">
+            このジャンルのページで詳しく読む →
+          </Link>
 
           {(() => {
             const works = allWorks

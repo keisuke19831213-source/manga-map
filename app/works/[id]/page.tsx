@@ -59,8 +59,8 @@ export default async function WorkDetail({ params }: { params: Promise<{ id: str
               if (!g) return null;
               const c = catOf(g).color;
               return (
-                <Link key={gid} href="/" className="badge" style={{ borderColor: c, color: c }}>
-                  {g.name} をマップで見る
+                <Link key={gid} href={`/g/${gid}`} className="badge" style={{ borderColor: c, color: c }}>
+                  {g.name} のジャンルページへ
                 </Link>
               );
             })}

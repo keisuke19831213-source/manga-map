@@ -1,12 +1,9 @@
 "use client";
 
-import { useIsMobile } from "@/lib/useIsMobile";
 import EraTimeline from "@/components/EraTimeline";
-import EraListMobile from "@/components/EraListMobile";
+import type { Lang } from "@/lib/i18n";
 
-// PCはズームタイムライン、スマホは縦の年表リスト
-export default function EraView() {
-  const isMobile = useIsMobile();
-  if (isMobile === null) return <div style={{ height: "50vh" }} />;
-  return isMobile ? <EraListMobile /> : <EraTimeline />;
+// PCもモバイルも同じ一枚（縦時間×横地域帯）。縦スクロールがそのまま時間旅行になる
+export default function EraView({ lang = "ja" }: { lang?: Lang }) {
+  return <EraTimeline lang={lang} />;
 }

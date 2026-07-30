@@ -1,12 +1,9 @@
 "use client";
 
-import { useIsMobile } from "@/lib/useIsMobile";
 import AtlasMap from "@/components/AtlasMap";
-import AtlasMobile from "@/components/AtlasMobile";
+import type { Lang } from "@/lib/i18n";
 
-// PCはズーム地図、スマホは静的地図+聖地カードリスト
-export default function AtlasView() {
-  const isMobile = useIsMobile();
-  if (isMobile === null) return <div style={{ height: "50vh" }} />;
-  return isMobile ? <AtlasMobile /> : <AtlasMap />;
+// PCもモバイルも同じ一枚のマップ（リストへ逃げない＝音楽マップの掟）
+export default function AtlasView({ lang = "ja" }: { lang?: Lang }) {
+  return <AtlasMap lang={lang} />;
 }

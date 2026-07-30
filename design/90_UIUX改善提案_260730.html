@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MANGA MAP — UI/UX大工事の提案（2026-07-30）</title>
+<style>
+  :root {
+    --paper: #f6f1e4;
+    --ink: #171310;
+    --ink-soft: #4a4238;
+    --accent: #e33b2e;
+    --yellow: #fdf6d8;
+    --good: #2e7d4f;
+    --japan: #d43d2e;
+    --asia: #d97a1f;
+    --europe: #3b5bd4;
+    --world: #7a4fd4;
+    --fantasy: #db2777;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image: radial-gradient(rgba(23,19,16,0.05) 1px, transparent 1.3px);
+    background-size: 10px 10px;
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+    line-height: 1.9;
+    font-size: 14.5px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 36px 20px 90px; }
+  h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: 0.02em; }
+  h1 .red { color: var(--accent); }
+  .date { font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-bottom: 28px; }
+  h2 {
+    font-size: 19px; margin: 54px 0 14px; padding: 8px 14px;
+    background: var(--ink); color: #fff; display: inline-block;
+    box-shadow: 4px 4px 0 rgba(23,19,16,0.25);
+  }
+  h3 { font-size: 15.5px; margin: 26px 0 8px; border-left: 5px solid var(--accent); padding-left: 10px; }
+  .lead {
+    background: var(--yellow); border: 2.5px solid var(--ink); box-shadow: 5px 5px 0 var(--ink);
+    padding: 18px 22px; font-size: 15px; margin: 20px 0 8px;
+  }
+  .lead b { color: var(--accent); }
+  .card {
+    background: #fffdf4; border: 2px solid var(--ink); box-shadow: 4px 4px 0 rgba(23,19,16,0.18);
+    padding: 16px 20px; margin: 14px 0;
+  }
+  .pair { display: flex; gap: 16px; flex-wrap: wrap; margin: 14px 0; }
+  .pair > div { flex: 1 1 380px; min-width: 320px; }
+  .panel-label {
+    display: inline-block; font-size: 12px; font-weight: 900; padding: 2px 12px;
+    border: 2px solid var(--ink); margin-bottom: 8px; background: #fff;
+  }
+  .panel-label.before { background: #eee5d2; }
+  .panel-label.after { background: var(--accent); color: #fff; }
+  .fig { background: #fffdf4; border: 2px solid var(--ink); display: block; width: 100%; height: auto; }
+  .cap { font-size: 12px; color: var(--ink-soft); font-weight: 700; margin: 6px 2px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; background: #fffdf4; font-size: 13px; }
+  th, td { border: 1.5px solid var(--ink); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--ink); color: #fff; font-size: 12.5px; }
+  td.ok { color: var(--good); font-weight: 900; text-align: center; }
+  td.ng { color: var(--accent); font-weight: 900; text-align: center; }
+  td.mid { color: #b07a1f; font-weight: 900; text-align: center; }
+  .steps { counter-reset: step; list-style: none; padding: 0; }
+  .steps li {
+    counter-increment: step; position: relative; padding: 12px 16px 12px 58px;
+    background: #fffdf4; border: 2px solid var(--ink); margin: 10px 0;
+    box-shadow: 3px 3px 0 rgba(23,19,16,0.18);
+  }
+  .steps li::before {
+    content: "S" counter(step); position: absolute; left: 12px; top: 12px;
+    width: 34px; height: 34px; background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 15px; border: 2px solid var(--ink);
+  }
+  .q {
+    border: 2.5px dashed var(--accent); background: #fff; padding: 14px 18px; margin: 12px 0;
+  }
+  .q b { color: var(--accent); }
+  .tag { display: inline-block; font-size: 11px; font-weight: 900; border: 1.5px solid var(--ink); padding: 0 8px; margin-right: 6px; background: #fff; }
+  ul { padding-left: 22px; margin: 8px 0; }
+  li { margin: 3px 0; }
+  .note { font-size: 12.5px; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>MANGA<span class="red">MAP</span> — UI/UX大工事の提案</h1>
+<div class="date">2026-07-30（同日追記あり）／ 対象: 舞台マップ・時代設定マップ（大工事）＋全画面キャンバス化・性能契約・ジャンルページ・英語対応</div>
+
+<div class="lead">
+  ひとことで：<b>音楽マップとアニメマップで育った「泳げる型」を、生まれた家に里帰りさせる。</b><br>
+  マンガマップはシリーズB面＝実験作。その反省が音楽マップの「UI/UXの掟」を生み、掟は実証済みになった。
+  今度はその掟を逆輸入すれば、B面がA面の顔になる。<br>
+  <span style="display:block; margin-top:8px; border-top: 1.5px dashed var(--ink); padding-top:8px;">
+  憲法（松石さん・07-30）：<b>速度と動きは絶対にスムーズ。UI/UXを最高に。</b>これを全工事の検収条件にする（§2の性能契約）。
+  </span>
+</div>
+
+<!-- ================================================== -->
+<h2>§0 実装記録（2026-07-30 実施ぶん）</h2>
+
+<div class="lead" style="background:#fff;">
+  <b>提案の全項目を実装しました。</b>骨格は新設した共通カメラ <code>lib/useMapCamera.ts</code>。
+  設計の要点はひとつ：<b>パン/ズーム中にReactを再レンダーしない。</b>
+  カメラの値は ref に置き、毎フレーム <code>stage.style.transform</code> と CSS変数 <code>--inv-k</code> を直接書く。
+  ピンはステージの中（ワールド座標）に置いて <code>--inv-k</code> で逆スケールするので、
+  <b>パンでもズームでも動くのは「1つのコンテナのtransform」だけ</b>になります。
+  LODは <code>data-lod</code> 属性の書き替えで、見た目の切替はCSSの仕事にしました。
+</div>
+
+<table>
+  <tr><th style="width:26%">やったこと</th><th>中身</th><th style="width:26%">ファイル</th></tr>
+  <tr><td><b>共通カメラ</b></td><td>慣性（減衰0.92）・カーソル/ピンチ中心ズーム・flyTo 360ms ease-out・ソフトクランプ・LODヒステリシス・道具立てを避ける inset・幅フィット/全体フィットの2種</td><td><code>lib/useMapCamera.ts</code></td></tr>
+  <tr><td><b>全画面キャンバス化</b></td><td>/atlas・/eras をヘッダ下フルブリードに。見出しは初回オーバーレイ（触ると引っ込む）、詳細はPC=右スライドイン／モバイル=ボトムシート</td><td><code>app/atlas</code> <code>app/eras</code> <code>globals.css</code></td></tr>
+  <tr><td><b>舞台マップ LOD3段</b></td><td>L0=数字つきドット＋地名／L1=小書影／L2=大書影＋作品名。<b>L0では画像を1枚も読まない</b>。重なりは束、タップでズームしてほどく。選択中の地点は束に飲ませない</td><td><code>components/AtlasMap.tsx</code></td></tr>
+  <tr><td><b>ラベルの間引き</b></td><td>点は点の大きさで束ね、地名ラベルだけ衝突判定で間引く（東京と京都が1つの束にならないための処方）</td><td>同上＋<code>lib/cluster.ts</code></td></tr>
+  <tr><td><b>時代設定マップ 縦回転</b></td><td>縦=物語年代（圧縮軸を継承）×横=地域帯6本。dodge廃止→束。時代の地層は左端スティッキー、地域帯名は上端スティッキー、年インジケータ、縦ミニマップ、イベント専用の細線レーン</td><td><code>components/EraTimeline.tsx</code></td></tr>
+  <tr><td><b>モバイルの分岐を廃止</b></td><td><code>AtlasMobile.tsx</code>／<code>EraListMobile.tsx</code> を削除。PCもスマホも同じ一枚（轍の解消）</td><td>削除2ファイル</td></tr>
+  <tr><td><b>ジャンルページ</b></td><td><code>/g/&lt;id&gt;</code> 7ブロック（見出し／解説／つながり（方向＋線の3種）／代表作／帯を歩く／ジャンル一覧／この記事について）。<b>47ページを静的生成</b>。系統図パネル・作品ページから配線</td><td><code>components/GenrePage.tsx</code> <code>app/g/[id]</code></td></tr>
+  <tr><td><b>URL同期</b></td><td><code>/atlas?spot=</code> <code>/eras?w=</code> <code>/?g=</code> で状態を共有＆その場所へ着地（発射台思想）</td><td>各マップ</td></tr>
+  <tr><td><b>英語対応</b></td><td>UI表＋コンテンツ分離＋<b>英語が無ければ日本語</b>のフォールバック。<code>/en/</code> を前置きするだけ。ヘッダはパスから言語を判定するのでレイアウトは1つ</td><td><code>lib/i18n.ts</code> <code>lib/content-en.ts</code> <code>data/content.en.json</code> <code>app/en/**</code> <code>components/SiteHeader.tsx</code></td></tr>
+</table>
+
+<h3>性能の実測（§2の契約の検証）</h3>
+<div class="card">
+  ドラッグ120回ぶんを実測（レイアウト強制フラッシュを含む・LOD2）：
+  <ul>
+    <li><b>舞台マップ：1操作あたり 中央値0.0ms / p95 0.1ms / 最大1.7ms</b>（60fpsの予算16.67ms）</li>
+    <li><b>時代設定マップ：中央値0.2ms / p95 0.9ms / 最大2.3ms</b></li>
+    <li><b>ピンへのDOM書き込み＝0回</b>。舞台マップは<b>1操作あたりDOM書き込み1回（ステージのtransformだけ）</b>。
+      時代設定マップは加えて貼りつく道具立て（地層ラベル・年・ミニマップ）に約5回＝これは意図した書き込み</li>
+    <li><b>L0で読み込んだ画像＝0枚</b>／L2まで寄ると17枚に増える（＝寄った人だけが表紙のご褒美をもらう設計どおり）</li>
+  </ul>
+  <span class="note">⚠️ fps自体は測れていません。検証に使ったブラウザのタブが hidden 状態で
+  requestAnimationFrame が止まるため。上は「1フレームでやる仕事の量」の実測で、予算の1〜6%に収まっていることの確認です。
+  <b>実機で指で触っての体感確認は松石さんにお願いしたい部分です。</b></span>
+</div>
+
+<div class="q"><b>残っている宿題</b> — ①作品タイトル・聖地メモ・時代ラベルの英訳（機構は完成・いまは日本語フォールバック。ジャンル解説47本は英訳済み）／②作品図鑑の一覧のジャンル名リンク化（カード全体がリンクなので入れ子を避けて未対応）／③実機での体感確認。</div>
+
+<!-- ================================================== -->
+<h2>§1 診断 — 見づらさの根っこは3つ</h2>
+
+<div class="card">
+  <b>① 書影が「ピン」と「情報」を兼任して、どちらも失敗している</b><br>
+  舞台マップも時代設定マップも、初期表示から書影（34〜46px幅）を全部並べる。
+  遠景では表紙は読めないのに面積だけ大きい → <b>位置がつぶれ、地図と時間軸が隠れる</b>。
+  関東は「表紙の山」、時代設定マップの日本トラックは「ベージュの矩形の壁」になっている。
+  <span class="note">→ 処方はLOD（遠景=点、中景=小書影、近景=大書影+ラベル）。音楽マップで実証済みの3段。</span>
+</div>
+<div class="card">
+  <b>② 初期表示で「読める情報」がゼロに近い</b><br>
+  作品名ラベルはズーム2倍前後まで出ない。年チップも出ない。時代帯ラベル（江戸・明治…）と歴史イベントは書影の下敷きになる。
+  <b>まさに音楽マップの掟の第1条「豆粒全体では始めない」の轍</b>。
+  <span class="note">→ 読める倍率で開始＋「全体」ボタン。オリエンテーション（年・帯名）はスティッキーで常時表示。</span>
+</div>
+<div class="card">
+  <b>③ 脇役が主役を覆う</b><br>
+  ローテーションする読者コメントの吹き出しが地図・年表の上に被さる。
+  レーン退避（dodge）は書影を実年からどんどん右へ流し、引き出し線が蜘蛛の巣化。
+  <span class="note">→ 吹き出しは専用の帯へ退避。dodgeは廃止して「束（クラスタ）→クリックでほどく」に統一（舞台マップに既にある良い型！）。</span>
+</div>
+
+<!-- ================================================== -->
+<h2>§2 共通の土台 — 全画面キャンバス＋性能の契約</h2>
+
+<h3>全画面キャンバス化（07-30追記）</h3>
+<div class="card">
+  <b>舞台マップと時代設定マップも、ジャンル系統図と同じ「ページ全体がマップ」にする。</b><br>
+  いまの2枚は「記事レイアウトの中の小窓」＝タイトル・説明文・サイドパネルに囲まれ、マップは画面の半分以下。
+  小窓の中でパン/ズームするから窮屈で、サイドパネルとの往復で視線も切れる。
+  <ul>
+    <li><b>マップ＝ビューポート全面</b>（ヘッダ下からフルブリード）。タイトルと説明は初回だけ薄いオーバーレイで出て、操作したら引っ込む</li>
+    <li><b>サイドパネル廃止 → 浮遊パネル</b>：選択時に右からスライドイン（PC）／ボトムシート（モバイル）。<b>パネルを開いても地図は死なない</b>（音楽マップの検収基準4）</li>
+    <li>地名チップ・凡例・操作ヒントは畳めるフローティングUIに（音楽マップの「全体を見る／いまの場所へ／凡例」の配置と同じ）</li>
+  </ul>
+</div>
+
+<h3>性能の契約（検収条件・音楽マップ §7 の掟＋α）</h3>
+<div class="card">
+  速度は機能ではなく<b>前提</b>。以下を数値の契約にして、1つでも落ちたら出荷しない：
+  <ul>
+    <li><b>60fps</b> — パン/ズーム中は<b>1つのコンテナへのCSS transformだけ</b>が動く。ノード個別の再レンダー禁止（時代設定マップのGPU変形はこの型で正解。舞台マップのピンは要移植）</li>
+    <li><b>レイアウトは起動時に1回だけ計算</b> — 実行中に力学や再配置を回さない（決定的座標エンジン）</li>
+    <li><b>d3.zoom＋慣性</b>（減衰≈0.92/frame）・カーソル/ピンチ中心ズーム・flyTo 350ms ease-out・境界はソフトクランプ</li>
+    <li><b>LOD切替は200msクロスフェード＋ヒステリシス±0.05</b>（パッと消さない・境界でちらつかせない）</li>
+    <li><b>画像は遅延読込＋2段階サムネ</b>（既存のcoverThumb/coverSrc切替を継承）。L0では画像を一切読まない＝初期表示が軽くなる</li>
+    <li>ノードが増えてfpsが落ちたら<b>Canvasハイブリッドへ</b>（判断基準も音楽マップ継承）</li>
+  </ul>
+</div>
+
+<!-- ================================================== -->
+<h2>§3 舞台マップ — 工事案</h2>
+
+<div class="pair">
+  <div>
+    <span class="panel-label before">BEFORE（いま）</span>
+    <svg class="fig" viewBox="0 0 460 300">
+      <rect x="0" y="0" width="460" height="300" fill="#eef1f6"/>
+      <!-- japan rough -->
+      <path d="M 300 40 l 40 18 l -14 26 l -30 -10 z" fill="#fff" stroke="#171310" stroke-width="1.5"/>
+      <path d="M 120 200 q 40 -40 90 -50 q 60 -14 90 -40 l 26 20 q -20 40 -70 56 q -70 20 -110 44 z" fill="#fff" stroke="#171310" stroke-width="1.5"/>
+      <!-- pile of covers on Kanto -->
+      <g stroke="#171310" stroke-width="1.5">
+        <rect x="248" y="88" width="30" height="42" fill="#e8ddc2" transform="rotate(-6 263 109)"/>
+        <rect x="262" y="82" width="30" height="42" fill="#ded2b4" transform="rotate(4 277 103)"/>
+        <rect x="274" y="90" width="30" height="42" fill="#e4d8bc" transform="rotate(-3 289 111)"/>
+        <rect x="230" y="100" width="30" height="42" fill="#e0d4b6"/>
+        <rect x="180" y="120" width="30" height="42" fill="#e8ddc2" transform="rotate(5 195 141)"/>
+        <rect x="196" y="112" width="30" height="42" fill="#d8ccae" transform="rotate(-4 211 133)"/>
+        <rect x="150" y="140" width="30" height="42" fill="#e4d8bc"/>
+      </g>
+      <!-- bubble covering map -->
+      <rect x="240" y="24" width="170" height="52" fill="#fff" stroke="#171310" stroke-width="2"/>
+      <text x="252" y="46" font-size="11" fill="#4a4238">コメント吹き出しが</text>
+      <text x="252" y="62" font-size="11" fill="#4a4238">北海道を隠す…</text>
+      <text x="24" y="272" font-size="12" font-weight="900" fill="#e33b2e">遠景から書影全載せ → 関東関西が「表紙の山」</text>
+    </svg>
+    <div class="cap">位置は読めず、地図も隠れる。南半分は空白の海。</div>
+  </div>
+  <div>
+    <span class="panel-label after">AFTER（案）</span>
+    <svg class="fig" viewBox="0 0 460 300">
+      <rect x="0" y="0" width="460" height="300" fill="#eef1f6"/>
+      <path d="M 300 40 l 40 18 l -14 26 l -30 -10 z" fill="#fff" stroke="#171310" stroke-width="1.5"/>
+      <path d="M 120 200 q 40 -40 90 -50 q 60 -14 90 -40 l 26 20 q -20 40 -70 56 q -70 20 -110 44 z" fill="#fff" stroke="#171310" stroke-width="1.5"/>
+      <!-- L0 dots -->
+      <g>
+        <circle cx="322" cy="58" r="9" fill="#fff" stroke="#171310" stroke-width="2"/>
+        <text x="322" y="62" font-size="10" font-weight="900" text-anchor="middle">2</text>
+        <circle cx="262" cy="112" r="14" fill="#e33b2e" stroke="#171310" stroke-width="2"/>
+        <text x="262" y="117" font-size="11" font-weight="900" text-anchor="middle" fill="#fff">12</text>
+        <text x="262" y="142" font-size="10.5" font-weight="900" text-anchor="middle">東京・湘南</text>
+        <circle cx="196" cy="138" r="11" fill="#e33b2e" stroke="#171310" stroke-width="2"/>
+        <text x="196" y="142" font-size="10.5" font-weight="900" text-anchor="middle" fill="#fff">6</text>
+        <text x="196" y="164" font-size="10.5" font-weight="900" text-anchor="middle">京都・大阪</text>
+        <circle cx="148" cy="176" r="9" fill="#fff" stroke="#171310" stroke-width="2"/>
+        <text x="148" y="180" font-size="10" font-weight="900" text-anchor="middle">3</text>
+      </g>
+      <!-- zoom inset -->
+      <g>
+        <rect x="290" y="150" width="150" height="120" fill="#fffdf4" stroke="#171310" stroke-width="2"/>
+        <text x="300" y="168" font-size="10.5" font-weight="900" fill="#4a4238">ズームすると書影に育つ</text>
+        <rect x="302" y="178" width="26" height="38" fill="#e8ddc2" stroke="#171310" stroke-width="1.5"/>
+        <text x="315" y="230" font-size="9.5" text-anchor="middle" font-weight="700">SLAM DUNK</text>
+        <rect x="344" y="178" width="26" height="38" fill="#ded2b4" stroke="#171310" stroke-width="1.5"/>
+        <text x="357" y="230" font-size="9.5" text-anchor="middle" font-weight="700">湘南爆走族</text>
+        <rect x="386" y="178" width="26" height="38" fill="#e4d8bc" stroke="#171310" stroke-width="1.5"/>
+        <text x="399" y="230" font-size="9.5" text-anchor="middle" font-weight="700">エリア88</text>
+        <text x="300" y="252" font-size="9.5" fill="#4a4238">L1〜L2: 小書影 → 大書影＋作品名</text>
+      </g>
+      <text x="24" y="286" font-size="12" font-weight="900" fill="#2e7d4f">遠景=点と数字で「分布」が読める / 寄ると書影</text>
+    </svg>
+    <div class="cap">遠景は「どこに聖地が多いか」の一目地図。寄った人だけが表紙のご褒美をもらう。</div>
+  </div>
+</div>
+
+<h3>処方リスト（舞台マップ）</h3>
+<table>
+  <tr><th style="width:32%">処方</th><th>内容</th><th style="width:12%">工事量</th></tr>
+  <tr><td><b>1. ピンのLOD 3段</b></td><td>L0=数字つきドット（都市名ラベル常時表示）／L1=小書影／L2=大書影＋作品名。初期表示はL0〜L1の中間で「読める倍率」から。</td><td>中</td></tr>
+  <tr><td><b>2. 吹き出しの引っ越し</b></td><td>読者の声ローテーションは地図の外（地図下の専用帯 or サイドパネル内）へ。地図を覆わない。</td><td>小</td></tr>
+  <tr><td><b>3. カメラに品を</b></td><td>d3.zoom移植（慣性・ソフトクランプ・flyTo）。地名チップ／リストのクリックでその聖地へflyTo。</td><td>中</td></tr>
+  <tr><td><b>4. 地名チップの整列</b></td><td>右サイドの地名ボタン群を「地方別」にグルーピング（北海道・東北／関東／…／世界）。数字はバッジ化。</td><td>小</td></tr>
+  <tr><td><b>5. URL同期</b></td><td><code>/atlas?spot=shonan</code> で状態共有（発射台思想の継承）。</td><td>小</td></tr>
+  <tr><td><b>6. モバイル同一マップ</b></td><td>静的地図＋リストのフォールバックをやめ、同じ一枚をピンチで泳ぐ＋ボトムシート（kami-map 70_mobile定石）。轍の解消。</td><td>大</td></tr>
+</table>
+
+<!-- ================================================== -->
+<h2>§4 時代設定マップ — 工事案（本丸）</h2>
+
+<div class="lead" style="background:#fff;">
+  本丸の提案：<b>時間軸を横から縦に回す。</b>
+  縦=時間・横=地域帯にすると、音楽マップ・アニメマップと同じ骨格（縦時間×横帯）になり、
+  <b>実証済みのLOD・スティッキー年ラベル・モバイル定石がそのまま載る</b>。
+  スマホでは縦スクロール＝時間旅行という一番自然な指の動きになり、リスト退避が不要になる。
+</div>
+
+<div class="pair">
+  <div>
+    <span class="panel-label before">BEFORE（いま・横時間）</span>
+    <svg class="fig" viewBox="0 0 460 300">
+      <rect width="460" height="300" fill="#f6f1e4"/>
+      <!-- axis -->
+      <rect x="0" y="0" width="460" height="26" fill="#fffdf4" stroke="#171310" stroke-width="1.5"/>
+      <text x="8" y="17" font-size="9" font-weight="900">BC1000</text>
+      <text x="46" y="17" font-size="9" font-weight="900">紀元</text>
+      <text x="90" y="17" font-size="9" font-weight="900">1500</text>
+      <text x="150" y="17" font-size="9" font-weight="900">1900</text>
+      <text x="250" y="17" font-size="9" font-weight="900">1950</text>
+      <text x="360" y="17" font-size="9" font-weight="900">2000</text>
+      <!-- japan track: wall of rects -->
+      <rect x="4" y="34" width="60" height="18" fill="#d43d2e" stroke="#171310" stroke-width="1.5"/>
+      <text x="10" y="47" font-size="10" font-weight="900" fill="#fff">日本</text>
+      <g stroke="#171310" stroke-width="1.2" fill="#e6dcc2">
+        <rect x="140" y="56" width="24" height="34"/><rect x="166" y="56" width="24" height="34"/>
+        <rect x="192" y="56" width="24" height="34"/><rect x="218" y="56" width="24" height="34"/>
+        <rect x="244" y="56" width="24" height="34"/><rect x="270" y="56" width="24" height="34"/>
+        <rect x="296" y="56" width="24" height="34"/><rect x="322" y="56" width="24" height="34"/>
+        <rect x="200" y="120" width="24" height="34"/><rect x="226" y="120" width="24" height="34"/>
+        <rect x="252" y="120" width="24" height="34"/><rect x="278" y="120" width="24" height="34"/>
+        <rect x="304" y="120" width="24" height="34"/><rect x="330" y="120" width="24" height="34"/>
+        <rect x="356" y="56" width="24" height="34"/><rect x="382" y="56" width="24" height="34"/>
+      </g>
+      <line x1="0" y1="108" x2="460" y2="108" stroke="#d43d2e" stroke-width="1.5" opacity="0.6"/>
+      <text x="180" y="112" font-size="8.5" fill="#4a4238">明治維新←ラベルが書影に埋まる</text>
+      <!-- sparse tracks -->
+      <rect x="4" y="170" width="88" height="18" fill="#d97a1f" stroke="#171310" stroke-width="1.5"/>
+      <text x="10" y="183" font-size="10" font-weight="900" fill="#fff">中国・アジア</text>
+      <rect x="20" y="196" width="24" height="34" fill="#e6dcc2" stroke="#171310" stroke-width="1.2"/>
+      <rect x="330" y="196" width="24" height="34" fill="#e6dcc2" stroke="#171310" stroke-width="1.2"/>
+      <rect x="4" y="246" width="80" height="18" fill="#3b5bd4" stroke="#171310" stroke-width="1.5"/>
+      <text x="10" y="259" font-size="10" font-weight="900" fill="#fff">ヨーロッパ</text>
+      <rect x="60" y="272" width="24" height="26" fill="#e6dcc2" stroke="#171310" stroke-width="1.2"/>
+      <rect x="200" y="272" width="24" height="26" fill="#e6dcc2" stroke="#171310" stroke-width="1.2"/>
+      <text x="240" y="180" font-size="12" font-weight="900" fill="#e33b2e">日本だけ壁、他はスカスカ</text>
+    </svg>
+    <div class="cap">横時間×縦積みレーン。近現代の日本に全部が密集し、dodgeで実年からズレていく。</div>
+  </div>
+  <div>
+    <span class="panel-label after">AFTER（案・縦時間）</span>
+    <svg class="fig" viewBox="0 0 460 300">
+      <rect width="460" height="300" fill="#f6f1e4"/>
+      <!-- era column -->
+      <g font-weight="900">
+        <rect x="0" y="0" width="64" height="300" fill="#fffdf4" stroke="#171310" stroke-width="1.5"/>
+        <rect x="0" y="0" width="64" height="44" fill="#ece2cc" stroke="#171310" stroke-width="1"/>
+        <text x="8" y="26" font-size="10">紀元前〜</text>
+        <rect x="0" y="44" width="64" height="40" fill="#f3ead6" stroke="#171310" stroke-width="1"/>
+        <text x="8" y="68" font-size="10">江戸</text>
+        <rect x="0" y="84" width="64" height="44" fill="#ece2cc" stroke="#171310" stroke-width="1"/>
+        <text x="8" y="110" font-size="10">明治大正</text>
+        <rect x="0" y="128" width="64" height="82" fill="#f3ead6" stroke="#171310" stroke-width="1"/>
+        <text x="8" y="152" font-size="10">昭和</text>
+        <rect x="0" y="210" width="64" height="56" fill="#ece2cc" stroke="#171310" stroke-width="1"/>
+        <text x="8" y="234" font-size="10">平成令和</text>
+        <rect x="0" y="266" width="64" height="34" fill="#fbe7f1" stroke="#171310" stroke-width="1"/>
+        <text x="8" y="288" font-size="10" fill="#db2777">架空⌛</text>
+      </g>
+      <!-- region bands (vertical) -->
+      <g font-size="10" font-weight="900">
+        <rect x="64" y="0" width="160" height="20" fill="#d43d2e"/>
+        <text x="120" y="14" fill="#fff">日本</text>
+        <rect x="224" y="0" width="82" height="20" fill="#d97a1f"/>
+        <text x="238" y="14" fill="#fff">アジア</text>
+        <rect x="306" y="0" width="82" height="20" fill="#3b5bd4"/>
+        <text x="316" y="14" fill="#fff">ヨーロッパ</text>
+        <rect x="388" y="0" width="72" height="20" fill="#7a4fd4"/>
+        <text x="404" y="14" fill="#fff">世界</text>
+      </g>
+      <g stroke="#171310" stroke-width="0.6" opacity="0.25">
+        <line x1="224" y1="20" x2="224" y2="300"/><line x1="306" y1="20" x2="306" y2="300"/><line x1="388" y1="20" x2="388" y2="300"/>
+      </g>
+      <!-- dots & clusters (L0) -->
+      <g stroke="#171310" stroke-width="1.5">
+        <circle cx="130" cy="60" r="6" fill="#fff"/>
+        <circle cx="110" cy="104" r="8" fill="#d43d2e"/>
+        <circle cx="150" cy="150" r="12" fill="#d43d2e"/>
+        <circle cx="120" cy="236" r="12" fill="#d43d2e"/>
+        <circle cx="180" cy="190" r="8" fill="#d43d2e"/>
+        <circle cx="250" cy="36" r="8" fill="#d97a1f"/>
+        <circle cx="264" cy="230" r="6" fill="#fff"/>
+        <circle cx="330" cy="40" r="6" fill="#fff"/>
+        <circle cx="344" cy="150" r="8" fill="#3b5bd4"/>
+        <circle cx="416" cy="170" r="8" fill="#7a4fd4"/>
+        <circle cx="420" cy="282" r="8" fill="#db2777"/>
+      </g>
+      <text x="150" y="154" font-size="9" font-weight="900" fill="#fff" text-anchor="middle">9</text>
+      <text x="120" y="240" font-size="9" font-weight="900" fill="#fff" text-anchor="middle">14</text>
+      <!-- event lane -->
+      <g>
+        <line x1="64" y1="104" x2="460" y2="104" stroke="#171310" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.5"/>
+        <text x="230" y="100" font-size="8.5" fill="#4a4238" font-weight="700">1868 明治維新（イベントは細線＋余白に）</text>
+      </g>
+      <text x="76" y="294" font-size="11.5" font-weight="900" fill="#2e7d4f">縦=時間・横=地域帯 → 音楽マップと同じ骨格</text>
+    </svg>
+    <div class="cap">左端に時代の地層（スティッキー）。密集は束＝数字ドット、タップでほどける。スマホは縦スクロール＝そのまま時間旅行。</div>
+  </div>
+</div>
+
+<h3>縦回転が効く理由（3つ）</h3>
+<div class="card">
+  <b>① 密度の物理と合う</b> — 作品は近現代の日本に密集する。横時間だと「横に長い割に、縦に壁」という最悪の縦横比になる。縦時間なら密集地帯は縦に伸びるだけで、<b>スクロールという一番安い操作が吸収してくれる</b>。<br>
+  <b>② モバイルのリスト退避が消える</b> — いまのEraListMobile（縦年表リスト）は実は縦時間マップの原型。つまり<b>モバイル版の設計が正解で、PC版がそれに追いつく</b>形。1ソース化できて轍（別UI）も解消。<br>
+  <b>③ シリーズ共通エンジンへの合流</b> — 縦時間×横帯＋LOD＋背骨は音楽・アニメで2回実証済み。移植すれば以降の保守も知見も共有できる。
+</div>
+
+<h3>処方リスト（時代設定マップ）</h3>
+<table>
+  <tr><th style="width:32%">処方</th><th>内容</th><th style="width:12%">工事量</th></tr>
+  <tr><td><b>1. 縦時間×横帯へ回転</b></td><td>縦=物語年代（ピースワイズ圧縮は継承）、横=地域帯5本。時代の地層カラム（江戸/明治…）を左端スティッキーに。</td><td>大</td></tr>
+  <tr><td><b>2. dodge廃止 → 束</b></td><td>レーン退避と引き出し線をやめ、近接作品は「数字つき束」に。タップでズームしてほどく（舞台マップと同じ型に統一）。</td><td>中</td></tr>
+  <tr><td><b>3. LOD 3段</b></td><td>L0=時代帯＋分布ドット／L1=小書影＋年チップ／L2=大書影＋作品名＋歴史イベント。閾値ヒステリシス＋クロスフェード。</td><td>中</td></tr>
+  <tr><td><b>4. イベント専用レーン</b></td><td>歴史イベント（明治維新・月面着陸…)は書影と衝突しない細レーン／罫線＋余白ラベルに。時代の道しるべとして常に読める。</td><td>小</td></tr>
+  <tr><td><b>5. スティッキー・オリエンテーション</b></td><td>「いま何年・どの地域帯か」を画面端に常時表示（音楽マップの年インジケータ＋帯ラベルの型）。</td><td>小</td></tr>
+  <tr><td><b>6. URL同期・慣性・flyTo</b></td><td>d3.zoom移植。<code>/eras?w=kingdom</code> で共有。</td><td>中</td></tr>
+</table>
+
+<!-- ================================================== -->
+<h2>§5 ジャンルページ — 歴史と相関を「読み物」として楽しむ（07-30追記）</h2>
+
+<div class="lead" style="background:#fff;">
+  音楽マップの <code>/g/&lt;id&gt;</code> 方式をそのまま移植する。
+  <b>マップ＝泳ぐ入口、ジャンルページ＝腰を据えて読む部屋</b>という2階建て。
+  うれしいことに、材料（45ジャンルの解説・EDGES の影響関係・WORKS の紐付け）は <code>lib/data.ts</code> に全部ある。
+  <b>新しく書くものより、既にあるデータを部屋に並べ直す工事が主</b>。
+</div>
+
+<h3>ページの間取り（音楽マップ GenrePage の実証済み7ブロック → マンガ版）</h3>
+<table>
+  <tr><th style="width:26%">ブロック</th><th>マンガ版の中身</th><th style="width:18%">データ源</th></tr>
+  <tr><td><b>1. 見出し</b></td><td>ジャンル名・英名・別名／はじまり年（幅で示す）／カテゴリ帯名</td><td>GENRES（既存）</td></tr>
+  <tr><td><b>2. 解説</b></td><td>歴史・社会的文脈。雑誌と編集部の話（マンガはジャンル＝雑誌文化なので、ここがマンガ版の独自価値）</td><td>GENRES.desc＋加筆</td></tr>
+  <tr><td><b>3. つながり</b></td><td>影響の方向つきで格付け表示（直系の進化／影響／対抗・反発から誕生 — 線の3種が既にある！）。各行からそのジャンルページへ</td><td>EDGES（既存）</td></tr>
+  <tr><td><b>4. 代表作</b></td><td>書影グリッド＋一言。作品ページへ。読者の声バッジも</td><td>WORKS.genres（既存）</td></tr>
+  <tr><td><b>5. 帯を歩く</b></td><td>同じカテゴリ帯のジャンルを年順に並べ「いまここ」を示す（アニメマップで実証済みの導線）</td><td>GENRES.cat（既存）</td></tr>
+  <tr><td><b>6. 地図で見る</b></td><td>「系統図のこの場所へ」ボタン → マップをそのノードにフォーカスズームで開く（<code>/#/g/&lt;id&gt;</code>）</td><td>URL同期（§2）</td></tr>
+  <tr><td><b>7. 出典</b></td><td>参照した資料・リンク。誠実さの掟の継承</td><td>加筆</td></tr>
+</table>
+
+<h3>導線（つくったら必ず配線する）</h3>
+<ul>
+  <li>系統図のノードパネル →「このジャンルのページへ」ボタン（音楽マップと同じ）</li>
+  <li>作品図鑑・作品ページのジャンル名 → すべてリンク化</li>
+  <li><code>/g/&lt;id&gt;</code> は単独URL＝<b>OGカードつきの発射台</b>。「1ジャンル＝1発信」が45回できる（音楽マップの「1帯＝1発信」の型）</li>
+</ul>
+
+<!-- ================================================== -->
+<h2>§6 英語対応 — /en/ を前置きするだけ（07-30追記）</h2>
+
+<div class="card">
+  <b>神マップ→音楽マップ→アニメマップで3回実証済みの方式をそのまま：</b>
+  <ul>
+    <li><b>UI文字列</b> = <code>lib/i18n.ts</code> の日英テーブル（<code>[ja, en]</code> のDict）</li>
+    <li><b>コンテンツ</b>（ジャンル解説・聖地メモ・時代ラベル）= <code>data/*.en.json</code> に分離</li>
+    <li><b>英語が無ければ日本語をそのまま出す</b>（フォールバック）→ 「全部訳し終えてから公開」でなくていい。訳せたところから英語になる</li>
+    <li>URL: <code>/en/</code> を前置きするだけ（アニメマップ方式）。言語切替はいまの場所を保ったまま</li>
+  </ul>
+  運用の学び（音楽マップ07-29）：<b>ジャンルページの解説は日本語と英語を同時に書く</b>。同じ資料を開いている20分のうちに両方書くほうが、後から思い出して訳すより圧倒的に安い。
+  → §5の加筆はすべて日英同時で進める。既存45ジャンル分の英訳は一括ドラフト（Sonnet委任）→ Fableで文体検分の2段で。
+</div>
+
+<!-- ================================================== -->
+<h2>§7 全体 — 「音楽マップの掟」移植チェックリスト</h2>
+
+<table>
+  <tr><th>掟（実証済みの型）</th><th style="width:13%">系統図</th><th style="width:13%">舞台</th><th style="width:13%">時代設定</th><th>備考</th></tr>
+  <tr><td>読める倍率で開始＋「全体」ボタン</td><td class="mid">△</td><td class="ng">✕</td><td class="ng">✕</td><td>両マップとも初期表示で作品名が読めない</td></tr>
+  <tr><td>LOD（ズーム連動の出し分け）</td><td class="ng">✕</td><td class="mid">△</td><td class="ng">✕</td><td>舞台はラベルのみ連動。点⇄書影の切替なし</td></tr>
+  <tr><td>慣性つきパン＋flyTo（動きの品）</td><td class="ng">✕</td><td class="ng">✕</td><td class="ng">✕</td><td>全部自前実装・慣性なし → d3.zoomへ</td></tr>
+  <tr><td>モバイルも同じ一枚マップ</td><td class="mid">△</td><td class="ng">✕</td><td class="ng">✕</td><td>リスト退避は轍。時代設定は縦回転で自然解消</td></tr>
+  <tr><td>URL同期（発射台思想）</td><td class="ng">✕</td><td class="ng">✕</td><td class="ng">✕</td><td>作品ページはOK。マップ状態の共有ができない</td></tr>
+  <tr><td>スティッキー年・帯ラベル（迷子防止）</td><td class="mid">△</td><td>—</td><td class="ng">✕</td><td>時代設定の軸バーは固定だがトラック名は流れる</td></tr>
+  <tr><td>ミニマップ</td><td class="ng">✕</td><td class="ng">✕</td><td class="ok">○</td><td>時代設定の実装を横展開できる</td></tr>
+  <tr><td>ホバー/タップで関係ハイライト＋沈める</td><td class="mid">△</td><td>—</td><td>—</td><td>系統図は線の強調はあるが「他を沈める」がない</td></tr>
+  <tr><td>全画面キャンバス（ページ＝マップ）</td><td class="ok">○</td><td class="ng">✕</td><td class="ng">✕</td><td>2枚は記事内の小窓 → §2でフルブリード化</td></tr>
+  <tr><td>ジャンル単独ページ（/g/&lt;id&gt;・OG発射台）</td><td class="ng">✕</td><td>—</td><td>—</td><td>材料はdata.tsに揃っている → §5</td></tr>
+  <tr><td>英語対応（/en/前置き＋フォールバック）</td><td class="ng">✕</td><td class="ng">✕</td><td class="ng">✕</td><td>3回実証済みの方式を移植 → §6</td></tr>
+</table>
+<p class="note">※系統図（ジャンルマップ）は現状でもよく立っているので小工事のみ。大工事は舞台と時代設定の2枚に集中するのが効率的。</p>
+
+<!-- ================================================== -->
+<h2>§8 段取り — 4段階で「出せる状態」を保ったまま</h2>
+
+<ol class="steps">
+  <li><b>化粧直し＋全画面キャンバス（すぐ効く）</b><br>
+    2枚のフルブリード化＋浮遊パネル／吹き出しの引っ越し／地名チップの地方別整列／イベント専用レーン／スティッキー帯ラベル／URL同期。
+    <span class="note">→ 現エンジンのまま。「小窓で窮屈」がこの段階で消える。</span></li>
+  <li><b>大工事（本丸・性能契約つき）</b><br>
+    時代設定マップの縦回転＋LOD＋束クラスタ＋d3.zoom → 舞台マップのLOD＋d3.zoom＋モバイル同一マップ。§2の性能契約（60fps・transform一本・慣性）を検収条件に。
+    <span class="note">→ 時代設定を先にやると、縦時間エンジンの部品が舞台マップにも流用できる。</span></li>
+  <li><b>ジャンルページ（並行できる・データは既にある）</b><br>
+    /g/&lt;id&gt; の7ブロック＋導線配線＋OGカード。解説の加筆は日英同時書き。
+    <span class="note">→ マップ工事と独立なので、S1/S2の合間に差し込める。「1ジャンル＝1発信」の弾倉が45発できる。</span></li>
+  <li><b>英語対応 → 共通エンジン化</b><br>
+    i18n.ts＋en.json＋/en/前置き（実証済み3回目の移植）。その後、音楽・アニメ・マンガ共通の「縦時間×横帯＋LOD＋束」部品を切り出してシリーズ資産に。
+    <span class="note">→ 英語はフォールバックがあるので途中から出せる。エンジン共通化は急がない。</span></li>
+</ol>
+
+<!-- ================================================== -->
+<h2>§9 判断待ち（未決事項）</h2>
+
+<div class="q"><b>Q1. 時代設定マップの縦回転</b> — 本丸提案ですが大工事です。GO / 横時間のまま改善（LODと束だけ入れる）の2案どちらで進めますか？</div>
+<div class="q"><b>Q2. 舞台マップの遠景表示</b> — L0を「数字つきドット」にする案。書影が遠景から見える現状の「にぎやかさ」を残したい場合は、L0だけ主要スポットの書影を数枚残す折衷案もあります。</div>
+<div class="q"><b>Q3. 着工順</b> — 提案はS1→S3（ジャンルページ）→S2→S4。マップの見た目を先に変えたければS1→S2先行もあり。</div>
+
+<p class="note" style="margin-top:40px">
+出典：music-map <code>design/00_要件.md</code>（UI/UXの掟）・<code>design/41_操作仕様.md</code>（体験契約）・kami-map <code>design/70_mobile.md</code>（モバイル定石）・anime-map（背骨・帯を歩く）／現状確認は localhost:3100 実機（2026-07-30）。
+</p>
+
+</div>
+</body>
+</html>

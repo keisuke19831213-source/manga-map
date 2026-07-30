@@ -1,0 +1,293 @@
+{
+  "_note": "英語コンテンツ。空欄・未記載の項目は日本語がそのまま表示される（lib/content-en.ts のフォールバック）。訳せたところから英語になる運用。",
+  "cats": {
+    "roots": {
+      "name": "Roots",
+      "blurb": "From Edo caricature to Tezuka. Where all of it begins."
+    },
+    "shonen": {
+      "name": "Shonen",
+      "blurb": "What the weekly boys' magazines built: effort, friendship, victory — and the dark fantasy that came after."
+    },
+    "shojo": {
+      "name": "Shojo & Josei",
+      "blurb": "The expressive revolution of the Year 24 Group: interiority, romance, BL, josei."
+    },
+    "seinen": {
+      "name": "Seinen",
+      "blurb": "Manga for adults, born out of gekiga. Realism, society, work, science fiction."
+    },
+    "gag": {
+      "name": "Gag & Comedy",
+      "blurb": "The lineage of laughter Akatsuka Fujio systematised — nonsense, absurdism, and the slice-of-life that followed."
+    },
+    "alt": {
+      "name": "Alternative",
+      "blurb": "The experimental spirit of Garo and COM, expanding what manga could do from outside the commercial mainstream."
+    },
+    "digital": {
+      "name": "Digital & New Currents",
+      "blurb": "The shapes manga takes once the web, the smartphone and social media arrive."
+    }
+  },
+  "regions": {
+    "japan": {
+      "name": "Japan"
+    },
+    "asia": {
+      "name": "China & Asia"
+    },
+    "europe": {
+      "name": "Europe"
+    },
+    "world": {
+      "name": "Americas & World"
+    },
+    "future": {
+      "name": "Future & Space"
+    },
+    "fantasy": {
+      "name": "Other Worlds"
+    }
+  },
+  "spots": {
+    "w-versailles": {
+      "place": "France — Paris / Versailles"
+    },
+    "w-rome": {
+      "place": "Italy — Rome"
+    },
+    "w-arles": {
+      "place": "Southern France — Arles"
+    },
+    "w-uk": {
+      "place": "United Kingdom"
+    },
+    "w-nordlingen": {
+      "place": "Germany — Nördlingen"
+    },
+    "w-ny": {
+      "place": "New York"
+    },
+    "w-seoul": {
+      "place": "South Korea — Seoul"
+    },
+    "w-tokyo": {
+      "place": "Japan — Tokyo"
+    },
+    "w-china": {
+      "place": "China — Xianyang (ancient China)"
+    },
+    "w-scandinavia": {
+      "place": "Scandinavia — Denmark"
+    },
+    "w-dusseldorf": {
+      "place": "Germany — Düsseldorf"
+    },
+    "w-macedonia": {
+      "place": "Greece — Macedonia"
+    },
+    "w-grandline": {
+      "place": "The Grand Line (fictional)"
+    },
+    "w-isekai": {
+      "place": "Another world (off the map)"
+    },
+    "j-kozanji": {
+      "place": "Kyoto — Kozan-ji"
+    },
+    "j-otaru": {
+      "place": "Hokkaido — Otaru / Sapporo"
+    },
+    "j-tokachi": {
+      "place": "Hokkaido — Tokachi"
+    },
+    "j-okutama": {
+      "place": "Tokyo — Okutama (Mt. Kumotori)"
+    },
+    "j-saitama": {
+      "place": "Saitama"
+    },
+    "j-gunma": {
+      "place": "Gunma — Mt. Haruna (\"Akina\")"
+    },
+    "j-sendai": {
+      "place": "Miyagi — Sendai"
+    },
+    "j-omi": {
+      "place": "Shiga — Omi Jingu"
+    },
+    "j-tokyo-center": {
+      "place": "Tokyo — central wards"
+    },
+    "j-shitamachi": {
+      "place": "Tokyo — the old downtown"
+    },
+    "j-chofu": {
+      "place": "Tokyo — Chofu / Nerima"
+    },
+    "j-shonan": {
+      "place": "Kanagawa — Shonan"
+    },
+    "j-shimizu": {
+      "place": "Shizuoka — Shimizu"
+    },
+    "j-osaka": {
+      "place": "Osaka — the old downtown"
+    },
+    "j-sakaiminato": {
+      "place": "Tottori — Sakaiminato"
+    },
+    "j-hakata": {
+      "place": "Fukuoka — Hakata"
+    },
+    "j-goto": {
+      "place": "Nagasaki — Goto Islands"
+    }
+  },
+  "genres": {
+    "emaki": {
+      "desc": "The caricature tradition typified by the Choju-jinbutsu-giga scrolls, where movement and comedy are carried by brushed ink lines alone. There are no panels and no speech balloons, so the direct bloodline to modern manga is thin — but as the oldest high point of telling a story through pictures, it is often called manga's ancestor."
+    },
+    "edo_giga": {
+      "desc": "The caricature ordinary people of Edo grew up with: Hokusai Manga, Toba-e, kusazoshi picture books. The word manga here meant a sketch drawn as the hand pleased, quite different from today's sense — but the word, and a public used to reading pictures, both carried into the modern era."
+    },
+    "ponchi": {
+      "desc": "Starting with satirical drawings in magazines like Marumaru Chinbun, Rakuten Kitazawa established manga as a profession and a job title. Together with Ippei Okamoto's illustrated essays, this is where modern Japanese manga starts."
+    },
+    "newspaper": {
+      "desc": "Shochan no Boken and Nonki na Tousan became enormously popular, and the format of a continuing story told in panels with speech balloons settled here. After the war, Sazae-san made the newspaper strip a national institution."
+    },
+    "kodomo": {
+      "desc": "Norakuro and Boken Dankichi in Shonen Club were runaway hits, and a market for children's manga came into being. The shape of the collected-volume business starts here too."
+    },
+    "kamishibai": {
+      "desc": "Street-corner picture-card theatre was a major entertainment for children before and after the war. Shigeru Mizuki, Sanpei Shirato and other future masters of gekiga and horror sharpened their storytelling craft here."
+    },
+    "akahon": {
+      "desc": "Cheap, roughly made manga volumes born in postwar Osaka. Out of that mixed market came the debut of Osamu Tezuka, and manga history began to move."
+    },
+    "story": {
+      "desc": "Tezuka's New Treasure Island hit young readers with cinematic panel-to-panel movement. Story manga — telling a long narrative in comics — became the parent of essentially every genre that follows."
+    },
+    "kashihon": {
+      "desc": "Volumes drawn specifically for rental shops. This was the laboratory for gekiga, horror and shojo alike, and it produced Yoshiharu Tsuge, Kazuo Umezu and Takao Saito."
+    },
+    "gekkan": {
+      "desc": "The era of Manga Shonen and Shonen. Astro Boy and Tetsujin 28-go ran here, and the young artists of Tokiwa-so — Fujiko Fujio, Shotaro Ishinomori, Fujio Akatsuka — grew up in it."
+    },
+    "weekly": {
+      "desc": "In 1959 Shonen Magazine and Shonen Sunday launched on the same day. The weekly serialisation system became the skeleton of the manga industry; Shonen Jump followed in 1968."
+    },
+    "yokai": {
+      "desc": "Shigeru Mizuki, who came up through kamishibai and rental manga, set off a yokai boom with GeGeGe no Kitaro. Together with Umezu's horror, it gave Japanese manga a lasting lineage of the other world."
+    },
+    "spokon": {
+      "desc": "Star of the Giants and Tomorrow's Joe. The gekiga heat that writer Ikki Kajiwara brought in, and the drama of effort and sheer will, became the template for the shonen manga that followed."
+    },
+    "lovecome": {
+      "desc": "Rumiko Takahashi's Urusei Yatsura and Mitsuru Adachi's Touch. They carried shojo manga's way of drawing romance into boys' magazines and built Shonen Sunday's golden decade in the 1980s."
+    },
+    "jump_battle": {
+      "desc": "Dragon Ball, Fist of the North Star, Saint Seiya. Friendship, effort, victory — plus the tournament-arc formula — carried Jump to a peak circulation of 6.53 million copies."
+    },
+    "shonen_mystery": {
+      "desc": "The lineage DEATH NOTE opened up, where the fight is replaced by wits. The particular tension of The Promised Neverland or Kaiji became a new staple of boys' magazines."
+    },
+    "dark_fantasy": {
+      "desc": "After the shock of Attack on Titan, battle manga that faces death and despair head-on — Demon Slayer, Chainsaw Man — moved into the mainstream, and the border with seinen manga dissolved."
+    },
+    "isekai": {
+      "desc": "The reborn-in-another-world boom came out of web-novel sites and exploded once it was drawn as manga. That Time I Got Reincarnated as a Slime and Re:Zero mark the moment web-born work became an industry."
+    },
+    "shojo_dawn": {
+      "desc": "Tezuka's Princess Knight laid out the shape of story manga for girls. Ribon and Nakayoshi launched, and a market for shojo manga stood up."
+    },
+    "kashihon_shojo": {
+      "desc": "Women artists such as Masako Watanabe and Hideko Mizuno came to the front. Across rental books and monthly magazines, shojo manga worked out its grammar — from tears-and-mothers to full-blooded romance."
+    },
+    "year24": {
+      "desc": "Moto Hagio's The Poe Clan, Keiko Takemiya's Kaze to Ki no Uta, Yumiko Oshima. Artists born around 1949 brought interiority, science fiction and boys' love into shojo manga and pushed it to a literary height."
+    },
+    "shojo_romance": {
+      "desc": "The Rose of Versailles, Aim for the Ace!, Glass Mask. Sweeping dramas of fate and passion set against history, sport and the stage became the flagship of girls' magazines."
+    },
+    "bl": {
+      "desc": "The boys' love expression of the Year 24 Group led to the magazine JUNE, and commercial BL imprints were established in the 1990s. It is now a genre born in Japan with a worldwide market."
+    },
+    "ladies": {
+      "desc": "Manga for adult women, born as shojo readers grew up. It drew love, marriage and work with a plain realism, and led on to the josei manga of later decades."
+    },
+    "shojo_horror": {
+      "desc": "Out of the girls'-magazine horror tradition running from Umezu came the dedicated horror magazine Halloween, which produced artists with worldwide cult followings such as Junji Ito."
+    },
+    "battle_bishojo": {
+      "desc": "Sailor Moon connected the structure of the battling hero to shojo manga. The fighting girl became a central image of Japanese pop culture from then on."
+    },
+    "gekiga": {
+      "desc": "Yoshihiro Tatsumi and the Gekiga Kobo group declared themselves against Tezuka's round-lined children's manga. With realistic drawing and adult subjects, they raised the age of the manga reader."
+    },
+    "seinen_mag": {
+      "desc": "Young Comic and Big Comic launched and became the home gekiga needed. Golgo 13 is still running, at a length that belongs in the record books."
+    },
+    "gekiga_jidai": {
+      "desc": "Lone Wolf and Cub, and Hiroshi Hirata's samurai work. The fusion of period drama and gekiga was exported: Lone Wolf and Cub had an enormous influence on American comics artists."
+    },
+    "seinen_sf": {
+      "desc": "Katsuhiro Otomo's AKIRA and Masamune Shirow's Ghost in the Shell. Dense drawing and a sense of the city ending are what made Japanese comics known abroad as MANGA."
+    },
+    "gourmet": {
+      "desc": "Oishinbo invented a way to make food itself the drama. From Cooking Papa to The Solitary Gourmet, it grew into a large genre with no real equivalent elsewhere."
+    },
+    "business": {
+      "desc": "Section Chief Kosaku Shima, Naniwa Kinyudo. Salaryman society, the back rooms of finance — this is where manga established itself as a way to learn how the world works."
+    },
+    "gamble": {
+      "desc": "Nobuyuki Fukumoto's Akagi and Kaiji. Carrying on the gekiga drawing style, it built a genre of its own out of psychological warfare at the limit, held in that famous rustling tension."
+    },
+    "shakai": {
+      "desc": "The Silent Service, Give My Regards to Black Jack, A Minimum Standard of Healthy and Cultured Living. The lineage where manga takes on the work of reporting and long-form journalism."
+    },
+    "akatsuka": {
+      "desc": "Osomatsu-kun and Genius Bakabon. Fujio Akatsuka systematised character-driven gag manga; his catchphrase that this is fine, as it is, was gag manga's declaration of independence."
+    },
+    "nonsense": {
+      "desc": "Gaki Deka and Makaroni Horenso. In the pages of 1970s Shonen Champion, gag accelerated into an age of high tension and release from meaning."
+    },
+    "yonkoma": {
+      "desc": "Out of the newspaper four-panel tradition (Sazae-san, Kobo-chan) came dedicated four-panel magazines such as Manga Time. Its setup-and-punchline form became the soil for slice-of-life."
+    },
+    "fujori": {
+      "desc": "Senshya Yoshida's Utsurun Desu took the four-panel structure apart. It made the word surreal stick in Japanese and came to stand for the subculture sensibility of the 1990s."
+    },
+    "moe_yonkoma": {
+      "desc": "Azumanga Daioh invented the unremarkable everyday life of cute girls. Through K-On! and Yuru Camp, it made a case for the richness of nothing much happening."
+    },
+    "garo": {
+      "desc": "The legendary magazine Garo, founded so that Sanpei Shirato's Kamui-den could run. With work like Tsuge's Neji-shiki, it became the sanctuary for experiment free of commercial pressure."
+    },
+    "com": {
+      "desc": "COM, launched by Tezuka in answer to Garo. Billed as a manga magazine for manga elites, it serialised Phoenix and became a birthplace of manga criticism."
+    },
+    "newwave": {
+      "desc": "The turning point marked by Otomo's arrival. A dry line and cinematic space that belonged to neither gekiga nor Tezuka rebuilt what manga could look like in the 1980s."
+    },
+    "subculture": {
+      "desc": "AX, carrying Garo's genes, plus artists like Nekojiru and Suehiro Maruo. Within 1990s subculture they gathered a devoted cult following."
+    },
+    "essay": {
+      "desc": "My Darling is a Foreigner opened up the genre of telling your own experience in loose, friendly drawing. Parenting, illness, work — manga became a container for non-fiction."
+    },
+    "webcomic": {
+      "desc": "ONE's One Punch Man, which began on a personal website, is the emblem. A place to publish without a publisher became an entrance for talent, and official web magazines such as Ura Sunday followed."
+    },
+    "webtoon": {
+      "desc": "Full-colour vertical-scroll comics, born in Korea and built for the phone. Through Piccoma and LINE Manga they grew fast in Japan too, and now compete and blend with panel-layout culture."
+    },
+    "sns": {
+      "desc": "A Crocodile That Lives 100 Days, born on Twitter, became a social phenomenon. Short one-to-four-page pieces made for sharing, and an unusually short distance between artist and reader."
+    }
+  },
+  "works": {},
+  "timeline": {}
+}
