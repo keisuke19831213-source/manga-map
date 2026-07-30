@@ -5,7 +5,7 @@ import { langFromPath } from "@/lib/i18n";
 import { usePathname } from "next/navigation";
 import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/components/Bubble";
 import { SpoilerGuard, locLabel } from "@/components/WorkPosts";
-import { workTitle } from "@/lib/content-en";
+import { emotionText, workTitle } from "@/lib/content-en";
 import { workById } from "@/lib/data";
 import { emotionOf } from "@/lib/emotions";
 import { useWorks } from "@/lib/useWorks";
@@ -199,7 +199,7 @@ export default function CommunityBoard() {
                   emotion={
                     emo && (
                       <span className="emotion-chip" style={{ borderColor: emo.color, color: emo.color }}>
-                        {emo.emoji} {emo.label}
+                        {emo.emoji} {emotionText(emo.id, "label", emo.label, lang)}
                       </span>
                     )
                   }

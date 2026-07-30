@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { langFromPath, type Lang } from "@/lib/i18n";
+import { emotionText } from "@/lib/content-en";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Bubble, { BUBBLE_OPTIONS, FONT_OPTIONS, PostMeta, fontClass } from "@/components/Bubble";
@@ -18,9 +19,9 @@ function fmtDate(iso: string) {
 }
 
 // ページ/位置/コマの表示(巻は含めない)
-function pageLabel(p: Post): string {
+function pageLabel(p: Post, lang: Lang = "ja"): string {
   if (!p.page) return "";
-  if (p.page.includes("%")) return `位置${p.page}`;
+  if (p.page.includes("%")) return lang === "en" ? `at ${p.page}` : `位置${p.page}`;
   if (/^\d+$/.test(p.page.trim())) return `p.${p.page.trim()}`;
   return p.page;
 }
@@ -29,6 +30,7 @@ function pageLabel(p: Post): string {
 // 投稿UIの文言（日英）。ここで完結するのでローカルに持つ
 const WP = {
   ja: {
+    lang: "ja" as const,
     tabRec: "👍 おすすめ", tabPanel: "💬 コマ語り",
     voicesFor: "この作品を推す声", panelTalk: "コマ語り",
     noneRec: "まだ投稿がありません。最初のおすすめを書いてみませんか?",
@@ -57,6 +59,7 @@ const WP = {
     panelMapSub: "名場面・名ゴマをピンポイントで語る。バーは1冊の読書位置 — ●をタップするとその語りへ飛びます",
   },
   en: {
+    lang: "en" as const,
     tabRec: "👍 Recommend", tabPanel: "💬 Panel talk",
     voicesFor: "Voices for this work", panelTalk: "Panel talk",
     noneRec: "No posts yet. Want to write the first recommendation?",
@@ -89,7 +92,7 @@ const WP = {
 export function locLabel(p: Post, lang: Lang = "ja") {
   const parts: string[] = [];
   if (p.volume) parts.push(lang === "en" ? `Vol.${p.volume}` : `${p.volume}巻`);
-  const pl = pageLabel(p);
+  const pl = pageLabel(p, lang);
   if (pl) parts.push(pl);
   if (p.panel) parts.push(`${p.panel}`);
   return parts.join(" · ");
@@ -332,9 +335,9 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
           <div className="emotion-map-title">{wp.emotions}</div>
           <div className="emotion-bars">
             {emotionTally.map(({ e, n }) => (
-              <a key={e.id} href={`/feels/${e.id}`} className="emotion-bar-row" title={`「${e.label}」で作品を逆引きする`}>
+              <a key={e.id} href={`/feels/${e.id}`} className="emotion-bar-row" title={emotionText(e.id, "label", e.label, wp.lang)}>
                 <span className="eb-label" style={{ color: e.color }}>
-                  {e.emoji} {e.label}
+                  {e.emoji} {emotionText(e.id, "label", e.label, wp.lang)}
                 </span>
                 <span className="eb-track">
                   <span className="eb-fill" style={{ width: `${(n / emotionTally[0].n) * 100}%`, background: e.color }} />
@@ -578,7 +581,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
                   )}
                   {emo && (
                     <span className="emotion-chip" style={{ borderColor: emo.color, color: emo.color }}>
-                      {emo.emoji} {emo.label}
+                      {emo.emoji} {emotionText(emo.id, "label", emo.label, wp.lang)}
                     </span>
                   )}
                   {loc && <span className="talk-pos">📖 {loc}</span>}
@@ -617,7 +620,7 @@ export default function WorkPosts({ workId, workTitle }: { workId: string; workT
                 emotion={
                   emo && (
                     <span className="emotion-chip" style={{ borderColor: emo.color, color: emo.color }}>
-                      {emo.emoji} {emo.label}
+                      {emo.emoji} {emotionText(emo.id, "label", emo.label, wp.lang)}
                     </span>
                   )
                 }
