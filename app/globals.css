@@ -355,6 +355,18 @@ a {
   display: flex;
   gap: 6px;
   overflow-x: auto;
+  /* はみ出しているぶんが「切れた」ではなく「続いている」と見えるように */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.site-nav::-webkit-scrollbar {
+  display: none;
+}
+
+/* ナビの表示名は画面幅で出し分ける（テキストはCSSで切り替え＝JSも再水和も不要） */
+.site-nav .lbl-short {
+  display: none;
 }
 
 .site-nav a {
@@ -2876,7 +2888,8 @@ main {
 /* ================= モバイル調整 ================= */
 @media (max-width: 760px) {
   :root {
-    --header-h: 92px;
+    /* ロゴ+検索の段 + ナビ2段ぶん */
+    --header-h: 124px;
   }
 
   /* ヘッダー: 2段構成(ロゴ+検索 / ナビ横スクロール) */
@@ -2890,6 +2903,30 @@ main {
   .site-logo {
     font-size: 19px;
     order: 0;
+  }
+
+  /* 7つの入口を2段に折り返して全部見せる（横スクロールで隠さない） */
+  .site-nav {
+    order: 2;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 5px;
+    row-gap: 5px;
+  }
+
+  .site-nav a {
+    padding: 4px 10px;
+    font-size: 12.5px;
+    box-shadow: 1.5px 1.5px 0 var(--ink);
+  }
+
+  .site-nav .lbl-full {
+    display: none;
+  }
+
+  .site-nav .lbl-short {
+    display: inline;
   }
 
   .searchbox {
@@ -3840,15 +3877,24 @@ main {
     top: 10px;
     right: 10px;
     max-width: none;
-    padding: 10px 32px 11px 12px;
+    padding: 9px 30px 10px 12px;
   }
 
   .map-intro h1 {
-    font-size: 18px;
+    font-size: 17px;
+    margin-bottom: 3px;
   }
 
   .map-intro p {
     font-size: 11px;
+    line-height: 1.65;
+  }
+
+  /* 時代設定マップは上端の帯バーを隠さない位置に置く（帯名が入口なので） */
+  .map-intro.eras {
+    left: 8px;
+    right: 8px;
+    top: 32px;
   }
 
   /* シートはボトムシートに */
@@ -3898,17 +3944,44 @@ main {
   .map-ctl {
     right: 10px;
     bottom: 10px;
+    gap: 8px;
   }
 
   .map-ctl button {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
   }
 
+  /* ボタンが縦に積まれて画面を食うので、モバイルでは「いまの場所へ」を畳む
+     （「全体」で用が足りる） */
+  .map-ctl button.opt {
+    display: none;
+  }
+
+  /* 道具立ては1行・横スクロール。折り返して地図を食わないようにする */
   .map-toolbar {
     left: 10px;
-    bottom: 10px;
-    max-width: calc(100% - 74px);
+    right: 66px;
+    bottom: 12px;
+    max-width: none;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .map-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .map-toolbar .chip,
+  .map-hint {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .map-hint {
+    font-size: 10px;
   }
 
   .map-voicebar {
@@ -3980,8 +4053,9 @@ main {
   z-index: 11;
   pointer-events: none;
   overflow: hidden;
-  background: linear-gradient(90deg, rgba(255, 253, 244, 0.94) 72%, rgba(255, 253, 244, 0));
-  border-right: 1.5px solid rgba(23, 19, 16, 0.18);
+  background: #fffdf4;
+  border-right: 2px solid var(--ink);
+  box-shadow: 2px 0 6px rgba(23, 19, 16, 0.12);
 }
 
 .era-strata .es-head {
@@ -4008,12 +4082,13 @@ main {
   position: absolute;
   left: 0;
   top: 0;
-  width: 78px;
-  padding: 4px 6px 0 8px;
+  width: 84px;
+  padding: 4px 4px 0 8px;
   font-size: 11px;
   font-weight: 900;
   color: var(--ink);
   line-height: 1.25;
+  white-space: nowrap;
   will-change: transform;
 }
 
@@ -4124,12 +4199,13 @@ main {
 
 @media (max-width: 760px) {
   .era-strata {
-    width: 64px;
+    width: 68px;
   }
 
   .era-strata .es-row {
-    width: 60px;
+    width: 68px;
     font-size: 10px;
+    padding-left: 7px;
   }
 
   .era-mm {

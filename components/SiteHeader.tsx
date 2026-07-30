@@ -27,10 +27,13 @@ export function SiteHeader() {
       <Link href={lp(lang, "/")} className="site-logo">
         MANGA<span>MAP</span>
       </Link>
+      {/* 狭い画面では短縮名に切り替えて、7つの入口すべてが画面に出るようにする
+          （横スクロールで隠れると「どこに何があるか分からない」が起きる） */}
       <nav className="site-nav">
         {NAV.map((n) => (
           <Link key={n.path} href={lp(lang, n.path)}>
-            {t(n.key, lang)}
+            <span className="lbl-full">{t(n.key, lang)}</span>
+            <span className="lbl-short">{t(`${n.key}.s`, lang)}</span>
           </Link>
         ))}
       </nav>

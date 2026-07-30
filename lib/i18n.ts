@@ -36,6 +36,14 @@ const UI: Dict = {
   "nav.history": ["マンガ史年表", "Timeline"],
   "nav.community": ["みんなの投稿", "Community"],
   "nav.about": ["このサイトについて", "About"],
+  // 狭い画面用の短縮名（7つの入口すべてを画面に出すため）
+  "nav.map.s": ["系統図", "Genres"],
+  "nav.atlas.s": ["舞台マップ", "Atlas"],
+  "nav.eras.s": ["時代マップ", "Eras"],
+  "nav.works.s": ["作品図鑑", "Library"],
+  "nav.feels.s": ["感情", "Feeling"],
+  "nav.history.s": ["年表", "Timeline"],
+  "nav.community.s": ["投稿", "Posts"],
   search: ["作品・作者をさがす", "Search works & authors"],
   "lang.toJa": ["日本語", "日本語"],
   "lang.toEn": ["English", "English"],
@@ -109,6 +117,7 @@ const UI: Dict = {
   "eras.outsideTime": ["ここから先は時間軸の外（架空・異世界）", "Beyond here, time no longer applies"],
   "eras.fantasyChip": ["時間外", "No era"],
   "eras.voices": ["読者の声", "Reader voices"],
+  "eras.hintFilterShort": ["帯名タップで地域を絞り込み", "Tap a band name to filter"],
   "eras.hintFilter": [
     "上の帯の名前をタップで地域を絞り込み / ドラッグで時間を旅する",
     "Tap a band name to filter by region / drag to travel through time",

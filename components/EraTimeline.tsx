@@ -88,16 +88,18 @@ const BANDS = (() => {
 const WORLD_W = BANDS[BANDS.length - 1].x0 + BANDS[BANDS.length - 1].w;
 
 // ---- 時代の地層（左端に貼りつく時間の目盛り） ----
-const STRATA: { from: number; to: number; ja: string; en: string }[] = [
-  { from: -1100, to: 0, ja: "紀元前", en: "BCE" },
-  { from: 0, to: 1185, ja: "古代", en: "Antiquity" },
-  { from: 1185, to: 1600, ja: "中世", en: "Middle Ages" },
-  { from: 1600, to: 1868, ja: "江戸", en: "Edo" },
-  { from: 1868, to: 1926, ja: "明治・大正", en: "Meiji–Taisho" },
-  { from: 1926, to: 1989, ja: "昭和", en: "Showa" },
-  { from: 1989, to: 2019, ja: "平成", en: "Heisei" },
-  { from: 2019, to: 2100, ja: "令和〜近未来", en: "Reiwa & near future" },
-  { from: 2100, to: 2400, ja: "時間軸の外", en: "Outside time" },
+// jaS/enS は狭い画面用の短縮名。レールの幅で折り返すと隣の罫線とぶつかるので、
+// 折り返さずに収まる長さを別に持つ。
+const STRATA: { from: number; to: number; ja: string; en: string; jaS: string; enS: string }[] = [
+  { from: -1100, to: 0, ja: "紀元前", en: "BCE", jaS: "紀元前", enS: "BCE" },
+  { from: 0, to: 1185, ja: "古代", en: "Antiquity", jaS: "古代", enS: "Antiq." },
+  { from: 1185, to: 1600, ja: "中世", en: "Middle Ages", jaS: "中世", enS: "Medieval" },
+  { from: 1600, to: 1868, ja: "江戸", en: "Edo", jaS: "江戸", enS: "Edo" },
+  { from: 1868, to: 1926, ja: "明治・大正", en: "Meiji–Taisho", jaS: "明治大正", enS: "Meiji" },
+  { from: 1926, to: 1989, ja: "昭和", en: "Showa", jaS: "昭和", enS: "Showa" },
+  { from: 1989, to: 2019, ja: "平成", en: "Heisei", jaS: "平成", enS: "Heisei" },
+  { from: 2019, to: 2100, ja: "令和〜近未来", en: "Reiwa & near future", jaS: "令和〜", enS: "Reiwa" },
+  { from: 2100, to: 2400, ja: "時間軸の外", en: "Outside time", jaS: "時間外", enS: "No era" },
 ];
 
 const FANTASY_Y = tlY(2125);
@@ -482,6 +484,9 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
     cam.flyTo(b.wx, b.wy, Math.min(9, r * 2.4));
   };
 
+  // 狭い画面では短縮ラベル・短い操作ヒントに切り替える
+  const narrow = cam.vw > 0 && cam.vw < 700;
+
   const selWork = selected ? workById(selected.workId) : null;
   const selRegion = selected ? TL_REGIONS.find((r) => r.id === selected.region) : null;
 
@@ -596,7 +601,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
                 strataRefs.current[i] = el;
               }}
             >
-              {lang === "en" ? s.en : s.ja}
+              {lang === "en" ? (narrow ? s.enS : s.en) : narrow ? s.jaS : s.ja}
             </div>
           ))}
         </div>
@@ -691,7 +696,9 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
               {lang === "ja" ? "だけ表示中" : " only"} ×
             </button>
           ) : (
-            <span className="map-hint">{t("eras.hintFilter", lang)}</span>
+            <span className="map-hint">
+              {t(narrow ? "eras.hintFilterShort" : "eras.hintFilter", lang)}
+            </span>
           )}
         </div>
 
@@ -705,7 +712,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
           <button className="wide" onClick={() => cam.fit()}>
             {t("cam.whole", lang)}
           </button>
-          <button className="wide" onClick={() => cam.home()}>
+          <button className="wide opt" onClick={() => cam.home()}>
             {t("cam.home", lang)}
           </button>
         </div>

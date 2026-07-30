@@ -430,7 +430,9 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
               ≡ {t("atlas.spots", lang)}（{spots.length}）
             </button>
           )}
-          <span className="map-hint">{t("hint.pc", lang)}</span>
+          <span className="map-hint">
+            {t(cam.vw > 0 && cam.vw < 700 ? "hint.touch" : "hint.pc", lang)}
+          </span>
         </div>
 
         <div className="map-ctl">
