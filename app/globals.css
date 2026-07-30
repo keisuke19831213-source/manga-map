@@ -4115,6 +4115,10 @@ main {
   border-bottom: 2px solid var(--ink);
   cursor: pointer;
   white-space: nowrap;
+  /* 帯の幅を超えたぶんは隠す（JSが max-width に帯幅を入れる）＝隣に食い込ませない */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
   will-change: transform;
   transition: opacity 0.15s;
 }
@@ -4217,9 +4221,12 @@ main {
     right: 26px;
   }
 
+  /* 帯の幅が40px弱になるので、2文字の短縮名がちょうど収まる余白にする
+     （余白が広いと「中…」のように省略されてしまう） */
   .era-bandbar .eb-name {
-    font-size: 10.5px;
-    padding: 4px 8px 5px;
+    font-size: 11px;
+    padding: 4px 5px 5px;
+    border-right-width: 1.5px;
   }
 }
 

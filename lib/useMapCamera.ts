@@ -49,9 +49,21 @@ export type CameraOpts = {
   onFrame?: (cam: Cam, r: number) => void;
   /** 動きが止まったとき。画像の差し替えなどReactに反映したいもの用 */
   onSettle?: (cam: Cam, r: number) => void;
+  /**
+   * タップ（＝ほとんど動かずに離した操作）。
+   * click に頼らない理由: 指は必ず数px動くのでドラッグ判定に入り、さらに
+   * setPointerCapture を取るため click がピンに届かない（実機で「何度もタップしないと
+   * 反応しない」の正体）。そこで pointerup の位置から自分で当たり判定する。
+   * el は elementFromPoint の結果。呼び先で closest('[data-tap]') を見る。
+   */
+  onTap?: (el: Element | null, x: number, y: number) => void;
 };
 
 const EASE_OUT = (t: number) => 1 - Math.pow(1 - t, 3);
+/** タップとみなす移動量。指は静止していても数px動くのでマウスより大きく取る */
+const TAP_SLOP = { touch: 14, pen: 10, mouse: 5 } as const;
+/** これより長く押していたらタップ扱いしない */
+const TAP_MS = 600;
 const FRICTION = 0.92; // 慣性の減衰（41_操作仕様 §1）
 const HYST = 0.92; // LOD境界のヒステリシス（行きと帰りで閾値をずらす）
 
@@ -102,6 +114,7 @@ export function useMapCamera(opts: CameraOpts): MapCamera {
     inset,
     onFrame,
     onSettle,
+    onTap,
   } = opts;
 
   const insL = inset?.left ?? 0;
@@ -346,6 +359,7 @@ export function useMapCamera(opts: CameraOpts): MapCamera {
   const capturedRef = useRef(false);
   const lastMove = useRef<{ t: number; x: number; y: number } | null>(null);
   const movedRecently = useRef(false);
+  const tapRef = useRef<{ x: number; y: number; t: number; slop: number } | null>(null);
 
   const capture = (e: React.PointerEvent) => {
     if (capturedRef.current) return;
@@ -368,7 +382,14 @@ export function useMapCamera(opts: CameraOpts): MapCamera {
       dragRef.current = { x: e.clientX, y: e.clientY, tx: c.tx, ty: c.ty, moved: false };
       lastMove.current = { t: performance.now(), x: e.clientX, y: e.clientY };
       movedRecently.current = false;
+      tapRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        t: performance.now(),
+        slop: TAP_SLOP[(e.pointerType as keyof typeof TAP_SLOP) ?? "mouse"] ?? TAP_SLOP.mouse,
+      };
     } else {
+      tapRef.current = null;
       capture(e);
       dragRef.current = null;
       pinchRef.current = null;
@@ -396,7 +417,9 @@ export function useMapCamera(opts: CameraOpts): MapCamera {
     if (!d0) return;
     const dx = e.clientX - d0.x;
     const dy = e.clientY - d0.y;
-    if (!d0.moved && Math.abs(dx) + Math.abs(dy) > 3) {
+    // 動いたと判定するまではキャプチャも取らない（取るとタップがピンに届かなくなる）
+    const slop = tapRef.current?.slop ?? TAP_SLOP.mouse;
+    if (!d0.moved && Math.hypot(dx, dy) > slop) {
       d0.moved = true;
       movedRecently.current = true;
       capture(e);
@@ -419,6 +442,16 @@ export function useMapCamera(opts: CameraOpts): MapCamera {
     pinchRef.current = null;
     const wasDrag = dragRef.current?.moved;
     dragRef.current = null;
+
+    // タップ判定（clickに頼らない）
+    const tp = tapRef.current;
+    tapRef.current = null;
+    if (tp && !wasDrag && onTap) {
+      const moved = Math.hypot(e.clientX - tp.x, e.clientY - tp.y);
+      if (moved <= tp.slop && performance.now() - tp.t <= TAP_MS) {
+        onTap(document.elementFromPoint(e.clientX, e.clientY), e.clientX, e.clientY);
+      }
+    }
     if (pointers.current.size === 0) {
       capturedRef.current = false;
       if (wasDrag && Math.hypot(velRef.current.x, velRef.current.y) > 0.6) startLoop();

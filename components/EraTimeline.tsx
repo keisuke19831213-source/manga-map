@@ -67,13 +67,15 @@ function yToYear(py: number): number {
 
 // ---- 地域帯（左から右）。cols = 帯の中の列数（作品数に応じた幅） ----
 const COL_W = 118;
-const BAND_DEF: { id: string; cols: number }[] = [
-  { id: "japan", cols: 4 },
-  { id: "asia", cols: 2 },
-  { id: "europe", cols: 2 },
-  { id: "world", cols: 2 },
-  { id: "future", cols: 2 },
-  { id: "fantasy", cols: 2 },
+// jaS/enS は狭い画面用の短縮名。スマホでは帯の幅が40px弱になるので、
+// フルの帯名（60〜90px）だと隣の帯へ食い込んで「地域タグが崩れる」ように見える。
+const BAND_DEF: { id: string; cols: number; jaS: string; enS: string }[] = [
+  { id: "japan", cols: 4, jaS: "日本", enS: "JP" },
+  { id: "asia", cols: 2, jaS: "中国", enS: "Asia" },
+  { id: "europe", cols: 2, jaS: "欧州", enS: "EU" },
+  { id: "world", cols: 2, jaS: "世界", enS: "World" },
+  { id: "future", cols: 2, jaS: "未来", enS: "Future" },
+  { id: "fantasy", cols: 2, jaS: "架空", enS: "Other" },
 ];
 
 const BANDS = (() => {
@@ -212,22 +214,28 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
       const y = top < STICK_TOP ? Math.min(STICK_TOP, bottom - 30) : top;
       el.style.transform = `translateY(${y}px)`;
     });
-    // 地域帯の名前: 画面左端に貼りつく（横パンで迷子にならない）
+    // 地域帯の名前: 画面左端に貼りつく（横パンで迷子にならない）。
+    // ラベルは帯の幅を超えないように制限する＝隣の帯に食い込ませない。
+    // 読み（offsetWidth）と書き（style）を分けてレイアウトスラッシングを避ける。
     const vpW = bandHostRef.current?.clientWidth ?? 9999;
-    BANDS.forEach((b, i) => {
+    const plan: { el: HTMLDivElement; x: number; max: number; show: boolean }[] = [];
+    for (let i = 0; i < BANDS.length; i++) {
       const el = bandRefs.current[i];
-      if (!el) return;
+      if (!el) continue;
+      const b = BANDS[i];
       const x0 = b.x0 * k + tx;
       const x1 = (b.x0 + b.w) * k + tx;
-      const wpx = el.offsetWidth || 60;
-      if (x1 <= STICK_LEFT || x0 >= vpW) {
-        el.style.opacity = "0";
-        return;
-      }
-      el.style.opacity = "1";
+      const bandW = Math.max(26, x1 - x0 - 2);
+      const wpx = Math.min(el.offsetWidth || 60, bandW);
+      const show = x1 > STICK_LEFT && x0 < vpW;
       const x = x0 < STICK_LEFT ? Math.min(STICK_LEFT, x1 - wpx) : x0;
-      el.style.transform = `translateX(${x}px)`;
-    });
+      plan.push({ el, x, max: bandW, show });
+    }
+    for (const q of plan) {
+      q.el.style.opacity = q.show ? "1" : "0";
+      q.el.style.maxWidth = `${q.max}px`;
+      if (q.show) q.el.style.transform = `translateX(${q.x}px)`;
+    }
     // 年インジケータ（整数年が変わったときだけ書く）
     const yr = yToYear((-ty + 46) / k);
     if (yr !== lastYear.current && yearRef.current) {
@@ -248,6 +256,23 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
 
   const onSettle = useCallback((cam: Cam) => setCamK(cam.k), []);
 
+  // タップの受け口（clickに頼らない理由は useMapCamera のコメント参照）
+  const tapTargets = useRef(new Map<string, { wx: number; wy: number; members: TimelineEntry[] }>());
+  const pickRef = useRef<(e: TimelineEntry) => void>(() => {});
+  const unbundleRef = useRef<(b: { wx: number; wy: number }) => void>(() => {});
+  const onTap = useCallback((el: Element | null) => {
+    if (!el) return;
+    const hit = el.closest<HTMLElement>("[data-tap]");
+    if (hit) {
+      const b = tapTargets.current.get(hit.dataset.tap ?? "");
+      if (!b) return;
+      if (b.members.length > 1) unbundleRef.current(b);
+      else pickRef.current(b.members[0]);
+      return;
+    }
+    if (el.closest(".mapstage")) setSelected(null);
+  }, []);
+
   const cam = useMapCamera({
     worldW: WORLD_W,
     worldH: TL_H,
@@ -261,6 +286,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
     home: { r: 1, cx: WORLD_W / 2, cy: tlY(1935) },
     onFrame,
     onSettle,
+    onTap,
   });
 
   // ---- URL（?w=workId）----
@@ -481,8 +507,11 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
 
   const unbundle = (b: { wx: number; wy: number }) => {
     const r = (camK || cam.fitK) / (cam.fitK || 1);
-    cam.flyTo(b.wx, b.wy, Math.min(9, r * 2.4));
+    cam.flyTo(b.wx, b.wy, Math.min(9, Math.max(r * 2.4, 2.2)));
   };
+
+  pickRef.current = pick;
+  unbundleRef.current = unbundle;
 
   // 狭い画面では短縮ラベル・短い操作ヒントに切り替える
   const narrow = cam.vw > 0 && cam.vw < 700;
@@ -539,6 +568,12 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
             const isOn = b.members.some((m) => keyOf(m.item) === selKey);
             const title = wk ? workTitle(wk, lang) : "";
             const showName = nameKeep.has(b) || isOn;
+            const tapId = b.members.map((m) => keyOf(m.item)).join("+");
+            tapTargets.current.set(tapId, {
+              wx: b.wx,
+              wy: b.wy,
+              members: b.members.map((m) => m.item),
+            });
             const yearChip =
               head.region === "fantasy"
                 ? t("eras.fantasyChip", lang)
@@ -547,7 +582,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
                   : `${head.year}`;
             return (
               <div
-                key={b.members.map((m) => keyOf(m.item)).join("+")}
+                key={tapId}
                 className={`mp ${many ? "multi" : ""} ${isOn ? "on" : ""} ${showName ? "" : "noname"}`}
                 style={{
                   ["--wx" as string]: b.wx,
@@ -555,16 +590,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
                   ["--pin" as string]: reg?.color,
                 }}
               >
-                <div
-                  className="mp-in"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (cam.didDrag()) return;
-                    if (many) unbundle(b);
-                    else pick(head);
-                  }}
-                  title={`${title} — ${tlLabel(head, lang)}`}
-                >
+                <div className="mp-in" data-tap={tapId} title={`${title} — ${tlLabel(head, lang)}`}>
                   <span className="mp-year" style={{ borderColor: reg?.color, color: reg?.color }}>
                     {yearChip}
                   </span>
@@ -621,7 +647,7 @@ export default function EraTimeline({ lang = "ja" }: { lang?: Lang }) {
                 onClick={() => setFilter(filter === b.id ? null : b.id)}
                 role="button"
               >
-                {reg ? regionName(reg, lang) : b.id}
+                {narrow ? (lang === "en" ? b.enS : b.jaS) : reg ? regionName(reg, lang) : b.id}
               </div>
             );
           })}

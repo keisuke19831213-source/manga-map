@@ -135,6 +135,24 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
   const spots = useMemo(() => spotsOf(mapKind), [mapKind]);
 
   const onSettle = useCallback((cam: { k: number }) => setCamK(cam.k), []);
+
+  // タップの受け口。clickに頼らず、離した位置の要素から自分で解決する
+  // （指は必ず数px動くので、clickだとピンに届かない）
+  const tapTargets = useRef(new Map<string, { wx: number; wy: number; members: MapSpot[] }>());
+  const onTap = useCallback((el: Element | null) => {
+    if (!el) return;
+    const hit = el.closest<HTMLElement>("[data-tap]");
+    if (hit) {
+      const b = tapTargets.current.get(hit.dataset.tap ?? "");
+      if (!b) return;
+      if (b.members.length > 1) unbundleRef.current(b);
+      else pickRef.current(b.members[0]);
+      return;
+    }
+    // 何もない地図の上をタップしたら選択を解く（道具立ての上は無視）
+    if (el.closest(".mapstage")) setSelectedId(null);
+  }, []);
+
   const cam = useMapCamera({
     worldW: w,
     worldH: h,
@@ -142,6 +160,7 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
     maxR: 22,
     lodAt: [1.5, 3.0],
     onSettle,
+    onTap,
   });
 
   // ---- URLから初期状態を読む（?map= と ?spot=）----
@@ -283,6 +302,9 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
     syncUrl(selectedId, mapKind);
   }, [selectedId, mapKind, syncUrl]);
 
+  const pickRef = useRef<(s: MapSpot) => void>(() => {});
+  const unbundleRef = useRef<(b: { wx: number; wy: number }) => void>(() => {});
+
   const pickSpot = (s: MapSpot, fly = true) => {
     setSelectedId(s.id);
     setIntroOpen(false);
@@ -297,8 +319,11 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
 
   const unbundle = (b: { wx: number; wy: number }) => {
     const r = (camK || cam.fitK) / (cam.fitK || 1);
-    cam.flyTo(b.wx, b.wy, Math.min(20, r * 2.6));
+    cam.flyTo(b.wx, b.wy, Math.min(20, Math.max(r * 2.6, 3.2)));
   };
+
+  pickRef.current = pickSpot;
+  unbundleRef.current = unbundle;
 
   // ---- コメントのローテーション（地図の上に被せず、左下の専用枠に置く）----
   const voiceSpots = useMemo(() => {
@@ -365,22 +390,19 @@ export default function AtlasMap({ lang = "ja" }: { lang?: Lang }) {
             const isOn = b.members.some((m) => m.item.id === selectedId);
             const label = row.text;
             const showName = labeled.keep.has(b) || isOn;
+            const tapId = b.members.map((m) => m.item.id).join("+");
+            tapTargets.current.set(tapId, {
+              wx: b.wx,
+              wy: b.wy,
+              members: b.members.map((m) => m.item),
+            });
             return (
               <div
-                key={b.members.map((m) => m.item.id).join("+")}
+                key={tapId}
                 className={`mp ${many ? "multi" : ""} ${isOn ? "on" : ""} ${showName ? "" : "noname"}`}
                 style={{ ["--wx" as string]: b.wx, ["--wy" as string]: b.wy }}
               >
-                <div
-                  className="mp-in"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (cam.didDrag()) return;
-                    if (many) unbundle(b);
-                    else pickSpot(head);
-                  }}
-                  title={label}
-                >
+                <div className="mp-in" data-tap={tapId} title={label}>
                   <div className="mp-body">
                     {cover ? (
                       // eslint-disable-next-line @next/next/no-img-element
