@@ -5,9 +5,16 @@ import { findWork } from "@/lib/user-works";
 import { amazonLink, coverSrc } from "@/lib/affiliate";
 import { readWorkMeta } from "@/lib/meta-server";
 import WorkPosts from "@/components/WorkPosts";
+import VoicesBoard from "@/components/VoicesBoard";
 import Cover, { AmazonButton } from "@/components/Cover";
 import { lp, t, type Lang } from "@/lib/i18n";
 import { magazineName, workDesc, workTitle } from "@/lib/content-en";
+
+// 節目の年(5年刻み)だけ祭りモードでひらく。日付データだけで動くので運用が要らない=腐らない。
+function milestoneYears(startYear: number): number | undefined {
+  const n = new Date().getFullYear() - startYear;
+  return n > 0 && n % 5 === 0 ? n : undefined;
+}
 
 // 作品ページの本体（日英共通）。ページ側は薄いラッパーにして、
 // Next.js の PageProps 制約（ページに余分な props を足せない）を避ける。
@@ -69,6 +76,8 @@ export default async function WorkDetailBody({
       </div>
 
       <WorkPosts workId={work.id} workTitle={workTitle(work, lang)} />
+
+      <VoicesBoard workId={work.id} anniversary={milestoneYears(work.year)} compact />
     </div>
   );
 }

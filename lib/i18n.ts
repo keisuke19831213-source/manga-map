@@ -34,7 +34,7 @@ const UI: Dict = {
   "nav.works": ["作品図鑑", "Library"],
   "nav.feels": ["感情でさがす", "By Feeling"],
   "nav.history": ["マンガ史年表", "Timeline"],
-  "nav.community": ["みんなの投稿", "Community"],
+  "nav.community": ["みんなの声", "Voices"],
   "nav.about": ["このサイトについて", "About"],
   // 狭い画面用の短縮名（7つの入口すべてを画面に出すため）
   "nav.map.s": ["系統図", "Genres"],
@@ -43,7 +43,7 @@ const UI: Dict = {
   "nav.works.s": ["作品図鑑", "Library"],
   "nav.feels.s": ["感情", "Feeling"],
   "nav.history.s": ["年表", "Timeline"],
-  "nav.community.s": ["投稿", "Posts"],
+  "nav.community.s": ["声", "Voices"],
   search: ["作品・作者をさがす", "Search works & authors"],
   "lang.toJa": ["日本語", "日本語"],
   "lang.toEn": ["English", "English"],
@@ -236,7 +236,9 @@ const UI: Dict = {
 
   // ---- みんなの投稿 / コマ語り ----
   "posts.none": ["まだ投稿がありません。", "No posts yet."],
-  "comm.title": ["みんなの投稿", "Community"],
+  "comm.title": ["みんなの声", "Readers' Voices"],
+  "comm.tab.here": ["このサイトの声", "Voices here"],
+  "comm.tab.out": ["よそで生まれた声", "Voices elsewhere"],
   "tree.welcomeBody": [
     "上が1900年、下が現在。ノード(ジャンル)をクリックすると解説と代表作が出ます。線はジャンル同士の影響関係。ドラッグで移動、ホイールで拡大縮小。",
     "1900 at the top, the present at the bottom. Click a node to see its description and key works; the lines are influence between genres. Drag to pan, scroll to zoom.",
@@ -270,8 +272,8 @@ const UI: Dict = {
   ],
   "wtl.plain": ["💬 コマ語り", "💬 Panel talk"],
   "comm.lead": [
-    "全作品へのおすすめとコマ語りが流れるタイムライン。名場面・名ゴマの語りを吹き出しで楽しめます。（投稿は現在、管理人が編集・公開しています）",
-    "A timeline of recommendations and panel-talk across every work, shown in speech balloons. (Posts are currently reviewed and published by the site owner.)",
+    "この作品のどこで心が動いたか。サイトに直接書かれた語りと、X・note・YouTubeで生まれた声を、ひとつの場所に。",
+    "Where this work moved someone. Panel-talk written here, plus voices found on X, note and YouTube — gathered in one place.",
   ],
   "feels.back": ["← 気分をえらびなおす", "← Pick another mood"],
   "feels.detailLead1": ["。ここに並ぶのは、読者が実際に「", ". Everything here is a panel a reader actually recorded as "],
